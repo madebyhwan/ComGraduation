@@ -1,19 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/knuicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="경북대학교 컴퓨터학부 졸업 요건 확인 사이트"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/knuicon.ico" />
-    <title>ComGraduation</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-  </body>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body class="grey-bg">
+    <form class="form-box" action="http://localhost:5001/add" method="POST">
+        <h4>아이디 비번</h4>
+        <input name="id">
+        <input name="password">
+        <button type="submit">전송</button>
+    </form> 
+</body>
 </html>
