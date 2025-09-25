@@ -10,6 +10,4 @@
 ## 2. 시스템 구성 및 기술 스택
 - Frontend: React (Create React App) – `client/`
 - Backend: Node.js + Express – `server/`
-- Database: MongoDB
-
-안녕하세요
+- Database: MongoDB (Mongoose)
