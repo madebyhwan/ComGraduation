@@ -1,27 +1,35 @@
 // 예시 코드
-// const User = require('../models/User'); // 위에서 만든 설계도를 가져옵니다.
-// const bcrypt = require('bcryptjs');
+const User = require('../models/User'); // 위에서 만든 설계도를 가져옵니다.
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
-// exports.registerUser = async (req, res) => {
-//   // 1. 클라이언트가 보낸 데이터를 받습니다 (예: 학번, 비밀번호, 이름).
-//   const { studentId, password, name, email } = req.body;
-
-//   try {
-//     // 2. 비밀번호를 암호화합니다.
-//     const hashedPassword = await bcrypt.hash(password, 10);
-
-//     // 3. 설계도에 따라 새로운 사용자 객체를 만듭니다.
-//     const newUser = new User({
-//       studentId,
-//       password: hashedPassword,
-//       name,
-//       email
-//     });
-
-//     // 4. 데이터베이스에 저장합니다.
-//     await newUser.save();
-//     res.status(201).json({ message: '회원가입이 완료되었습니다.' });
-//   } catch (error) {
-//     res.status(500).json({ error: '회원가입에 실패했습니다.' });
-//   }
-// };
+exports.loginUser = async (req, res) => {
+    // 클라이언트가 보낸 데이터 받기
+    const username = req.body.username;
+    const password = req.body.password;
+    try {
+        // 데이터 베이스 유저 정보에 있는 아이디를 확인
+        const user = await User.db.collection('user').findOne({ username: username });
+        // 만약 아이디가 없으면 없는 아이디라고 response 하기
+        if (!user) return res.status(400).json({ message: '해당하는 아이디를 찾을 수 없어요! 가입하신 거 맞아요?' });
+        // 아이디가 있다면 데이터베이스에 있는 해쉬화 되어있는 비밀번호와 비교
+        // 비밀번호가 다르다면 비밀번호가 틀렸다고 리턴
+        const match = await bcrypt.compare(password, user.USER_PASSWORD)
+        if (!match) return res.status(400).json({ message: '비밀번호가 일치하지 않아요.' });
+        // 비밀번호가 같으면 토큰 발행
+        // .env 파일에 저장된 JWT 시크릿 키를 통해서 토큰 발행
+        const token = jwt.sign(
+            { id: user._id, username: user.username, userId: user.userId },
+            process.env.JWT_SECRET || 'JWT_SECRET_KEY',
+            { expiresIn: '1d' }
+        );
+        // 로그인 성공 시 메세지와 함께 토큰 전송
+        res.json({
+            message: `안녕하세요! ${user.name}님!`,
+            token
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ message: '서버 에러 발생' });
+    }
+}; 
