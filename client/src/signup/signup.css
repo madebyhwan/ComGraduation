@@ -1,0 +1,169 @@
+/* 기본 스타일 */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background-color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 전체 컨테이너 */
+.signup-container {
+    display: flex;
+    align-items: flex-end; /* 캐릭터와 폼 박스 하단 정렬 */
+    gap: 40px; /* 캐릭터와 폼 사이 간격 */
+}
+
+/* --- 왼쪽 캐릭터 섹션 --- */
+.character-section {
+    position: relative;
+    padding-bottom: 20px;
+    left: -50px;
+}
+
+.character-image {
+    height: 300px;
+}
+
+/* 말풍선 스타일 */
+.speech-bubble {
+    width: 200px;
+    background: #ffffff;
+    border: 2px solid #000;
+    border-radius: 50%;
+    padding: 20px;
+    text-align: center;
+    position: absolute;
+    bottom: 350px; /* 캐릭터 머리 위 */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.speech-bubble p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+/* 말풍선 꼬리 */
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 20px;
+    height: 20px;
+    background: #ffffff;
+    border-bottom: 2px solid #000;
+    border-right: 2px solid #000;
+}
+
+
+/* --- 오른쪽 폼 섹션 --- */
+.form-section {
+    background-color: #e0e0e0;
+    border-radius: 30px;
+    padding: 40px;
+    width: 400px;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 24px;
+    font-family: 'Times New Roman', Times, serif;
+    margin: 0 0 30px 0;
+    padding-bottom: 5px;
+    /* Comgraduation 밑줄 스타일 */
+    border-bottom: 1px dotted #c00000;
+    display: inline-block;
+}
+
+.input-group, .button-select-group {
+    margin-bottom: 20px;
+}
+
+.input-group label, .button-select-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.options-box {
+    display: flex;
+    gap: 10px;
+}
+
+.option-btn {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #f0f0f0;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* 선택된 버튼 스타일 */
+.option-btn.selected {
+    background-color: #333;
+    color: white;
+    border-color: #333;
+}
+
+/* 드롭다운 메뉴 스타일 */
+.styled-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    -webkit-appearance: none; /* 기본 화살표 제거 (Chrome, Safari) */
+    -moz-appearance: none;    /* 기본 화살표 제거 (Firefox) */
+    appearance: none;         /* 기본 화살표 제거 */
+    /* 커스텀 화살표 아이콘 추가 */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22/%3E%3C/svg%3E');
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: .65em auto;
+}
+
+/* 폼 제출 버튼 영역 */
+.form-actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background-color: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #0056b3;
+}

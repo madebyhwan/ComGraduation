@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comgraduation 로그인</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body>
+
+    <header class="header-container">
+        <div class="logo-box">
+            <img src="../img/knu-logo.png" alt="KNU Logo">
+        </div>
+        <div class="welcome-message-box">
+            <img class="graduation-cap-icon" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ" alt="Graduation Cap">
+            <strong>Comgraduation</strong>에 오신 것을 환영합니다.
+        </div>
+    </header>
+
+    <main class="main-container">
+        <h1 class="login-title">Login</h1>
+
+        <div class="login-form-box">
+            <form id="loginForm">
+                <div class="input-group">
+                    <label for="username">아이디</label>
+                    <input type="text" id="username">
+                </div>
+
+                <div class="input-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password">
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-login">로그인</button>
+                    <button type="button" class="btn-signup">회원가입</button>
+                    
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script src="login.js"></script>
+
+</body>
+</html>
