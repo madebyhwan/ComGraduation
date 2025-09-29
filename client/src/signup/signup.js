@@ -78,5 +78,5 @@ signupForm.addEventListener('submit', function(event) {
 
     // 6. 결과 확인
     console.log('회원가입 정보:', formData);
-    alert(`${name}님, 회원가입이 요청되었습니다!`);
+    alert(`${name}님, 회원가입이 완료되었습니다!`);
 });
