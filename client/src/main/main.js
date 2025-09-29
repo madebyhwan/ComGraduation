@@ -1,16 +1,16 @@
 // 페이지가 로드되면 실행
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. 로그인 페이지에서 저장한 사용자 이름을 가져오기
-    const username = localStorage.getItem('username');
-    if (username) {
-        document.getElementById('username-display').textContent = username;
+    // [수정] localStorage에서 'displayName'을 가져옴
+    const displayName = localStorage.getItem('displayName');
+    if (displayName) {
+        document.getElementById('username-display').textContent = displayName;
     }
 
     // 2. 로그아웃 버튼 기능
     const logoutButton = document.querySelector('.logout-btn');
     logoutButton.addEventListener('click', function() {
         localStorage.removeItem('username');
-        window.location.href = 'login.html'; 
+        window.location.href = '../login/login.html'; 
     });
 
     // 3. 네비게이션 메뉴 전환 기능 (기존과 동일)
@@ -69,7 +69,7 @@ function setupInfoPageInteractions() {
             // 1. input 필드에서 값 가져오기
             const name = document.getElementById('info-name').value;
             // [수정] studentId -> userId
-            const userId = document.getElementById('info-userId').value;
+            const username = document.getElementById('info-userId').value;
             const password = document.getElementById('info-password').value;
             const counsel = document.getElementById('info-counsel').value;
 
@@ -79,7 +79,7 @@ function setupInfoPageInteractions() {
             const userInfo = {
                 name,
                 // [수정] studentId -> userId
-                userId: userId,
+                username: username,
                 password,
                 major: selectedMajor,
                 tracks: selectedTracks,

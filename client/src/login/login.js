@@ -1,7 +1,7 @@
 // DOM 요소들을 가져옵니다.
 const loginForm = document.getElementById('loginForm');
 // [수정] studentIdInput -> userIdInput
-const userIdInput = document.getElementById('userId');
+const usernameInput = document.getElementById('username');
 const passwordInput = document.getElementById('password');
 
 // '로그인' 버튼 클릭 시 실행될 함수를 연결합니다.
@@ -9,10 +9,10 @@ loginForm.addEventListener('submit', function(event) {
     event.preventDefault();
 
     // [수정] studentId -> userId
-    const userId = userIdInput.value;
+    const username = usernameInput.value;
     const password = passwordInput.value;
 
-    if (!userId) {
+    if (!username) {
         // [수정] 메시지 변경
         alert('아이디를 입력해주세요.');
         return;
@@ -24,7 +24,7 @@ loginForm.addEventListener('submit', function(event) {
     
     console.log('로그인 시도 정보');
     // [수정] '학번' -> '아이디'
-    console.log('아이디:', userId);
+    console.log('아이디:', username);
     console.log('비밀번호:', password);
     
     // 로그인 성공/실패 로직 (id: user, pw: 1234)
