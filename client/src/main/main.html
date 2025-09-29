@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comgraduation 시스템</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <img src="../img/knu-logo.png" alt="KNU Logo">
+            </div>
+            <div class="header-center">
+                <h1>Comgraduation!</h1>
+                <p>경북대학교 컴퓨터학부 졸업 자가 진단 시스템</p>
+            </div>
+            <div class="header-right">
+                <p><strong id="username-display"></strong> 님! 반갑습니다</p>
+                <button class="logout-btn">로그아웃</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <nav class="sidebar">
+                <button class="nav-btn active" data-target="home">Home</button>
+                <button class="nav-btn" data-target="my-info">내 정보</button>
+                <button class="nav-btn" data-target="my-courses">나의 수강 내역</button>
+                <button class="nav-btn" data-target="graduation-check">졸업 자가 진단</button>
+            </nav>
+
+           <section class="content-display">
+    <div id="home" class="content-box">
+        <h2>공지사항</h2>
+        <p>Comgraduation 시스템에 오신 것을 환영합니다.</p>
+    </div>
+
+    <div id="my-info" class="content-box hidden">
+    <h2>내 정보</h2>
+    <div class="info-form">
+        <div class="info-row">
+            <label for="info-userId">아이디</label>
+            <input type="text" id="info-username" value="user">
+        </div>
+        <div class="info-row">
+            <label for="info-studentId">학번</label>
+            <input type="text" id="info-studentId" value="2021123123">
+        </div>
+        <div class="info-row">
+            <label for="info-password">비밀번호</label>
+            <input type="password" id="info-password" value="gildong123">
+        </div>
+        <div class="info-row">
+            <label>전공</label>
+            <div class="tag-group" id="major-tags">
+                <button class="tag-btn selected">글솝</button>
+                <button class="tag-btn">심컴</button>
+                <button class="tag-btn">인캠</button>
+            </div>
+        </div>
+        <div class="info-row">
+            <label>졸업 트랙</label>
+            <div class="tag-group" id="track-tags">
+                <button class="tag-btn selected">다중전공</button>
+                <button class="tag-btn">해외복수학위</button>
+                <button class="tag-btn">학석사연계</button>
+                <button class="tag-btn selected">기타등등</button>
+                <button class="tag-btn">기타</button>
+            </div>
+        </div>
+        <div class="info-row">
+            <label for="info-counsel">지도교수상담</label>
+            <input type="text" id="info-counsel" value="0">
+        </div>
+    </div>
+    <div class="form-actions">
+        <button id="save-info-btn" class="action-btn">내 정보 저장</button>
+    </div>
+</div>
+
+    <div id="my-courses" class="content-box hidden">
+        <h2>나의 수강 내역</h2>
+        <table class="course-table">
+            <thead>
+                <tr>
+                    <th>선택</th>
+                    <th>개설년도</th>
+                    <th>개설학기</th>
+                    <th>교과목명</th>
+                    <th>교과목코드</th>
+                    <th>담당교수</th>
+                    <th>이수학점</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><input type="checkbox" checked></td>
+                    <td>2025</td>
+                    <td>1학기</td>
+                    <td>컴퓨터구조</td>
+                    <td>COMP...</td>
+                    <td>김명석</td>
+                    <td>3</td>
+                </tr>
+                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+                <tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+            </tbody>
+        </table>
+        <div class="form-actions">
+            <button class="action-btn">강의 검색</button>
+            <button class="action-btn">기타 활동 추가</button>
+            <button class="action-btn">삭제</button>
+        </div>
+    </div>
+
+    <div id="graduation-check" class="content-box hidden">
+        <div class="content-header">
+            <h2>나의 졸업 요건 충족 현황</h2>
+            <button class="action-btn-green">진단하기</button>
+        </div>
+        <ul class="status-list">
+            <li>
+                <span>총 이수학점</span>
+                <div class="status-value">
+                    <span class="credit-box">**</span> / 130
+                </div>
+            </li>
+            <li>
+                <span>전공 학점</span>
+                <div class="status-value">
+                    <span class="credit-box">30</span> / 54
+                </div>
+            </li>
+            <li>
+                <span>교양 학점</span>
+                <div class="status-value">
+                    <span class="credit-box">36</span> / 24 ~ 42
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
+        </main>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
