@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comgraduation 회원가입</title>
+    <link rel="stylesheet" href="./signup.css">
+</head>
+<body>
+
+    <div class="signup-container">
+        <div class="character-section">
+            <div class="speech-bubble">
+                <p>아이디를 정확히<br>입력해주세요!</p>
+            </div>
+            <img src="../img/character.png" alt="Mascot Character" class="character-image">
+        </div>
+
+        <div class="form-section">
+            <h1 class="form-title">Comgraduation</h1>
+            <form id="signupForm">
+                <div class="input-group">
+                    <label for="name">이름</label>
+                    <input type="text" id="name">
+                </div>
+                <div class="input-group">
+                    <label for="signupId">아이디</label>
+                    <input type="text" id="signupId">
+                </div>
+                <div class="input-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password">
+                </div>
+                <div class="input-group">
+                    <label for="passwordConfirm">비밀번호 재확인</label>
+                    <input type="password" id="passwordConfirm">
+                </div>
+
+                <div class="button-select-group">
+                    <label>전공</label>
+                    <div class="options-box" id="majorOptions">
+                        <button type="button" class="option-btn">글솝</button>
+                        <button type="button" class="option-btn">플솝</button>
+                        <button type="button" class="option-btn">인컴</button>
+                    </div>
+                </div>
+
+                <div class="button-select-group">
+                    <label>졸업트랙</label>
+                    <div class="options-box" id="trackOptions">
+                        <button type="button" class="option-btn">다중전공</button>
+                        <button type="button" class="option-btn">학석사연계</button>
+                        <button type="button" class="option-btn">해외복수학위</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="signup.js"></script>
+
+</body>
+</html>
