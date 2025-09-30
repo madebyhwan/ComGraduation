@@ -4,17 +4,17 @@ const jwt = require('jsonwebtoken');
 
 exports.loginUser = async (req, res) => {
     // 클라이언트가 보낸 데이터 받기
-    const username = req.body.username;
+    const userId = req.body.userId;
     const password = req.body.userPassword;
     try {
         // 데이터 베이스 유저 정보에 있는 아이디를 확인
-        const user = await User.db.collection('users').findOne({ username: username });
+        const user = await User.db.collection('users').findOne({ userId: userId });
         // 만약 아이디가 없으면 없는 아이디라고 response 하기
-        if (!user) return res.status(400).json({ message: '해당하는 아이디를 찾을 수 없어요! 가입하신 거 맞아요?' });
+        if (!user) return res.status(400).json({ message: '해당하는 아이디를 찾을 수 없습니다' });
         // 아이디가 있다면 데이터베이스에 있는 해쉬화 되어있는 비밀번호와 비교
         // 비밀번호가 다르다면 비밀번호가 틀렸다고 리턴
         const match = await bcrypt.compare(password, user.userPassword)
-        if (!match) return res.status(400).json({ message: '비밀번호가 일치하지 않아요.' });
+        if (!match) return res.status(400).json({ message: '비밀번호가 일치하지 않습니다.' });
         // 비밀번호가 같으면 토큰 발행
         // .env 파일에 저장된 JWT 시크릿 키를 통해서 토큰 발행
         const token = jwt.sign(
