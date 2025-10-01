@@ -22,61 +22,56 @@ function setupOptionSelection(containerId, isMultiSelect = false) {
     });
 }
 
-// '전공'은 단일 선택으로 설정
-setupOptionSelection('majorOptions', false);
-// [수정] '졸업트랙'도 단일 선택(false)으로 변경
-setupOptionSelection('trackOptions', false);
-
+// 전공과 졸업트랙은 단일 선택으로 설정
+setupOptionSelection('userDepartment', false);
+setupOptionSelection('userTrack', false);
 
 // 회원가입 폼 제출 이벤트 처리
 const signupForm = document.getElementById('signupForm');
 signupForm.addEventListener('submit', function(event) {
     event.preventDefault(); // 폼의 기본 제출(새로고침) 동작 방지
 
-    // 1. 입력 필드 값 가져오기
-    const name = document.getElementById('name').value;
-    const username = document.getElementById('signupUsername').value;
-    const password = document.getElementById('password').value;
+    // 입력 필드 값 ID로 가져오기
+    const username = document.getElementById('username').value;
+    const userId = document.getElementById('userId').value;
+    const userPassword = document.getElementById('userPassword').value;
     const passwordConfirm = document.getElementById('passwordConfirm').value;
-    const studentYear = document.getElementById('studentYear').value;
+    const userYear = document.getElementById('userYear').value;
 
-    // 2. 선택된 '전공' 가져오기
-    const selectedMajorElement = document.querySelector('#majorOptions .option-btn.selected');
-    const major = selectedMajorElement ? selectedMajorElement.textContent : '';
+    // 선택된 전공, 졸업트랙 가져오기
+    const selectedMajorElement = document.querySelector('#userDepartment .option-btn.selected'); // 선택된 버튼 값 가져오기
+    const userDepartment = selectedMajorElement ? selectedMajorElement.textContent : ''; // 값이 있는 경우 문자열 저장, 없으면 빈 문자열
+    const selectedTrackElement = document.querySelector('#userTrack .option-btn.selected');
+    const userTrack = selectedTrackElement ? selectedTrackElement.textContent : '';
 
-    // 3. [수정] 선택된 '졸업트랙' 가져오기 (단일 선택 방식)
-    const selectedTrackElement = document.querySelector('#trackOptions .option-btn.selected');
-    const track = selectedTrackElement ? selectedTrackElement.textContent : '';
-
-    // 4. 유효성 검사
-    if (password !== passwordConfirm) {
-        alert('비밀번호가 일치하지 않습니다.');
-        return; // 함수 종료
-    }
-
-    // [추가] 전공 선택 여부 확인
-    if (!major) {
+    // 전공, 졸업트랙 선택 여부 확인
+    if (!userDepartment) {
         alert('전공을 선택해주세요.');
         return; // 함수 종료
     }
-    
-    // [추가] 졸업트랙 선택 여부 확인
-    if (!track) {
+    if (!userTrack) {
         alert('졸업트랙을 선택해주세요.');
         return; // 함수 종료
     }
 
-    // 5. 모든 정보를 객체로 묶기
+    // 비밀번호 일치 검사
+    // !== 연산자는 데이터타입까지 엄격하게 비교(?)
+    if (userPassword !== passwordConfirm) {
+        alert('비밀번호가 일치하지 않습니다.');
+        return; // 함수 종료
+    }
+
+    // 모든 정보를 객체로 묶기
     const formData = {
-        name,
         username,
-        password,
-        studentYear,
-        major,
-        track: track // [수정] tracks 배열 대신 track 단일 값으로 저장
+        userId,
+        userPassword,
+        userYear,
+        userDepartment,
+        userTrack
     };
 
-    // 6. 결과 확인
+    // 결과 확인
     console.log('회원가입 정보:', formData);
-    alert(`${name}님, 회원가입이 완료되었습니다!`);
+    alert(`${username}님, 회원가입이 완료되었습니다!`);
 });

@@ -25,6 +25,7 @@ body, html {
     left: -50px;
 }
 
+/* 캐릭터 이미지 */
 .character-image {
     height: 300px;
 }
@@ -76,11 +77,11 @@ body, html {
 .form-title {
     text-align: center;
     font-size: 24px;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
     margin: 0 0 30px 0;
     padding-bottom: 5px;
     /* Comgraduation 밑줄 스타일 */
-    border-bottom: 1px dotted #c00000;
+    border-bottom: 2px dotted #c00000;
     display: inline-block;
 }
 
@@ -158,12 +159,12 @@ body, html {
     font-size: 18px;
     font-weight: bold;
     color: white;
-    background-color: #007bff;
+    background-color: #c00000;
     border: none;
     border-radius: 5px;
     cursor: pointer;
 }
 
 .submit-btn:hover {
-    background-color: #0056b3;
+    background-color: #c00000b5;
 }

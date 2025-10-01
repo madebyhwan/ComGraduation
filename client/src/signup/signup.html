@@ -9,7 +9,10 @@
 <body>
 
     <div class="signup-container">
-        <div class="character-section">
+        <!-- 웹사이트 전체 블록 -->
+         
+        <div class="character-section"> 
+            <!-- 캐릭터 필드에 대한 데이터 -->
             <div class="speech-bubble">
                 <p>정보는 회원가입 후에도<br>수정이 가능합니다!</p>
             </div>
@@ -17,36 +20,45 @@
         </div>
 
         <div class="form-section">
+            <!-- 폼 필드에 대한 데이터 -->
             <h1 class="form-title">Comgraduation</h1>
             <form id="signupForm">
+                <!-- 폼 시작 -->
                 <div class="input-group">
-                    <label for="name">이름</label>
-                    <input type="text" id="name" required>
+                    <!-- 이름 입력, required는 필수 기입 정보 -->
+                    <label for="username">이름</label>
+                    <input type="text" id="username" required>
                 </div>
                 <div class="input-group">
-                    <label for="signupId">아이디</label>
-                    <input type="text" id="signupUsername" required>
+                    <!-- 아이디 입력 -->
+                    <label for="userId">아이디</label>
+                    <input type="text" id="userId" required>
                 </div>
                 <div class="input-group">
-                    <label for="password">비밀번호</label>
-                    <input type="password" id="password" required>
+                    <!-- 비밀번호 입력 -->
+                    <label for="userPassword">비밀번호</label>
+                    <input type="password" id="userPassword" required>
                 </div>
                 <div class="input-group">
+                    <!-- 비밀번호 확인 -->
                     <label for="passwordConfirm">비밀번호 재확인</label>
                     <input type="password" id="passwordConfirm" required>
                 </div>
 
                 <div class="input-group">
-                    <label for="studentYear">학번</label>
-                    <select id="studentYear" class="styled-select" required>
+                    <!-- 학번 입력, 드랍다운 방식 사용 -->
+                    <label for="userYear">학번</label>
+                    <select id="userYear" class="styled-select" required>
                         <option value="" disabled selected> 학번을 선택하세요</option>
+                        <!-- 학번 추가 시 21학번 아래에 같은 형식으로 추가 -->
                         <option value="21">21학번</option>
                     </select>
                 </div>
 
                 <div class="button-select-group">
+                    <!-- 전공 선택, 버튼 방식 사용 -->
                     <label>전공</label>
-                    <div class="options-box" id="majorOptions">
+                    <div class="options-box" id="userDepartment">
                         <button type="button" class="option-btn">글솝</button>
                         <button type="button" class="option-btn">플솝</button>
                         <button type="button" class="option-btn">인컴</button>
@@ -54,14 +66,16 @@
                 </div>
 
                 <div class="button-select-group">
+                    <!-- 졸업트랙 선택, 버튼 방식 사용 -->
                     <label>졸업트랙</label>
-                    <div class="options-box" id="trackOptions">
+                    <div class="options-box" id="userTrack">
                         <button type="button" class="option-btn">다중전공</button>
                         <button type="button" class="option-btn">학석사연계</button>
                         <button type="button" class="option-btn">해외복수학위</button>
                     </div>
                 </div>
                 <div class="form-actions">
+                    <!-- 회원가입 완료 버튼, 클릭 시 폼 제출 -->
                     <button type="submit" class="submit-btn">회원가입</button>
                 </div>
             </form>
