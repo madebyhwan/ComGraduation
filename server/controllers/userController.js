@@ -1,35 +1,35 @@
-const User = require('../models/users'); // 위에서 만든 설계도를 가져옵니다.
+const User = require('../models/users');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 exports.loginUser = async (req, res) => {
-    // 클라이언트가 보낸 데이터 받기
     const userId = req.body.userId;
     const password = req.body.userPassword;
     try {
-        // 데이터 베이스 유저 정보에 있는 아이디를 확인
-        const user = await User.db.collection('users').findOne({ userId: userId });
-        // 만약 아이디가 없으면 없는 아이디라고 response 하기
+        // 해당 아이디 유저 정보 찾기
+        const user = await User.findOne({ userId: userId });
+
+        // 아이디 확인
         if (!user) return res.status(400).json({ message: '해당하는 아이디를 찾을 수 없습니다' });
-        // 아이디가 있다면 데이터베이스에 있는 해쉬화 되어있는 비밀번호와 비교
-        // 비밀번호가 다르다면 비밀번호가 틀렸다고 리턴
+
+        // 비밀번호 확인
         const match = await bcrypt.compare(password, user.userPassword)
         if (!match) return res.status(400).json({ message: '비밀번호가 일치하지 않습니다.' });
-        // 비밀번호가 같으면 토큰 발행
-        // .env 파일에 저장된 JWT 시크릿 키를 통해서 토큰 발행
+
+        // 토큰 발행
         const token = jwt.sign(
             { id: user._id, username: user.username, userId: user.userId },
             process.env.JWT_SECRET || 'JWT_SECRET_KEY',
             { expiresIn: '1d' }
         );
         
-        // 로그인 성공 시 메세지와 함께 토큰 전송
+        // 토큰 전송
         res.json({
             message: `안녕하세요! ${user.username}님!`,
             token
         });
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        // console.log(error);
         res.status(500).json({ message: '서버 에러 발생' });
     }
 }; 
@@ -64,7 +64,7 @@ exports.registerUser = async (req, res) => {
     // 상태메시지
     res.status(201).json({ message: '회원가입이 완료되었습니다.', user: newUser});
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     res.status(500).json({ error: '회원가입에 실패했습니다.' });
   }
 };

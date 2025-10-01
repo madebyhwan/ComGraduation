@@ -11,8 +11,10 @@ const userRoutes = require('./routes/userRoutes');
 const lectureRoutes = require('./routes/lectureRoutes');
 
 const app = express();
-connectDB();  // DB 연결
+// DB 연결
+connectDB();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

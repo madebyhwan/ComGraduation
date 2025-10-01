@@ -40,4 +40,4 @@ const lecturesSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model('lectures', lecturesSchema, 'lectures');
+module.exports = mongoose.model('Lecture', lecturesSchema);
