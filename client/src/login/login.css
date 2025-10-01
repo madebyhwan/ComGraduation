@@ -102,10 +102,18 @@ body, html {
     margin-bottom: 10px; /* 회원가입 버튼과의 여백 */
 }
 
+.btn-login:hover {
+    background-color: #e30000;
+}
+
 /* 회원가입 버튼 */
 .btn-signup {
     background-color: #d9d9d9;
     color: #595959;
     border-width: 1px;
     border-color: #b7b7b7; /* 이미지와 동일한 테두리 색 */
+}
+
+.btn-signup:hover {
+    background-color: #ebebeb;
 }
