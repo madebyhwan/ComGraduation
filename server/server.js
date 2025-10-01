@@ -1,37 +1,31 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ObjectId } = require('mongodb')
+
+// DB
+const dotenv = require('dotenv');
+const mongoose = require('mongoose');
+const connectDB = require('./config/dbConnect');
+
+// Routes
+const userRoutes = require('./routes/userRoutes');
+const lectureRoutes = require('./routes/lectureRoutes');
 
 const app = express();
-const PORT = 5001; // 포트를 5001로 변경
-const MONGO_URI='mongodb+srv://admin:twenty-one@comgraduation.sjpeesm.mongodb.net/?retryWrites=true&w=majority&appName=ComGraduation';
+// DB 연결
+connectDB();
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-new MongoClient(MONGO_URI).connect(MONGO_URI).then((client)=>{
-  console.log('DB연결성공')
-  db = client.db('ComGraduation')
-  app.listen(PORT, () => {
-    console.log('http://localhost:5001 에서 서버 실행 중')
-})
-}).catch((err)=>{
-  console.log(err)
-})
+// Routes 설정: 해당 URL로 요청이 오면 각 route로 전달
+// 프론트 쪽에서 오는 /api/xxx -> 형태는 여기서 정의하면 될 듯
+app.use('/api/users', userRoutes);
+app.use('/api/lectures', lectureRoutes);
 
-app.post('/add', async (요청, 응답) => {
-    console.log(요청.body)
-    await db.collection('USER').insertOne(요청.body)
-})
-
-/* 준기 코드
-app.get('/', (req, res) => {
-    console.log('루트 경로에 GET 요청이 들어왔습니다.');
-  res.json({ message: '서버가 정상적으로 작동 중입니다!' });
-});
+const PORT = process.env.PORT || 9000;
 
 app.listen(PORT, () => {
-  console.log(`서버가 포트 ${PORT}에서 작동 중입니다.`);
+  console.log(`서버가 ${PORT}에서 실행 중입니다.`);
 });
-*/
