@@ -30,9 +30,14 @@
                     <input type="text" id="username" required>
                 </div>
                 <div class="input-group">
-                    <!-- 아이디 입력 -->
-                    <label for="userId">아이디</label>
-                    <input type="text" id="userId" required>
+                    <div class="label-group">
+                        <label for="userId">아이디</label>
+                        <span id="username-check-result" class="check-result-msg"></span>
+                    </div>
+                    <div class="input-with-button">
+                        <input type="text" id="userId" required >
+                        <button type="button" id="check-username-btn">중복확인</button>
+                    </div>
                 </div>
                 <div class="input-group">
                     <!-- 비밀번호 입력 -->

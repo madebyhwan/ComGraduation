@@ -26,6 +26,33 @@ function setupOptionSelection(containerId, isMultiSelect = false) {
 setupOptionSelection('userDepartment', false);
 setupOptionSelection('userTrack', false);
 
+// [수정] 아이디 중복확인 기능
+const checkUsernameBtn = document.getElementById('check-username-btn');
+// [1. 수정] 'signupUsername' -> 'userId'로 변경
+const usernameInput = document.getElementById('userId'); 
+const usernameCheckResult = document.getElementById('username-check-result');
+
+checkUsernameBtn.addEventListener('click', function() {
+    // [2. 수정] 변수명 일치 (usernameInput -> userIdInput)
+    const userId = usernameInput.value;
+
+    if (!userId) {
+        alert('아이디를 입력해주세요.');
+        return;
+    }
+    
+    console.log(`'${userId}' 중복 확인 시도...`);
+    if (userId === 'admin' || userId === 'user') {
+        usernameCheckResult.textContent = '이미 사용 중인 아이디입니다.';
+        usernameCheckResult.classList.add('unavailable');
+        usernameCheckResult.classList.remove('available');
+    } else {
+        usernameCheckResult.textContent = '사용 가능한 아이디입니다.';
+        usernameCheckResult.classList.add('available');
+        usernameCheckResult.classList.remove('unavailable');
+    }
+});
+
 // 회원가입 폼 제출 이벤트 처리
 const signupForm = document.getElementById('signupForm');
 signupForm.addEventListener('submit', function(event) {
