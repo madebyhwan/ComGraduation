@@ -11,3 +11,11 @@
 - Frontend: React (Create React App) – `client/`
 - Backend: Node.js + Express – `server/`
 - Database: MongoDB (Mongoose)
+
+## 프론트엔드 해야할 일
+[login]
+로그인, 회원가입 UI 통일
+버튼 마우스 호버 시 색 변환
+
+[signup]
+회원가입 버튼 마우스 호버 시 색 진하게
