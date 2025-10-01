@@ -1,19 +1,209 @@
-body, html { margin:0; padding:0; font-family:'Malgun Gothic','맑은 고딕',sans-serif; }
-.signup-container { display:flex; align-items:flex-end; gap:40px; justify-content:center; padding:40px 20px; }
-.character-section { position:relative; padding-bottom:20px; left:-50px; }
-.character-image { height:300px; }
-.speech-bubble { width:200px; background:#fff; border:2px solid #000; border-radius:50%; padding:20px; text-align:center; position:absolute; bottom:350px; left:50%; transform:translateX(-50%); }
-.speech-bubble p { margin:0; font-size:18px; font-weight:bold; line-height:1.5; }
-.speech-bubble::after { content:''; position:absolute; bottom:-15px; left:50%; transform:translateX(-50%) rotate(45deg); width:20px; height:20px; background:#fff; border-bottom:2px solid #000; border-right:2px solid #000; }
-.form-section { background:#e0e0e0; border-radius:30px; padding:40px; width:400px; }
-.form-title { text-align:center; font-size:24px; font-family:'Times New Roman',Times,serif; margin:0 0 30px 0; padding-bottom:5px; border-bottom:1px dotted #c00000; display:inline-block; }
-.input-group, .button-select-group { margin-bottom:20px; }
-.input-group label, .button-select-group label { display:block; margin-bottom:8px; font-weight:bold; font-size:14px; color:#333; }
-.input-group input { width:100%; padding:12px; border:1px solid #555; border-radius:5px; font-size:16px; box-sizing:border-box; }
-.options-box { display:flex; gap:10px; }
-.option-btn { flex-grow:1; padding:10px; font-size:14px; font-weight:bold; background:#f0f0f0; border:1px solid #aaa; border-radius:5px; cursor:pointer; }
-.option-btn.selected { background:#333; color:#fff; border-color:#333; }
-.styled-select { width:100%; padding:12px; border:1px solid #555; border-radius:5px; font-size:16px; box-sizing:border-box; appearance:none; background-repeat:no-repeat; background-position:right 15px center; }
-.form-actions { margin-top:30px; text-align:center; }
-.submit-btn { width:100%; padding:14px; font-size:18px; font-weight:bold; color:#fff; background:#007bff; border:none; border-radius:5px; cursor:pointer; }
-.submit-btn:hover { background:#0056b3; }
+body,
+html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+}
+
+.signup-container {
+    display: flex;
+    align-items: flex-end;
+    gap: 40px;
+    justify-content: center;
+    padding: 40px 20px;
+    background-color: #ffffff;
+}
+
+.character-section {
+    position: relative;
+    padding-bottom: 20px;
+    left: -50px;
+}
+
+.character-image {
+    height: 300px;
+}
+
+.speech-bubble {
+    width: 200px;
+    background: #fff;
+    border: 2px solid #000;
+    border-radius: 50%;
+    padding: 20px;
+    text-align: center;
+    position: absolute;
+    bottom: 350px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.speech-bubble p {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1.5;
+}
+
+.speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-bottom: 2px solid #000;
+    border-right: 2px solid #000;
+}
+
+.form-section {
+    background: #e0e0e0;
+    border-radius: 30px;
+    padding: 40px;
+    width: 400px;
+}
+
+.form-title {
+    text-align: center;
+    font-size: 24px;
+    font-family: 'Times New Roman', Times, serif;
+    margin: 0 0 30px 0;
+    padding-bottom: 5px;
+    border-bottom: 1px dotted #c00000;
+    display: inline-block;
+}
+
+.input-group,
+.button-select-group {
+    margin-bottom: 20px;
+}
+
+.input-group label,
+.button-select-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    color: #333;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.options-box {
+    display: flex;
+    gap: 10px;
+}
+
+.option-btn {
+    flex-grow: 1;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    background: #f0f0f0;
+    border: 1px solid #aaa;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.option-btn.selected {
+    background: #333;
+    color: #fff;
+    border-color: #333;
+}
+
+.styled-select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #555;
+    border-radius: 5px;
+    font-size: 16px;
+    box-sizing: border-box;
+    appearance: none;
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+}
+
+.form-actions {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.submit-btn {
+    width: 100%;
+    padding: 14px;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    background: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background: #0056b3;
+}
+
+/* =================================== */
+/* 아이디 중복확인 관련 스타일 (추가) */
+/* =================================== */
+
+/* 라벨과 결과 메시지를 묶는 그룹 */
+.label-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    /* label-group은 .input-group 내부에 있으므로, margin-bottom은 .input-group의 것을 사용 */
+}
+
+/* 결과 메시지 기본 스타일 */
+.check-result-msg {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* 사용 가능 메시지 (파랑색) */
+.check-result-msg.available {
+    color: #007bff;
+}
+
+/* 사용 불가 메시지 (빨강색) */
+.check-result-msg.unavailable {
+    color: #dc3545;
+}
+
+/* 입력창과 버튼을 묶는 그룹 */
+.input-with-button {
+    display: flex;
+    gap: 10px; /* 입력창과 버튼 사이 간격 */
+}
+
+/* 그룹 내의 input은 남는 공간을 모두 차지 */
+.input-with-button input {
+    flex-grow: 1;
+}
+
+/* 중복확인 버튼 스타일 */
+#check-username-btn {
+    padding: 0 15px; /* 좌우 패딩 */
+    flex-shrink: 0; /* 버튼 크기가 줄어들지 않도록 설정 */
+    font-size: 14px;
+    font-weight: bold;
+    border: 1px solid #aaa;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#check-username-btn:hover {
+    background-color: #e0e0e0;
+}

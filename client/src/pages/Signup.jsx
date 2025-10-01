@@ -18,8 +18,29 @@ function Signup() {
   const [loading, setLoading] = useState(false);
 
   const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+  const [idCheck, setIdCheck] = useState({ message: '', status: '' });
 
   const selectSingle = (k, value) => update(k, value === form[k] ? '' : value);
+
+  // [추가] 아이디 중복 확인 버튼 클릭 시 실행될 함수
+  const onCheckId = () => {
+    // UI 테스트를 위한 시뮬레이션 (실제로는 여기서 API 호출)
+    if (!form.userId) {
+      return alert('아이디를 입력해주세요.');
+    }
+    // 'admin', 'user'는 이미 사용 중인 아이디로 가정
+    if (['admin', 'user'].includes(form.userId)) {
+      setIdCheck({
+        message: '이미 사용 중인 아이디입니다.',
+        status: 'unavailable' // CSS 클래스명
+      });
+    } else {
+      setIdCheck({
+        message: '사용 가능한 아이디입니다.',
+        status: 'available' // CSS 클래스명
+      });
+    }
+  };
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -52,7 +73,7 @@ function Signup() {
   // userTrack enum: ['심컴', '다중전공', '해외복수학위', '학석사연계']
   const yearOptions = ['21학번'];
   const departmentOptions = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
-  const trackOptions = ['심컴', '다중전공', '해외복수학위', '학석사연계'];
+  const trackOptions = ['없음(심컴)', '다중전공', '해외복수학위', '학석사연계'];
 
   return (
     <div className="signup-container">
@@ -69,10 +90,20 @@ function Signup() {
             <label htmlFor="username">이름</label>
             <input id="username" value={form.username} onChange={e => update('username', e.target.value)} required />
           </div>
-          <div className="input-group">
-            <label htmlFor="userId">아이디</label>
-            <input id="userId" value={form.userId} onChange={e => update('userId', e.target.value)} required />
+          
+      <div className="input-group">
+            <div className="label-group">
+              <label htmlFor="userId">아이디</label>
+              <span className={`check-result-msg ${idCheck.status}`}>
+                {idCheck.message}
+              </span>
+            </div>
+            <div className="input-with-button">
+              <input id="userId" value={form.userId} onChange={e => update('userId', e.target.value)} required />
+              <button type="button" onClick={onCheckId} id="check-username-btn">중복확인</button>
+            </div>
           </div>
+
           <div className="input-group">
             <label htmlFor="password">비밀번호</label>
             <input id="password" type="password" value={form.userPassword} onChange={e => update('userPassword', e.target.value)} required />
