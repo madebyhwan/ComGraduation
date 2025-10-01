@@ -29,7 +29,7 @@ const lecturesSchema = new mongoose.Schema({
     type: String,
     enum: ['1학기', '2학기', '계절학기(하계)', '계절학기(동계)']
   },
-  lectProf:{
+  lectProfessor:{
     type: String,
     trim: true
   },
