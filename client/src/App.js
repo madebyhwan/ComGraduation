@@ -1,28 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import './App.css';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Main from './pages/Main';
+import ProtectedRoute from './components/ProtectedRoute';
 
-function App() {
-  const [message, setMessage] = useState('서버로부터 메시지를 기다리는 중...');
-  
-  useEffect(() => {
-    fetch('http://localhost:5001')
-      .then(response => response.json())
-      .then(data => setMessage(data.message))
-      .catch(error => setMessage('서버와의 연결에 실패했습니다.'));
-  }
-  , []); 
-  
+function AppRouter() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <h1>Hello ComGraduation!</h1>
-      </header>
-      {/* 서버 상태 메시지를 화면 고정 위치에 표시 */}
-      <div className="server-status" role="status" aria-live="polite">
-        {message}
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+  <Route path="/" element={<Login />} />
+  <Route path="/signup" element={<Signup />} />
+  <Route path="/app" element={<ProtectedRoute><Main /></ProtectedRoute>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-export default App;
+export default AppRouter;
