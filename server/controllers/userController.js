@@ -20,7 +20,7 @@ exports.loginUser = async (req, res) => {
         // 토큰 발행
         const token = jwt.sign(
             { id: user._id, username: user.username, userId: user.userId },
-            process.env.JWT_SECRET || 'JWT_SECRET_KEY',
+            process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY',
             { expiresIn: '1d' }
         );
         
@@ -73,7 +73,7 @@ exports.registerUser = async (req, res) => {
 exports.addUnivLecture = async (req, res) => {
   const { lectureId } = req.body;
   const userId = req.user.id;
-  
+
   if (!lectureId) {
     return res.status(400).json(error);
   }
