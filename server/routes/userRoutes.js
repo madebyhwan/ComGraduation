@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const authenticateToken = require('../middleware/auth');
 
 // controller에서 정의한 함수
 const {
@@ -15,6 +16,6 @@ router.post('/register', registerUser);
 router.post('/login', loginUser);
 
 // 강의계획서 강의 추가 
-router.post('/addUnivLect', addUnivLecture);
+router.post('/addUnivLect', authenticateToken, addUnivLecture);
 
 module.exports = router;
