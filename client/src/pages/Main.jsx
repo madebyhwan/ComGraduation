@@ -114,8 +114,8 @@ function Main() {
             <div className="content-box">
               <h2>내 정보</h2>
               <div className="info-form">
-                <div className="info-row"><label>아이디</label><input value={info.userId} readOnly /></div>
-                <div className="info-row"><label>이름</label><input value={info.username} readOnly /></div>
+                <div className="info-row"><label>아이디</label><input value={info.userId} onChange={e => updateInfo('userId', e.target.value)} /></div>
+                <div className="info-row"><label>이름</label><input value={info.username} onChange={e => updateInfo('username', e.target.value)} /></div>
                 <div className="info-row"><label>전공</label>
                   <div className="tag-group" id="department-tags">
                     {['글로벌SW융합전공','심화컴퓨터공학전공'].map(dep => (
@@ -180,7 +180,7 @@ function Main() {
                   </div>
                 </div>
 
-                <div className="info-row"><label>지도교수상담</label><input value={info.counsel} readOnly /></div>
+                <div className="info-row"><label>지도교수상담</label><input value={info.counsel} onChange={e => updateInfo('counsel', e.target.value)} /></div>
               </div>
               <div className="form-actions"><button id="save-info-btn" className="action-btn" onClick={saveInfo}>내 정보 저장</button></div>
             </div>
