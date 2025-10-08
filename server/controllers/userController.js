@@ -1,8 +1,74 @@
 const User = require('../models/users');
+const Lecture = require('../models/lectures');
+const CustomLecture = require('../models/customLectures');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const graduationService = require('../services/graduationService');
+
+// 유저의 강의 목록을 통합된 형태로 반환하는 함수
+// exports.getLecture의 사실상 본체
+async function lectureList(userId) {
+  try {
+    const user = await User.findById(userId)
+      .populate({
+        path: 'userCustomLectures',
+        select: 'lectName lectCredit'
+      })
+      .populate({
+        path: 'userLectures',
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor'
+      });
+
+    const custom = (user.userCustomLectures || []).map(cl => ({
+      lectName: cl?.lectName ?? null,
+      lectCode: null,
+      lectDiv: null,
+      lectCredit: cl?.lectCredit ?? null,
+      lectYear: null,
+      lectSemester: null,
+      lectProfessor: null
+    }));
+
+    const univ = (user.userLectures || []).map(l => ({
+      lectName: l?.lectName ?? null,
+      lectCode: l?.lectCode ?? null,
+      lectDiv: l?.lectDiv ?? null,
+      lectCredit: l?.lectCredit ?? null,
+      lectYear: l?.lectYear ?? null,
+      lectSemester: l?.lectSemester ?? null,
+      lectProfessor: l?.lectProfessor ?? null
+    })).sort((a, b) => {
+      // 1순위: lectYear (오름차순)
+      if (a.lectYear !== b.lectYear) {
+        return (a.lectYear || 0) - (b.lectYear || 0);
+      }
+      
+      // 2순위: lectSemester (1학기 → 계절학기(하계) → 2학기 → 계절학기(동계))
+      if (a.lectSemester !== b.lectSemester) {
+        const semesterOrder = {
+          '1학기': 1,
+          '계절학기(하계)': 2,
+          '2학기': 3,
+          '계절학기(동계)': 4
+        };
+        const aOrder = semesterOrder[a.lectSemester] || 999;
+        const bOrder = semesterOrder[b.lectSemester] || 999;
+        return aOrder - bOrder;
+      }
+      
+      // 3순위: lectName (사전순)
+      return (a.lectName || '').localeCompare(b.lectName || '');
+    });
+
+    if (!user) return null;
+
+    return [...custom, ...univ];
+  } catch (error) {
+    console.error('lectureList error:', error);
+    throw error;
+  }
+}
 
 exports.loginUser = async (req, res) => {
   const userId = req.body.userId;
@@ -95,7 +161,7 @@ exports.addUnivLecture = async (req, res) => {
   const userId = req.user.id;
 
   if (!lectureId) {
-    return res.status(400).json(error);
+    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
   }
 
   try {
@@ -116,7 +182,7 @@ exports.addUnivLecture = async (req, res) => {
     await user.save();
     res.status(200).json({
       message: '강의가 성공적으로 추가되었습니다.',
-      data: user.userLectures
+      lectInfo: lecture.toJSON()
     });
 
   } catch (error) {
@@ -201,4 +267,52 @@ exports.checkGraduation = async (req, res) => {
     console.error("졸업요건 확인 중 오류 발생:", error);
     res.status(500).json({ message: "서버 내부 오류가 발생했습니다.", error: error.message });
   }
-}
+};
+
+exports.addCustomLecture = async (req, res) => {
+  const { lectName, lectCredit, lectType } = req.body;
+  const userId = req.user.id;
+
+  if (!lectName || !lectCredit || !lectType) {
+    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+  }
+
+  try { 
+    const user = await User.findById(userId); 
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    const newCustomLecture = await CustomLecture.create({
+      userObjectId: user._id,
+      lectName,
+      lectCredit,
+      lectType
+    });
+    user.userCustomLectures.push(newCustomLecture._id);
+    await user.save();
+
+    // status: 201 리소스 생성을 의미
+    res.status(201).json({
+      message: '강의가 성공적으로 추가되었습니다.',
+      lectInfo: newCustomLecture.toJSON()
+    });
+    } catch (error) {
+      console.error('강의 추가 중 오류 발생:', error);
+      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+exports.getLecture = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const data = await lectureList(userId);
+    if(!data)
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    else
+      return res.status(200).json({ data });
+  } catch (error) {
+    console.error('강의 불러오는 중 오류 발생:', error);
+    return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};

@@ -33,32 +33,12 @@ const usersSchema = new mongoose.Schema({
   },
   userLectures:[{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'lectures'
+    ref: 'Lecture'
   }],
   userCustomLectures:[{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'customLectures'
-  }],
-  counselingCount: { // 상담 횟수
-    type: Number,
-    default: 0
-  },
-  toeicScore: { // 영어 성적 (TOEIC)
-    type: Number,
-    default: 0
-  },
-  passedTopcit: { // TOPCIT 통과 여부
-    type: Boolean,
-    default: false
-  },
-  passedInterview: { // 졸업 인터뷰 통과 여부
-    type: Boolean,
-    default: false
-  },
-  hasFoundedStartup: { // 스타트업 창업 경험 여부
-    type: Boolean,
-    default: false
-  }
+    ref: 'CustomLecture'
+  }]
 }, {
   timestamps: true
 });
