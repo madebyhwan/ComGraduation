@@ -5,7 +5,8 @@ const authenticateToken = require('../middleware/auth');
 const {
   registerUser, loginUser,
   addUnivLecture,
-  checkIdDuplication
+  checkIdDuplication,
+  checkGraduation
 } = require('../controllers/userController');
 
 // '/api/users' 경로에 대한 라우트 설정
@@ -21,5 +22,8 @@ router.get('/checkId', checkIdDuplication);
 
 // 강의계획서 강의 추가 
 router.post('/addUnivLect', authenticateToken, addUnivLecture);
+
+// 졸업요건 확인 경로 추가
+router.get('/graduation', authenticateToken, checkGraduation);
 
 module.exports = router;
