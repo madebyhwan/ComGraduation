@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../img/knu-logo.png';
-import api from '../api/api'
 import { decodeJWT } from '../api/http';
+import api from '../api/api'
 
 function Login() {
   const navigate = useNavigate();

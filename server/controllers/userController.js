@@ -40,7 +40,7 @@ exports.registerUser = async (req, res) => {
 
   try {
     if (!userId || !userYear || !userPassword || !username || !userDepartment || !userTrack) {
-    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+      return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
     }
     
     // ID 중복검사
@@ -69,6 +69,25 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ error: '회원가입에 실패했습니다.' });
   }
 };
+
+exports.checkIdDuplication = async (req, res) => {
+  const  { userId } = req.query;
+
+  try {
+    const existingUser = await User.findOne({ userId: userId });
+
+    if (existingUser) {
+        // 1. 중복된 경우: 409 상태 코드와 함께 { isAvailable: false } 전송
+        return res.status(409).json({ isAvailable: false });
+    }
+
+    // 2. 사용 가능한 경우: 200 상태 코드와 함께 { isAvailable: true } 전송
+    res.status(200).json({ isAvailable: true });
+  } catch (error) {
+    console.error('아이디 중복 확인 중 오류:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+}
 
 exports.addUnivLecture = async (req, res) => {
   const { lectureId } = req.body;

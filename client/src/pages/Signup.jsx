@@ -17,12 +17,42 @@ function Signup() {
   });
   const [loading, setLoading] = useState(false);
 
-  const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+  const update = (k, v) => {
+    setForm(prev => ({ ...prev, [k]: v }));
+    if (k === 'userId') {
+      setIdCheck({ message: '', status: '' });
+    }
+  };
+  const [idCheck, setIdCheck] = useState({ message: '', status: '' });
+   // [추가] 아이디 중복확인 버튼 로딩 상태
+  const [idCheckLoading, setIdCheckLoading] = useState(false);
 
   const selectSingle = (k, value) => update(k, value === form[k] ? '' : value);
 
+  // [수정] 아이디 중복 확인 함수 (API 호출 수정)
+  const onCheckId = async () => {
+    if (!form.userId) {
+      return alert('아이디를 입력해주세요.');
+    }
+    setIdCheckLoading(true); // 로딩 시작
+    setIdCheck({ message: '', status: '' });
+    try {
+      // apiRequest 사용
+        await api.get(`/api/users/checkId?userId=${form.userId}`);
+
+        setIdCheck({ message: '사용 가능한 아이디입니다.', status: 'available' });
+    } catch (err) {
+        setIdCheck({ message: '이미 사용 중이거나 사용할 수 없는 아이디입니다.', status: 'unavailable' });
+    } finally {
+      setIdCheckLoading(false);
+    }
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (idCheck.status !== 'available') {
+      return alert('아이디 중복 확인을 해주세요.');
+    }
     if (form.userPassword !== form.passwordConfirm) return alert('비밀번호가 일치하지 않습니다.');
     if (!form.userDepartment) return alert('전공을 선택해주세요.');
     if (!form.userTrack) return alert('졸업트랙을 선택해주세요.');
@@ -54,6 +84,8 @@ function Signup() {
   const departmentOptions = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
   const trackOptions = ['없음(심컴)', '다중전공', '해외복수학위', '학석사연계'];
 
+  const isSubmitDisabled = loading || idCheck.status !== 'available';
+
   return (
     <div className="signup-container">
       <div className="character-section">
@@ -69,10 +101,28 @@ function Signup() {
             <label htmlFor="username">이름</label>
             <input id="username" value={form.username} onChange={e => update('username', e.target.value)} required />
           </div>
-          <div className="input-group">
-            <label htmlFor="userId">아이디</label>
-            <input id="userId" value={form.userId} onChange={e => update('userId', e.target.value)} required />
+          
+      <div className="input-group">
+            <div className="label-group">
+              <label htmlFor="userId">아이디</label>
+              <span className={`check-result-msg ${idCheck.status}`}>
+                {idCheck.message}
+              </span>
+            </div>
+            <div className="input-with-button">
+              <input id="userId" value={form.userId} onChange={e => update('userId', e.target.value)} required />
+              {/* [수정] 로딩 상태에 따라 버튼 비활성화 및 텍스트 변경 */}
+              <button
+                type="button"
+                onClick={onCheckId}
+                id="check-username-btn"
+                disabled={idCheckLoading}
+              >
+                {idCheckLoading ? '확인 중...' : '중복확인'}
+              </button>
+            </div>
           </div>
+
           <div className="input-group">
             <label htmlFor="password">비밀번호</label>
             <input id="password" type="password" value={form.userPassword} onChange={e => update('userPassword', e.target.value)} required />
@@ -105,7 +155,7 @@ function Signup() {
             </div>
           </div>
           <div className="form-actions">
-            <button type="submit" className="submit-btn" disabled={loading}>{loading ? '처리 중...' : '회원가입'}</button>
+            <button type="submit" className="submit-btn" disabled={isSubmitDisabled}>{loading ? '처리 중...' : '회원가입'}</button>
           </div>
         </form>
       </div>
