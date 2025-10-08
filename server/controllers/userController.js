@@ -1,7 +1,7 @@
 const User = require('../models/users');
-const Lecture = require('../models/lectures');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 exports.loginUser = async (req, res) => {
     const userId = req.body.userId;
@@ -20,7 +20,7 @@ exports.loginUser = async (req, res) => {
         // 토큰 발행
         const token = jwt.sign(
             { id: user._id, username: user.username, userId: user.userId },
-            process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY',
+            process.env.JWT_SECRET || 'JWT_SECRET_KEY',
             { expiresIn: '1d' }
         );
         
@@ -123,3 +123,54 @@ exports.addUnivLecture = async (req, res) => {
       res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 }
+
+exports.deleteLecture = async (req, res) => {
+  const userId = req.user && req.user.id;
+  // const lectureId = req.params.customLectureId || req.params.lectureId;
+  const lectureId = req.params.lectureId;
+
+  if (!userId) return res.status(401).json({ message: '인증 정보가 없습니다.' });
+  if (!lectureId) return res.status(400).json({ message: 'lectureId(customLectureId)가 필요합니다.' });
+  if (!mongoose.Types.ObjectId.isValid(lectureId)) {
+    return res.status(400).json({ message: '유효하지 않은 강의 ID 형식입니다.' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+
+    let removedFrom = null;
+
+    // 1) 커스텀 강의에서 먼저 제거 시도
+    const beforeCustom = user.userCustomLectures.length;
+    user.userCustomLectures = user.userCustomLectures.filter(id => id.toString() !== lectureId);
+    if (beforeCustom !== user.userCustomLectures.length) {
+      removedFrom = 'custom';
+    } else {
+      // 2) 일반 강의에서 제거 시도
+      const beforeStd = user.userLectures.length;
+      user.userLectures = user.userLectures.filter(id => id.toString() !== lectureId);
+      if (beforeStd !== user.userLectures.length) {
+        removedFrom = 'standard';
+      }
+    }
+
+    if (!removedFrom) {
+      return res.status(404).json({ message: '사용자 강의 목록(일반/커스텀)에 존재하지 않는 강의입니다.' });
+    }
+
+    await user.save();
+    // const safeUser = user.toObject();
+    // delete safeUser.userPassword;
+
+    return res.status(200).json({
+      message: '강의가 성공적으로 제거되었습니다.',
+      deletedLectureId: lectureId,
+      // removedFrom,
+      // user: safeUser
+    });
+  } catch (error) {
+    console.error('강의 제거 중 오류 발생:', error);
+    return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
