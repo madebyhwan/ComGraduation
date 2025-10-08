@@ -4,6 +4,7 @@ const CustomLecture = require('../models/customLectures');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
+const graduationService = require('../services/graduationService');
 
 // 유저의 강의 목록을 통합된 형태로 반환하는 함수
 // exports.getLecture의 사실상 본체
@@ -70,36 +71,36 @@ async function lectureList(userId) {
 }
 
 exports.loginUser = async (req, res) => {
-    const userId = req.body.userId;
-    const password = req.body.userPassword;
-    try {
-        // 해당 아이디 유저 정보 찾기
-        const user = await User.findOne({ userId: userId });
+  const userId = req.body.userId;
+  const password = req.body.userPassword;
+  try {
+    // 해당 아이디 유저 정보 찾기
+    const user = await User.findOne({ userId: userId });
 
-        // 아이디 확인
-        if (!user) return res.status(400).json({ message: '해당하는 아이디를 찾을 수 없습니다' });
+    // 아이디 확인
+    if (!user) return res.status(400).json({ message: '해당하는 아이디를 찾을 수 없습니다' });
 
-        // 비밀번호 확인
-        const match = await bcrypt.compare(password, user.userPassword)
-        if (!match) return res.status(400).json({ message: '비밀번호가 일치하지 않습니다.' });
+    // 비밀번호 확인
+    const match = await bcrypt.compare(password, user.userPassword)
+    if (!match) return res.status(400).json({ message: '비밀번호가 일치하지 않습니다.' });
 
-        // 토큰 발행
-        const token = jwt.sign(
-            { id: user._id, username: user.username, userId: user.userId },
-            process.env.JWT_SECRET || 'JWT_SECRET_KEY',
-            { expiresIn: '1d' }
-        );
-        
-        // 토큰 전송
-        res.json({
-            message: `안녕하세요! ${user.username}님!`,
-            token
-        });
-    } catch (error) {
-        // console.log(error);
-        res.status(500).json({ message: '서버 에러 발생' });
-    }
-}; 
+    // 토큰 발행
+    const token = jwt.sign(
+      { id: user._id, username: user.username, userId: user.userId },
+      process.env.JWT_SECRET || 'JWT_SECRET_KEY',
+      { expiresIn: '1d' }
+    );
+
+    // 토큰 전송
+    res.json({
+      message: `안녕하세요! ${user.username}님!`,
+      token
+    });
+  } catch (error) {
+    // console.log(error);
+    res.status(500).json({ message: '서버 에러 발생' });
+  }
+};
 
 exports.registerUser = async (req, res) => {
   const { userId, userYear, userPassword, username, userDepartment, userTrack } = req.body;
@@ -108,11 +109,11 @@ exports.registerUser = async (req, res) => {
     if (!userId || !userYear || !userPassword || !username || !userDepartment || !userTrack) {
       return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
     }
-    
+
     // ID 중복검사
-    const userExist = await User.findOne({userId});
-      if (userExist) {
-        return res.status(400).json({message: "이미 존재하는 ID입니다."});
+    const userExist = await User.findOne({ userId });
+    if (userExist) {
+      return res.status(400).json({ message: "이미 존재하는 ID입니다." });
     }
 
     // USER_PASSWORD 암호화
@@ -129,7 +130,7 @@ exports.registerUser = async (req, res) => {
     });
 
     // 상태메시지
-    res.status(201).json({ message: '회원가입이 완료되었습니다.', user: newUser});
+    res.status(201).json({ message: '회원가입이 완료되었습니다.', user: newUser });
   } catch (error) {
     // console.log(error);
     res.status(500).json({ error: '회원가입에 실패했습니다.' });
@@ -137,14 +138,14 @@ exports.registerUser = async (req, res) => {
 };
 
 exports.checkIdDuplication = async (req, res) => {
-  const  { userId } = req.query;
+  const { userId } = req.query;
 
   try {
     const existingUser = await User.findOne({ userId: userId });
 
     if (existingUser) {
-        // 1. 중복된 경우: 409 상태 코드와 함께 { isAvailable: false } 전송
-        return res.status(409).json({ isAvailable: false });
+      // 1. 중복된 경우: 409 상태 코드와 함께 { isAvailable: false } 전송
+      return res.status(409).json({ isAvailable: false });
     }
 
     // 2. 사용 가능한 경우: 200 상태 코드와 함께 { isAvailable: true } 전송
@@ -163,7 +164,7 @@ exports.addUnivLecture = async (req, res) => {
     return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
   }
 
-  try { 
+  try {
     const user = await User.findById(userId);
     const lecture = await Lecture.findById(lectureId);
 
@@ -184,9 +185,9 @@ exports.addUnivLecture = async (req, res) => {
       lectInfo: lecture.toJSON()
     });
 
-    } catch (error) {
-      console.error('강의 추가 중 오류 발생:', error);
-      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  } catch (error) {
+    console.error('강의 추가 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 }
 
@@ -240,6 +241,33 @@ exports.deleteLecture = async (req, res) => {
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
+exports.checkGraduation = async (req, res) => {
+  try {
+    // 1. 로그인된 사용자의 ID를 가져옵니다. (auth 미들웨어 사용 가정)
+    const userId = req.user.id;
+
+    // 2. DB에서 사용자 정보와 수강 과목 목록을 가져옵니다.
+    const user = await User.findById(userId);
+    // 'takenLectures'는 User 모델에 populate하거나 직접 조회해야 합니다.
+    // 이 부분은 현재 DB 구조에 맞게 수정이 필요할 수 있습니다.
+    const takenLectures = await Lecture.find({ _id: { $in: user.userLectures } });
+
+    if (!user) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
+    const result = graduationService.check(user, takenLectures);
+
+    // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
+    res.status(200).json(result);
+
+  } catch (error) {
+    // 5. 오류 발생 시 에러 메시지를 응답합니다.
+    console.error("졸업요건 확인 중 오류 발생:", error);
+    res.status(500).json({ message: "서버 내부 오류가 발생했습니다.", error: error.message });
+  }
+};
 
 exports.addCustomLecture = async (req, res) => {
   const { lectName, lectCredit, lectType } = req.body;
@@ -287,4 +315,4 @@ exports.getLecture = async (req, res) => {
     console.error('강의 불러오는 중 오류 발생:', error);
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
-}
+};
