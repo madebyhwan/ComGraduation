@@ -12,17 +12,37 @@ const TABS = [
   { key: 'graduation-check', label: '졸업 자가 진단' },
 ];
 
+// [추가] 영어 시험 종류 상수
+const ENGLISH_TEST_OPTIONS = [
+  '선택', '토익(TOEIC)', '토익(TOEIC)스피킹', '토플(PBT)', '토플(IBT)', 
+  '토플(CBT)', '텝스(TEPS)', '개정텝스(TEPS)', '텝스(TEPS)스피킹', 'OPIc', 
+  'G-Telp', 'IELTS'
+];
+
 function Main() {
- // const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
+
+  // [수정] info 상태에 새로운 필드들 추가
   const [info, setInfo] = useState(() => ({
     userId: '',
     username: '',
     userYear: '',
     userDepartment: '',
     userTrack: '',
-    counsel: '0'
+    counsel: '0',
+    // 1. 영어 성적
+    englishTest: '', // 시험 종류
+    englishScore: '', // 시험 점수
+    // 2. 졸업 요건 (인터뷰 or TOPCIT)
+    graduationRequirement: '', // 'interview' or 'topcit'
+    // 3. 창업 유무
+    hasStartup: false,
+    // 4. 다중전공 학과
+    secondMajor: '',
+    // 5. 교환학생 여부
+    isExchangeStudent: false,
   }));
 
   // 팝업(모달)의 열림/닫힘 상태를 관리합니다.
@@ -44,7 +64,7 @@ function Main() {
       username: payload?.username || ''
     }));
 
-     // 페이지 로딩 시 수강 내역을 가져오는 로직 (현재는 임시 데이터)
+      // 페이지 로딩 시 수강 내역을 가져오는 로직 (현재는 임시 데이터)
     const mockCourses = [
       { _id: '1', lectYear: 2025, lectSemester: '1학기', lectName: '컴퓨터구조', lectCode: 'COMP...', lectProfessor: '김명석', lectCredit: 3 },
     ];
@@ -52,7 +72,7 @@ function Main() {
 
   }, []); // navigate 제거
 
-   // 모달에서 강의를 추가하는 함수입니다.
+  // 모달에서 강의를 추가하는 함수입니다.
   const handleAddLecture = (lecture) => {
     if (myCourses.some(course => course.lectCode === lecture.lectCode)) {
       return alert('이미 추가된 강의입니다.');
@@ -61,17 +81,18 @@ function Main() {
     alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
   };
 
-
-  const updateTrack = (val) => setInfo(prev => ({ ...prev, userTrack: val }));
-  const updateDepartment = (val) => setInfo(prev => ({ ...prev, userDepartment: val }));
+  // [추가] info 상태를 업데이트하는 범용 핸들러
+  const updateInfo = (key, value) => {
+    setInfo(prev => ({ ...prev, [key]: value }));
+  };
+  
   const saveInfo = () => { console.log('저장된 정보:', info); alert('정보가 성공적으로 저장되었습니다! (서버 저장 API 미구현)'); };
 
- const logout = () => {
+  const logout = () => {
     localStorage.removeItem('authToken');
     // navigate('/');
     window.location.href = '/'; // navigate 대신 사용
   };
-
 
   return (
     <div className="container">
@@ -100,30 +121,83 @@ function Main() {
             <div className="content-box">
               <h2>내 정보</h2>
               <div className="info-form">
-                <div className="info-row"><label>아이디</label><input value={info.userId} readOnly /></div>
-                <div className="info-row"><label>이름</label><input value={info.username} readOnly /></div>
+                <div className="info-row"><label>아이디</label><input value={info.userId} onChange={e => updateInfo('userId', e.target.value)} /></div>
+                <div className="info-row"><label>이름</label><input value={info.username} onChange={e => updateInfo('username', e.target.value)} /></div>
                 <div className="info-row"><label>전공</label>
                   <div className="tag-group" id="department-tags">
                     {['글로벌SW융합전공','심화컴퓨터공학전공'].map(dep => (
-                      <button type="button" key={dep} className={`tag-btn ${info.userDepartment===dep?'selected':''}`} onClick={() => updateDepartment(dep)}>{dep}</button>
+                      <button type="button" key={dep} className={`tag-btn ${info.userDepartment===dep?'selected':''}`} onClick={() => updateInfo('userDepartment', dep)}>{dep}</button>
                     ))}
                   </div>
                 </div>
                 <div className="info-row"><label>졸업 트랙</label>
                   <div className="tag-group" id="track-tags">
                     {['심컴','다중전공','해외복수학위','학석사연계'].map(tr => (
-                      <button type="button" key={tr} className={`tag-btn ${info.userTrack===tr?'selected':''}`} onClick={() => updateTrack(tr)}>{tr}</button>
+                      <button type="button" key={tr} className={`tag-btn ${info.userTrack===tr?'selected':''}`} onClick={() => updateInfo('userTrack', tr)}>{tr}</button>
                     ))}
                   </div>
                 </div>
-                <div className="info-row"><label>지도교수상담</label><input value={info.counsel} readOnly /></div>
+                
+                {/* [추가] '다중전공' 선택 시에만 나타나는 학과 입력란 */}
+                {info.userTrack === '다중전공' && (
+                  <div className="info-row">
+                    <label>다중전공 학과</label>
+                    <input 
+                      type="text"
+                      value={info.secondMajor}
+                      onChange={(e) => updateInfo('secondMajor', e.target.value)}
+                      placeholder="예: 전자공학부"
+                    />
+                  </div>
+                )}
+
+                {/* [추가] 영어 성적 입력란 */}
+                <div className="info-row">
+                  <label>영어 성적</label>
+                  <div className="english-score-inputs">
+                    <select value={info.englishTest} onChange={(e) => updateInfo('englishTest', e.target.value)}>
+                      {ENGLISH_TEST_OPTIONS.map(test => <option key={test} value={test}>{test}</option>)}
+                    </select>
+                    <input 
+                      type="text" 
+                      value={info.englishScore}
+                      onChange={(e) => updateInfo('englishScore', e.target.value)}
+                      placeholder="점수 입력"
+                    />
+                  </div>
+                </div>
+
+                {/* [추가] 졸업요건(인터뷰/TOPCIT) 선택 */}
+                <div className="info-row">
+                  <label>졸업심사</label>
+                  <div className="tag-group">
+                    <button type="button" className={`tag-btn ${info.graduationRequirement==='interview'?'selected':''}`} onClick={() => updateInfo('graduationRequirement', 'interview')}>졸업 인터뷰</button>
+                    <button type="button" className={`tag-btn ${info.graduationRequirement==='topcit'?'selected':''}`} onClick={() => updateInfo('graduationRequirement', 'topcit')}>TOPCIT</button>
+                  </div>
+                </div>
+
+                {/* [수정] 창업 유무, 교환학생 여부 체크박스 */}
+                <div className="info-row">
+                  <label>기타</label>
+                  <div className="checkbox-group"> {/* 두 checkbox-item을 감싸는 부모 div */}
+                    <div className="checkbox-item">
+                      <input type="checkbox" id="startup-check" checked={info.hasStartup} onChange={e => updateInfo('hasStartup', e.target.checked)} />
+                      <label htmlFor="startup-check">창업 여부</label>
+                    </div>
+                    <div className="checkbox-item">
+                      <input type="checkbox" id="exchange-check" checked={info.isExchangeStudent} onChange={e => updateInfo('isExchangeStudent', e.target.checked)} />
+                      <label htmlFor="exchange-check">교환학생 여부(1년 이상)</label>
+                    </div>
+                  </div>
+                </div>
+                <div className="info-row"><label>지도교수상담</label><input value={info.counsel} onChange={e => updateInfo('counsel', e.target.value)} /></div>
               </div>
               <div className="form-actions"><button id="save-info-btn" className="action-btn" onClick={saveInfo}>내 정보 저장</button></div>
             </div>
           )}
           {activeTab === 'my-courses' && (
+            // ... 나의 수강 내역 탭 내용은 기존과 동일 ...
             <div className="content-box">
-              {/* [수정] h2와 form-actions를 content-header로 묶습니다. */}
               <div className="content-header">
                 <h2>나의 수강 내역</h2>
                 <div className="form-actions">
@@ -132,8 +206,6 @@ function Main() {
                   <button className="action-btn">삭제</button>
                 </div>
               </div>
-
-              {/* 테이블 부분은 변경 없이 그대로 둡니다. */}
               <table className="course-table">
                   <thead>
                       <tr><th>선택</th><th>개설년도</th><th>개설학기</th><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>학점</th></tr>
@@ -152,10 +224,10 @@ function Main() {
                       ))}
                   </tbody>
               </table>
-              {/* 버튼 그룹(form-actions)이 위로 이동했으므로 이 위치에서는 삭제됩니다. */}
             </div>
           )}
           {activeTab === 'graduation-check' && (
+            // ... 졸업 자가 진단 탭 내용은 기존과 동일 ...
             <div className="content-box">
               <div className="content-header"><h2>나의 졸업 요건 충족 현황</h2><button className="action-btn-green">진단하기</button></div>
               <ul className="status-list">
@@ -168,14 +240,13 @@ function Main() {
         </section>
       </main>
 
-
       {isSearchModalOpen && (
         <LecSearch
           onClose={() => setIsSearchModalOpen(false)}
           onAddLecture={handleAddLecture}
         />
       )}
-     
+      
     </div>
   );
 }
