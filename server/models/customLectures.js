@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const customLecuteresSchema = new mongoose.Schema({
-  userId: {
-    type: String,
-    required: true,
-    trim: true
+  userObjectId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'users',
+    required: true
   },
   lectName:{
     type: String,
