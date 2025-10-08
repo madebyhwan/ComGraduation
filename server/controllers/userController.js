@@ -40,7 +40,7 @@ exports.registerUser = async (req, res) => {
 
   try {
     if (!userId || !userYear || !userPassword || !username || !userDepartment || !userTrack) {
-    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+      return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
     }
     
     // ID 중복검사
@@ -69,6 +69,60 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ error: '회원가입에 실패했습니다.' });
   }
 };
+
+exports.checkIdDuplication = async (req, res) => {
+  const  { userId } = req.query;
+
+  try {
+    const existingUser = await User.findOne({ userId: userId });
+
+    if (existingUser) {
+        // 1. 중복된 경우: 409 상태 코드와 함께 { isAvailable: false } 전송
+        return res.status(409).json({ isAvailable: false });
+    }
+
+    // 2. 사용 가능한 경우: 200 상태 코드와 함께 { isAvailable: true } 전송
+    res.status(200).json({ isAvailable: true });
+  } catch (error) {
+    console.error('아이디 중복 확인 중 오류:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+}
+
+exports.addUnivLecture = async (req, res) => {
+  const { lectureId } = req.body;
+  const userId = req.user.id;
+
+  if (!lectureId) {
+    return res.status(400).json(error);
+  }
+
+  try { 
+    const user = await User.findById(userId);
+    const lecture = await Lecture.findById(lectureId);
+
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+    if (!lecture) {
+      return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
+    }
+    if (user.userLectures.includes(lectureId)) {
+      return res.status(409).json({ message: '이미 추가된 강의입니다.' });
+    }
+
+    user.userLectures.push(lectureId);
+    await user.save();
+    res.status(200).json({ 
+      message: '강의가 성공적으로 추가되었습니다.',
+      data: user.userLectures 
+    });
+
+    } catch (error) {
+      console.error('강의 추가 중 오류 발생:', error);
+      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+}
 
 exports.deleteLecture = async (req, res) => {
   const userId = req.user && req.user.id;

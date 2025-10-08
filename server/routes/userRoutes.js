@@ -2,7 +2,10 @@ const router = require('express').Router();
 
 // controller에서 정의한 함수
 const {
-  registerUser, loginUser
+  registerUser, loginUser,
+  deleteLecture,
+  addUnivLecture,
+  checkIdDuplication
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -16,5 +19,11 @@ router.post('/login',loginUser);
 
 // 유저 강의 삭제
 router.delete('/deleteLecture/:lectureId', authenticateToken, deleteLecture);
+
+// 아이디 중복 확인
+router.get('/checkId', checkIdDuplication);
+
+// 강의계획서 강의 추가 
+router.post('/addUnivLect', authenticateToken, addUnivLecture);
 
 module.exports = router;
