@@ -2,8 +2,8 @@ const Lecture = require('../models/lectures');
 
 exports.searchLecture = async (req, res) => {
     const {keyword, year, semester} = req.query;
-
     try {
+
         if (!keyword) {
             return res.status(400).json({message: '검색어를 입력해주세요'});
         }
