@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import character from '../img/character.png';
-import api from '../api/api';
-import { apiRequest } from '../api/http';
+import api from '../api/api'
 
 function Signup() {
   const navigate = useNavigate();
@@ -39,7 +38,11 @@ function Signup() {
     setIdCheck({ message: '', status: '' });
     try {
       // apiRequest 사용
-        await api.get(`/api/users/checkId?userId=${form.userId}`);
+        await api.get('/api/users/checkId', {
+          params: {
+          userId: form.userId
+        }
+      });
 
         setIdCheck({ message: '사용 가능한 아이디입니다.', status: 'available' });
     } catch (err) {
