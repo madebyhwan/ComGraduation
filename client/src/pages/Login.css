@@ -1,10 +1,14 @@
 body,
 html,
 .login-page {
+    margin: 0;
+    padding: 0;
+    font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background-color: #ffffff;
+
     display: flex;
-    flex-direction: column; /* 내부 요소(헤더, 메인)를 세로로 정렬 */
-    min-height: 100vh;      /* 최소 높이를 화면 전체 높이로 설정 */
-    background-color: #ffffff; /* 전체 배경을 흰색으로 확실하게 지정 */
+    flex-direction: column; 
+    min-height: 100vh;    
 }
 
 .login-header {
@@ -34,8 +38,8 @@ html,
 }
 
 .login-main {
-    flex-grow: 1;
     padding-top: 80px;
+    flex-grow: 1;
 }
 
 .login-title {
@@ -85,6 +89,7 @@ html,
     font-weight: bold;
     cursor: pointer;
     border-style: solid;
+    transition: background-color 0.2s ease; /* 색상 전환 효과 */
 }
 
 .btn-login {
@@ -103,4 +108,14 @@ html,
 button:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+/* [추가] 로그인 버튼 호버 스타일 */
+.btn-login:hover {
+    background-color: #d9534f; /* 기존보다 밝은 빨간색 */
+}
+
+/* [추가] 회원가입 버튼 호버 스타일 */
+.btn-signup:hover {
+    background-color: #f0f0f0; /* 기존보다 밝은 회색 */
 }
