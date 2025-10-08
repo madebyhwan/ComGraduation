@@ -263,3 +263,10 @@ html {
     padding: 5px 20px;
     margin-right: 10px;
 }
+
+/* 영어 성적 입력란 select, input 간격 */
+.english-score-inputs {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
