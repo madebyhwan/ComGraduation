@@ -121,8 +121,8 @@ function Main() {
             <div className="content-box">
               <h2>내 정보</h2>
               <div className="info-form">
-                <div className="info-row"><label>아이디</label><input value={info.userId} onChange={e => updateInfo('userId', e.target.value)} /></div>
-                <div className="info-row"><label>이름</label><input value={info.username} onChange={e => updateInfo('username', e.target.value)} /></div>
+                <div className="info-row"><label>아이디</label><input value={info.userId} readOnly /></div>
+                <div className="info-row"><label>이름</label><input value={info.username} readOnly /></div>
                 <div className="info-row"><label>전공</label>
                   <div className="tag-group" id="department-tags">
                     {['글로벌SW융합전공','심화컴퓨터공학전공'].map(dep => (
@@ -169,28 +169,25 @@ function Main() {
 
                 {/* [추가] 졸업요건(인터뷰/TOPCIT) 선택 */}
                 <div className="info-row">
-                  <label>졸업심사</label>
+                  <label>졸업요건</label>
                   <div className="tag-group">
                     <button type="button" className={`tag-btn ${info.graduationRequirement==='interview'?'selected':''}`} onClick={() => updateInfo('graduationRequirement', 'interview')}>졸업 인터뷰</button>
                     <button type="button" className={`tag-btn ${info.graduationRequirement==='topcit'?'selected':''}`} onClick={() => updateInfo('graduationRequirement', 'topcit')}>TOPCIT</button>
                   </div>
                 </div>
 
-                {/* [수정] 창업 유무, 교환학생 여부 체크박스 */}
-                <div className="info-row">
+                {/* [추가] 창업 유무, 교환학생 여부 체크박스 */}
+                <div className="info-row checkbox-group">
                   <label>기타</label>
-                  <div className="checkbox-group"> {/* 두 checkbox-item을 감싸는 부모 div */}
-                    <div className="checkbox-item">
-                      <input type="checkbox" id="startup-check" checked={info.hasStartup} onChange={e => updateInfo('hasStartup', e.target.checked)} />
-                      <label htmlFor="startup-check">창업 여부</label>
-                    </div>
-                    <div className="checkbox-item">
-                      <input type="checkbox" id="exchange-check" checked={info.isExchangeStudent} onChange={e => updateInfo('isExchangeStudent', e.target.checked)} />
-                      <label htmlFor="exchange-check">교환학생 여부(1년 이상)</label>
-                    </div>
+                  <div className="checkbox-item">
+                    <input type="checkbox" id="startup-check" checked={info.hasStartup} onChange={e => updateInfo('hasStartup', e.target.checked)} />
+                    <label htmlFor="startup-check">창업</label>
+                    <input type="checkbox" id="exchange-check" checked={info.isExchangeStudent} onChange={e => updateInfo('isExchangeStudent', e.target.checked)} />
+                    <label htmlFor="exchange-check">교환학생 여부</label>
                   </div>
                 </div>
-                <div className="info-row"><label>지도교수상담</label><input value={info.counsel} onChange={e => updateInfo('counsel', e.target.value)} /></div>
+
+                <div className="info-row"><label>지도교수상담</label><input value={info.counsel} readOnly /></div>
               </div>
               <div className="form-actions"><button id="save-info-btn" className="action-btn" onClick={saveInfo}>내 정보 저장</button></div>
             </div>
