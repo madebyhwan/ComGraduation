@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import character from '../img/character.png';
+import api from '../api/api';
 import { apiRequest } from '../api/http';
 
 function Signup() {
@@ -29,7 +30,7 @@ function Signup() {
 
   const selectSingle = (k, value) => update(k, value === form[k] ? '' : value);
 
-  // [수정] 아이디 중복 확인 함수 (API 호출 및 로딩 상태 관리)
+  // [수정] 아이디 중복 확인 함수 (API 호출 수정)
   const onCheckId = async () => {
     if (!form.userId) {
       return alert('아이디를 입력해주세요.');
@@ -38,12 +39,11 @@ function Signup() {
     setIdCheck({ message: '', status: '' });
     try {
       // apiRequest 사용
-        await apiRequest(`/api/users/checkId?userId=${form.userId}`);
+        await api.get(`/api/users/checkId?userId=${form.userId}`);
 
         setIdCheck({ message: '사용 가능한 아이디입니다.', status: 'available' });
     } catch (err) {
         setIdCheck({ message: '이미 사용 중이거나 사용할 수 없는 아이디입니다.', status: 'unavailable' });
-
     } finally {
       setIdCheckLoading(false);
     }
@@ -67,7 +67,7 @@ function Signup() {
         userDepartment: form.userDepartment,
         userTrack: form.userTrack
       };
-      await apiRequest('/api/users/register', { method: 'POST', body: payload });
+      await api.post('/api/users/register', payload);
       alert(`${form.username}님, 회원가입이 완료되었습니다!`);
       navigate('/');
     } catch (err) {
