@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import { decodeJWT } from '../api/http';
 import './Main.css';
 import logo from '../img/knu-logo.png';
+import LecSearch from '../components/LecSearch';
 
 const TABS = [
   { key: 'home', label: 'Home' },
@@ -12,7 +13,7 @@ const TABS = [
 ];
 
 function Main() {
-  const navigate = useNavigate();
+ // const navigate = useNavigate();
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [info, setInfo] = useState(() => ({
@@ -24,10 +25,15 @@ function Main() {
     counsel: '0'
   }));
 
+  // 팝업(모달)의 열림/닫힘 상태를 관리합니다.
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  // '나의 수강 내역' 목록을 관리합니다.
+  const [myCourses, setMyCourses] = useState([]);
+
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (!token) {
-      navigate('/');
+      //navigate('/');
       return;
     }
     const payload = decodeJWT(token);
@@ -37,16 +43,35 @@ function Main() {
       userId: payload?.userId || '',
       username: payload?.username || ''
     }));
-  }, [navigate]);
+
+     // 페이지 로딩 시 수강 내역을 가져오는 로직 (현재는 임시 데이터)
+    const mockCourses = [
+      { _id: '1', lectYear: 2025, lectSemester: '1학기', lectName: '컴퓨터구조', lectCode: 'COMP...', lectProfessor: '김명석', lectCredit: 3 },
+    ];
+    setMyCourses(mockCourses);
+
+  }, []); // navigate 제거
+
+   // 모달에서 강의를 추가하는 함수입니다.
+  const handleAddLecture = (lecture) => {
+    if (myCourses.some(course => course.lectCode === lecture.lectCode)) {
+      return alert('이미 추가된 강의입니다.');
+    }
+    setMyCourses(prevCourses => [...prevCourses, lecture]);
+    alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
+  };
+
 
   const updateTrack = (val) => setInfo(prev => ({ ...prev, userTrack: val }));
   const updateDepartment = (val) => setInfo(prev => ({ ...prev, userDepartment: val }));
   const saveInfo = () => { console.log('저장된 정보:', info); alert('정보가 성공적으로 저장되었습니다! (서버 저장 API 미구현)'); };
 
-  const logout = () => {
-    localStorage.removeItem('authUser');
-    navigate('/');
+ const logout = () => {
+    localStorage.removeItem('authToken');
+    // navigate('/');
+    window.location.href = '/'; // navigate 대신 사용
   };
+
 
   return (
     <div className="container">
@@ -98,12 +123,36 @@ function Main() {
           )}
           {activeTab === 'my-courses' && (
             <div className="content-box">
-              <h2>나의 수강 내역</h2>
-              <table className="course-table"><thead><tr><th>선택</th><th>개설년도</th><th>개설학기</th><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>이수학점</th></tr></thead><tbody>
-                <tr><td><input type="checkbox" defaultChecked /></td><td>2025</td><td>1학기</td><td>컴퓨터구조</td><td>COMP...</td><td>김명석</td><td>3</td></tr>
-                {[1,2,3,4].map(i => (<tr key={i}><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>))}
-              </tbody></table>
-              <div className="form-actions"><button className="action-btn">강의 검색</button><button className="action-btn">기타 활동 추가</button><button className="action-btn">삭제</button></div>
+              {/* [수정] h2와 form-actions를 content-header로 묶습니다. */}
+              <div className="content-header">
+                <h2>나의 수강 내역</h2>
+                <div className="form-actions">
+                  <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 검색</button>
+                  <button className="action-btn">기타 활동 추가</button>
+                  <button className="action-btn">삭제</button>
+                </div>
+              </div>
+
+              {/* 테이블 부분은 변경 없이 그대로 둡니다. */}
+              <table className="course-table">
+                  <thead>
+                      <tr><th>선택</th><th>개설년도</th><th>개설학기</th><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>학점</th></tr>
+                  </thead>
+                  <tbody>
+                      {myCourses.map((course, i) => (
+                      <tr key={course._id || i}>
+                          <td><input type="checkbox" /></td>
+                          <td>{course.lectYear}</td>
+                          <td>{course.lectSemester}</td>
+                          <td>{course.lectName}</td>
+                          <td>{course.lectCode}</td>
+                          <td>{course.lectProfessor}</td>
+                          <td>{course.lectCredit}</td>
+                      </tr>
+                      ))}
+                  </tbody>
+              </table>
+              {/* 버튼 그룹(form-actions)이 위로 이동했으므로 이 위치에서는 삭제됩니다. */}
             </div>
           )}
           {activeTab === 'graduation-check' && (
@@ -118,6 +167,15 @@ function Main() {
           )}
         </section>
       </main>
+
+
+      {isSearchModalOpen && (
+        <LecSearch
+          onClose={() => setIsSearchModalOpen(false)}
+          onAddLecture={handleAddLecture}
+        />
+      )}
+     
     </div>
   );
 }

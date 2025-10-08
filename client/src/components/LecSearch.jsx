@@ -72,7 +72,7 @@ function LecSearch({ onClose, onAddLecture }) {
             <input
               type="text"
               name="keyword"
-              placeholder="강의명, 교수명, 과목코드로 검색"
+              placeholder="강의명 또는 교수명 또는 과목코드로 검색"
               value={filters.keyword}
               onChange={handleFilterChange}
             />
