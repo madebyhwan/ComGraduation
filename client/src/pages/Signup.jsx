@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import character from '../img/character.png';
+import api from '../api/api';
 import { apiRequest } from '../api/http';
 
 function Signup() {
@@ -19,26 +20,32 @@ function Signup() {
 
   const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
   const [idCheck, setIdCheck] = useState({ message: '', status: '' });
+   // [추가] 아이디 중복확인 버튼 로딩 상태
+  const [idCheckLoading, setIdCheckLoading] = useState(false);
 
   const selectSingle = (k, value) => update(k, value === form[k] ? '' : value);
 
-  // [추가] 아이디 중복 확인 버튼 클릭 시 실행될 함수
-  const onCheckId = () => {
-    // UI 테스트를 위한 시뮬레이션 (실제로는 여기서 API 호출)
+  // [수정] 아이디 중복 확인 함수 (API 호출 수정)
+  const onCheckId = async () => {
     if (!form.userId) {
       return alert('아이디를 입력해주세요.');
     }
-    // 'admin', 'user'는 이미 사용 중인 아이디로 가정
-    if (['admin', 'user'].includes(form.userId)) {
-      setIdCheck({
-        message: '이미 사용 중인 아이디입니다.',
-        status: 'unavailable' // CSS 클래스명
-      });
-    } else {
-      setIdCheck({
-        message: '사용 가능한 아이디입니다.',
-        status: 'available' // CSS 클래스명
-      });
+    setIdCheckLoading(true); // 로딩 시작
+    try {
+      // [수정] API 주소를 올바르게 만들기
+      const response = await apiRequest(`/api/users/checkId/${form.userId}`);
+      
+      // (서버 응답이 { isAvailable: true/false } 형태라고 가정)
+      if (response.isAvailable) {
+        setIdCheck({ message: '사용 가능한 아이디입니다.', status: 'available' });
+      } else {
+        setIdCheck({ message: '이미 사용 중인 아이디입니다.', status: 'unavailable' });
+      }
+    } catch (err) {
+      alert(err.message || '아이디 확인 중 오류가 발생했습니다.');
+      setIdCheck({ message: '확인 중 오류 발생', status: 'unavailable' });
+    } finally {
+      setIdCheckLoading(false); // 로딩 종료
     }
   };
 
@@ -57,7 +64,7 @@ function Signup() {
         userDepartment: form.userDepartment,
         userTrack: form.userTrack
       };
-      await apiRequest('/api/users/register', { method: 'POST', body: payload });
+      await api.post('/api/users/register', payload);
       alert(`${form.username}님, 회원가입이 완료되었습니다!`);
       navigate('/');
     } catch (err) {
@@ -100,7 +107,15 @@ function Signup() {
             </div>
             <div className="input-with-button">
               <input id="userId" value={form.userId} onChange={e => update('userId', e.target.value)} required />
-              <button type="button" onClick={onCheckId} id="check-username-btn">중복확인</button>
+              {/* [수정] 로딩 상태에 따라 버튼 비활성화 및 텍스트 변경 */}
+              <button
+                type="button"
+                onClick={onCheckId}
+                id="check-username-btn"
+                disabled={idCheckLoading}
+              >
+                {idCheckLoading ? '확인 중...' : '중복확인'}
+              </button>
             </div>
           </div>
 
