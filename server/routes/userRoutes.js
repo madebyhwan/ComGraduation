@@ -5,7 +5,9 @@ const {
   registerUser, loginUser,
   deleteLecture,
   addUnivLecture,
-  checkIdDuplication
+  checkIdDuplication,
+  addCustomLecture,
+  getLecture
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -25,5 +27,11 @@ router.get('/checkId', checkIdDuplication);
 
 // 강의계획서 강의 추가 
 router.post('/addUnivLect', authenticateToken, addUnivLecture);
+
+// 사용자 정의 강의 추가
+router.post('/addCustomLect', authenticateToken, addCustomLecture);
+
+// 강의 불러오기
+router.get('/getLecture', authenticateToken, getLecture);
 
 module.exports = router;

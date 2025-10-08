@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const customLecuteresSchema = new mongoose.Schema({
   userObjectId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'users',
+    ref: 'User',
     required: true
   },
   lectName:{
@@ -18,11 +18,11 @@ const customLecuteresSchema = new mongoose.Schema({
   },
   lectType:{
     type: String,
-    enum: ['해외학점', '창업학점', '현장실습학점'],
+    enum: ['전공', '전공필수', '교양', '일반선택'],
     required: true
   }
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('CustomLecture', customLecuteresSchema);
+module.exports = mongoose.model('CustomLecture', customLecuteresSchema, 'customLectures');
