@@ -44,15 +44,9 @@ function Main() {
       username: payload?.username || ''
     }));
 
-     // 페이지 로딩 시 수강 내역을 가져오는 로직 (현재는 임시 데이터)
-    const mockCourses = [
-      { _id: '1', lectYear: 2025, lectSemester: '1학기', lectName: '컴퓨터구조', lectCode: 'COMP...', lectProfessor: '김명석', lectCredit: 3 },
-    ];
-    setMyCourses(mockCourses);
-
   }, []); // navigate 제거
 
-   // 모달에서 강의를 추가하는 함수입니다.
+   // 모달에서 강의를 추가하는 함수
   const handleAddLecture = (lecture) => {
     if (myCourses.some(course => course.lectCode === lecture.lectCode)) {
       return alert('이미 추가된 강의입니다.');
@@ -127,16 +121,31 @@ function Main() {
               <div className="content-header">
                 <h2>나의 수강 내역</h2>
                 <div className="form-actions">
-                  <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 검색</button>
+                  <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   <button className="action-btn">기타 활동 추가</button>
                   <button className="action-btn">삭제</button>
                 </div>
               </div>
 
-              {/* 테이블 부분은 변경 없이 그대로 둡니다. */}
-              <table className="course-table">
+              {myCourses.length === 0 ? (
+                <div className="empty-courses-message">
+                  '강의 추가'를 눌러 수강한 과목을 추가해 주세요.
+                </div>
+              ) : (
+             
+                <table className="course-table">
                   <thead>
-                      <tr><th>선택</th><th>개설년도</th><th>개설학기</th><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>학점</th></tr>
+                      <tr>
+                        <th>선택</th>
+                        <th>개설년도</th>
+                        <th>개설학기</th>
+                        <th>교과목명</th>
+                        <th>교과목코드</th>
+                        <th>담당교수</th>
+                        <th>분반</th>
+                        <th>강의시간</th>
+                        <th>학점</th>
+                      </tr>
                   </thead>
                   <tbody>
                       {myCourses.map((course, i) => (
@@ -147,12 +156,14 @@ function Main() {
                           <td>{course.lectName}</td>
                           <td>{course.lectCode}</td>
                           <td>{course.lectProfessor}</td>
+                          <td>{course.lectDiv}</td>
+                          <td>{course.lectTime}</td>
                           <td>{course.lectCredit}</td>
                       </tr>
                       ))}
                   </tbody>
               </table>
-              {/* 버튼 그룹(form-actions)이 위로 이동했으므로 이 위치에서는 삭제됩니다. */}
+              )} 
             </div>
           )}
           {activeTab === 'graduation-check' && (
