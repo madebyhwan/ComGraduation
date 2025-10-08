@@ -85,12 +85,12 @@ function LecSearch({ onClose, onAddLecture }) {
             {results.length > 0 && (
               <table className="results-table">
                 <thead>
-                  <tr><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>학점</th><th>추가</th></tr>
+                  <tr><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>분반</th><th>강의시간</th><th>학점</th><th>추가</th></tr>
                 </thead>
                 <tbody>
                   {results.map((lec) => (
                     <tr key={lec._id}> {/* DB의 고유 ID 사용 권장 */}
-                      <td>{lec.lectName}</td><td>{lec.lectCode}</td><td>{lec.lectProfessor}</td><td>{lec.lectCredit}</td>
+                      <td>{lec.lectName}</td><td>{lec.lectCode}</td><td>{lec.lectProfessor}</td><td>{lec.lectDiv}</td><td>{lec.lectTime}</td><td>{lec.lectCredit}</td>
                       <td><button onClick={() => onAddLecture(lec)} className="add-btn">추가</button></td>
                     </tr>
                   ))}
