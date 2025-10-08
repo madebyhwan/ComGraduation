@@ -1,8 +1,8 @@
 const Lecture = require('../models/lectures');
 
 exports.searchLecture = async (req, res) => {
+    const {keyword, year, semester} = req.query;
     try {
-        const {keyword, year, semester} = req.query;
 
         if (!keyword) {
             return res.status(400).json({message: '검색어를 입력해주세요'});
@@ -33,7 +33,7 @@ exports.searchLecture = async (req, res) => {
 
 
         res.status(200).json(lectures);
-    } catch {
+    } catch (error) {
         console.error('강의 검색 중 오류 발생:', error);
         res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }

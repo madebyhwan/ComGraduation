@@ -34,6 +34,10 @@ const usersSchema = new mongoose.Schema({
   userLectures:[{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'lectures'
+  }],
+  userCustomLectures:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'customLectures'
   }]
 }, {
   timestamps: true

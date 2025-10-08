@@ -18,7 +18,12 @@ function Signup() {
   });
   const [loading, setLoading] = useState(false);
 
-  const update = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+  const update = (k, v) => {
+    setForm(prev => ({ ...prev, [k]: v }));
+    if (k === 'userId') {
+      setIdCheck({ message: '', status: '' });
+    }
+  };
   const [idCheck, setIdCheck] = useState({ message: '', status: '' });
    // [추가] 아이디 중복확인 버튼 로딩 상태
   const [idCheckLoading, setIdCheckLoading] = useState(false);
@@ -31,26 +36,24 @@ function Signup() {
       return alert('아이디를 입력해주세요.');
     }
     setIdCheckLoading(true); // 로딩 시작
+    setIdCheck({ message: '', status: '' });
     try {
-      // [수정] API 주소를 올바르게 만들기
-      const response = await apiRequest(`/api/users/checkId/${form.userId}`);
-      
-      // (서버 응답이 { isAvailable: true/false } 형태라고 가정)
-      if (response.isAvailable) {
+      // apiRequest 사용
+        await api.get(`/api/users/checkId?userId=${form.userId}`);
+
         setIdCheck({ message: '사용 가능한 아이디입니다.', status: 'available' });
-      } else {
-        setIdCheck({ message: '이미 사용 중인 아이디입니다.', status: 'unavailable' });
-      }
     } catch (err) {
-      alert(err.message || '아이디 확인 중 오류가 발생했습니다.');
-      setIdCheck({ message: '확인 중 오류 발생', status: 'unavailable' });
+        setIdCheck({ message: '이미 사용 중이거나 사용할 수 없는 아이디입니다.', status: 'unavailable' });
     } finally {
-      setIdCheckLoading(false); // 로딩 종료
+      setIdCheckLoading(false);
     }
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
+    if (idCheck.status !== 'available') {
+      return alert('아이디 중복 확인을 해주세요.');
+    }
     if (form.userPassword !== form.passwordConfirm) return alert('비밀번호가 일치하지 않습니다.');
     if (!form.userDepartment) return alert('전공을 선택해주세요.');
     if (!form.userTrack) return alert('졸업트랙을 선택해주세요.');
@@ -81,6 +84,8 @@ function Signup() {
   const yearOptions = ['21학번'];
   const departmentOptions = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
   const trackOptions = ['없음(심컴)', '다중전공', '해외복수학위', '학석사연계'];
+
+  const isSubmitDisabled = loading || idCheck.status !== 'available';
 
   return (
     <div className="signup-container">
@@ -151,7 +156,7 @@ function Signup() {
             </div>
           </div>
           <div className="form-actions">
-            <button type="submit" className="submit-btn" disabled={loading}>{loading ? '처리 중...' : '회원가입'}</button>
+            <button type="submit" className="submit-btn" disabled={isSubmitDisabled}>{loading ? '처리 중...' : '회원가입'}</button>
           </div>
         </form>
       </div>
