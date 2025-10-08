@@ -270,3 +270,14 @@ html {
     gap: 12px;
     align-items: center;
 }
+
+/* [추가] 영어 성적 드롭다운 및 입력창 스타일 */
+.english-score-inputs select,
+.english-score-inputs input {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px; /* 다른 입력 요소들과 통일성을 위해 추가 */
+    background-color: #ffffff;
+    font-family: inherit; /* body의 폰트를 그대로 사용 */
+}
