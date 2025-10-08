@@ -12,7 +12,7 @@ exports.searchLecture = async (req, res) => {
             $or: [
                 { lectName: { $regex: keyword, $options: 'i' } },
                 { lectCode: { $regex: keyword, $options: 'i' } },
-                { lectProf: { $regex: keyword, $options: 'i' } }
+                { lectProfessor: { $regex: keyword, $options: 'i' } }
             ]
         }];
 

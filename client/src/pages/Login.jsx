@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Login.css';
 import logo from '../img/knu-logo.png';
-import { apiRequest, decodeJWT } from '../api/http';
+import api from '../api/api'
+import { decodeJWT } from '../api/http';
 
 function Login() {
   const navigate = useNavigate();
@@ -15,19 +16,26 @@ function Login() {
     if (!userId) return alert('아이디를 입력해주세요.');
     if (!userPassword) return alert('비밀번호를 입력해주세요.');
     setLoading(true);
-    apiRequest('/api/users/login', { method: 'POST', body: { userId, userPassword } })
+
+    api.post('api/users/login', { userId, userPassword })
       .then(res => {
-        if (!res.token) throw new Error('토큰이 없습니다.');
-        const payload = decodeJWT(res.token);
-        localStorage.setItem('authToken', res.token);
+        const { token } = res.data;
+
+        if (!token) throw new Error("토큰이 없습니다");
+
+        const payload = decodeJWT(token);
+        localStorage.setItem('authToken', token);
         localStorage.setItem('authUser', JSON.stringify({
           userId: payload?.userId,
           username: payload?.username,
-          token: res.token
+          token: token
         }));
         navigate('/app');
       })
-      .catch(err => alert(err.message))
+      .catch(err => {
+        const errorMessage = err.response?.data?.message || '아이디 또는 비밀번호가 일치하지 않습니다.';
+        alert(errorMessage);
+      })
       .finally(() => setLoading(false));
   };
 

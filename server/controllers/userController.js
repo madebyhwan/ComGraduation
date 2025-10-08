@@ -1,4 +1,5 @@
 const User = require('../models/users');
+const Lecture = require('../models/lectures');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -19,7 +20,7 @@ exports.loginUser = async (req, res) => {
         // 토큰 발행
         const token = jwt.sign(
             { id: user._id, username: user.username, userId: user.userId },
-            process.env.JWT_SECRET || 'JWT_SECRET_KEY',
+            process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY',
             { expiresIn: '1d' }
         );
         
@@ -68,3 +69,38 @@ exports.registerUser = async (req, res) => {
     res.status(500).json({ error: '회원가입에 실패했습니다.' });
   }
 };
+
+exports.addUnivLecture = async (req, res) => {
+  const { lectureId } = req.body;
+  const userId = req.user.id;
+
+  if (!lectureId) {
+    return res.status(400).json(error);
+  }
+
+  try { 
+    const user = await User.findById(userId);
+    const lecture = await Lecture.findById(lectureId);
+
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+    if (!lecture) {
+      return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
+    }
+    if (user.userLectures.includes(lectureId)) {
+      return res.status(409).json({ message: '이미 추가된 강의입니다.' });
+    }
+
+    user.userLectures.push(lectureId);
+    await user.save();
+    res.status(200).json({ 
+      message: '강의가 성공적으로 추가되었습니다.',
+      data: user.userLectures 
+    });
+
+    } catch (error) {
+      console.error('강의 추가 중 오류 발생:', error);
+      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+}

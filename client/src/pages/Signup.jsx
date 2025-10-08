@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Signup.css';
 import character from '../img/character.png';
-import { apiRequest } from '../api/http';
+import api from '../api/api'
 
 function Signup() {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ function Signup() {
         userDepartment: form.userDepartment,
         userTrack: form.userTrack
       };
-      await apiRequest('/api/users/register', { method: 'POST', body: payload });
+      await api.post('/api/users/register', payload);
       alert(`${form.username}님, 회원가입이 완료되었습니다!`);
       navigate('/');
     } catch (err) {
