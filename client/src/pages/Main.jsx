@@ -4,6 +4,7 @@ import { decodeJWT } from '../api/http';
 import './Main.css';
 import logo from '../img/knu-logo.png';
 import LecSearch from '../components/LecSearch';
+import api from '../api/api';
 
 const TABS = [
   { key: 'home', label: 'Home' },
@@ -23,6 +24,10 @@ function Main() {
   // const navigate = useNavigate();
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false); 
+  const [myCourses, setMyCourses] = useState([]);
+    // [추가] 삭제할 강의 ID를 관리하기 위한 state
+  const [selectedCourses, setSelectedCourses] = useState(new Set());
 
   // [수정] info 상태에 새로운 필드들 추가
   const [info, setInfo] = useState(() => ({
@@ -45,42 +50,118 @@ function Main() {
     isExchangeStudent: false,
   }));
 
-  // 팝업(모달)의 열림/닫힘 상태를 관리합니다.
-  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  // '나의 수강 내역' 목록을 관리합니다.
-  const [myCourses, setMyCourses] = useState([]);
+
 
   useEffect(() => {
     const token = localStorage.getItem('authToken');
     if (!token) {
       //navigate('/');
+      window.location.href = '/';
       return;
     }
-    const payload = decodeJWT(token);
+    let payload = decodeJWT(token);
     setAuthUser(payload);
     setInfo(prev => ({
-      ...prev,
-      userId: payload?.userId || '',
-      username: payload?.username || ''
-    }));
-  }, []); // navigate 제거
+      ...prev, ...payload, }));      
+   
+    loadMyCourses();
 
-   // 모달에서 강의를 추가하는 함수
-  const handleAddLecture = (lecture) => {
-    if (myCourses.some(course => course.lectCode === lecture.lectCode)) {
+
+  }, []); //[수정] payload에 담긴 사용자 정보 전체를 info 상태에 설정
+
+     // [추가] 서버에서 수강 내역을 불러오는 비동기 함수
+    const loadMyCourses = async () => {
+      try {       
+        const response = await api.get('/api/users/getLecture');        
+        setMyCourses(response.data.data || []); 
+      } catch (error) {
+        console.error("수강 내역을 불러오는 중 오류 발생:", error);
+        alert('수강 내역을 불러오는 데 실패했습니다.');
+      }
+    };
+    
+
+  // [수정] 모달에서 강의를 추가하는 함수
+  const handleAddLecture = async (lecture) => {    
+    if (myCourses.some(course => course._id === lecture._id)) {
       return alert('이미 추가된 강의입니다.');
     }
-    setMyCourses(prevCourses => [...prevCourses, lecture]);
-    alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
+    try {      
+      const response = await api.post('/api/users/addUnivLect', { lectureId: lecture._id });    
+      setMyCourses(prevCourses => [...prevCourses, response.data.lectInfo]);
+      alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
+      
+      //setIsSearchModalOpen(false); // 성공 시 모달 창을 닫습니다.
+    } catch (error) {
+      console.error('강의 추가 중 오류 발생:', error);      
+      alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
+    }
+  };
+
+    // [수정] 개별 체크박스의 상태를 관리하는 함수입니다.
+  const handleSelectCourse = (lectureId) => {
+    setSelectedCourses(prevSelected => {
+      // 불변성을 유지하기 위해 이전 Set을 복사하여 새로운 Set을 만듭니다.
+      const newSelected = new Set(prevSelected);
+      if (newSelected.has(lectureId)) {
+        newSelected.delete(lectureId); // 이미 있으면 제거 (체크 해제)
+      } else {
+        newSelected.add(lectureId); // 없으면 추가 (체크)
+      }
+      return newSelected;
+    });
+  };
+
+  // [수정] 전체 선택 체크박스의 상태를 관리하는 함수입니다.
+  const handleSelectAllCourses = (e) => {
+    if (e.target.checked) {
+      // "전체 선택"이 체크되면, 현재 모든 강의의 ID를 Set에 담아 상태를 업데이트합니다.
+      const allCourseIds = new Set(myCourses.map(course => course._id));
+      setSelectedCourses(allCourseIds);
+    } else {
+      // "전체 선택"이 해제되면, Set을 비워서 모든 선택을 해제합니다.
+      setSelectedCourses(new Set());
+    }
+  };
+
+  // [추가] 선택된 강의들을 삭제하는 함수
+ const handleDeleteLectures = async () => {
+    if (selectedCourses.size === 0) {
+      return alert('삭제할 강의를 선택해주세요.');
+    }
+
+    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 삭제하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      // 1. 선택된 모든 강의 ID에 대해 병렬로 삭제 API를 호출합니다.
+      const deletePromises = Array.from(selectedCourses).map(lectureId => 
+        // URL 파라미터로 lectureId를 전달하여 DELETE 요청을 보냅니다.
+        api.delete(`/api/users/deleteLecture/${lectureId}`)
+      );
+            
+      const responses = await Promise.all(deletePromises);      
+      const deletedIds = new Set(responses.map(res => res.data.deletedLectureId));
+
+      setMyCourses(prevCourses =>
+        prevCourses.filter(course => !deletedIds.has(course._id))
+      );
+      
+      setSelectedCourses(new Set()); // 선택 상태를 초기화
+      alert('선택한 강의가 성공적으로 삭제되었습니다.');
+
+    } catch (error) {
+      console.error('강의 삭제 실패:', error);
+      alert(error.response?.data?.message || '강의 삭제에 실패했습니다.');
+    }
   };
 
   // [추가] info 상태를 업데이트하는 범용 핸들러
   const updateInfo = (key, value) => {
-    setInfo(prev => ({ ...prev, [key]: value }));
-  };
+    setInfo(prev => ({ ...prev, [key]: value }));  };
   
   const saveInfo = () => { console.log('저장된 정보:', info); alert('정보가 성공적으로 저장되었습니다! (서버 저장 API 미구현)'); };
-
   const logout = () => {
     localStorage.removeItem('authToken');
     // navigate('/');
@@ -114,7 +195,7 @@ function Main() {
             <div className="content-box">
               <h2>내 정보</h2>
               <div className="info-form">
-                <div className="info-row"><label>아이디</label><input value={info.userId} onChange={e => updateInfo('userId', e.target.value)} /></div>
+                <div className="info-row"><label>아이디</label><input value={info.userId} readOnly onChange={e => updateInfo('userId', e.target.value)} /></div>
                 <div className="info-row"><label>이름</label><input value={info.username} onChange={e => updateInfo('username', e.target.value)} /></div>
                 <div className="info-row"><label>전공</label>
                   <div className="tag-group" id="department-tags">
@@ -125,7 +206,7 @@ function Main() {
                 </div>
                 <div className="info-row"><label>졸업 트랙</label>
                   <div className="tag-group" id="track-tags">
-                    {['심컴','다중전공','해외복수학위','학석사연계'].map(tr => (
+                    {['없음(심컴)','다중전공','해외복수학위','학석사연계'].map(tr => (
                       <button type="button" key={tr} className={`tag-btn ${info.userTrack===tr?'selected':''}`} onClick={() => updateInfo('userTrack', tr)}>{tr}</button>
                     ))}
                   </div>
@@ -185,15 +266,14 @@ function Main() {
               <div className="form-actions"><button id="save-info-btn" className="action-btn" onClick={saveInfo}>내 정보 저장</button></div>
             </div>
           )}
-          {activeTab === 'my-courses' && (
-            // ... 나의 수강 내역 탭 내용은 기존과 동일 ...
+          {activeTab === 'my-courses' && (            
             <div className="content-box">
               <div className="content-header">
                 <h2>나의 수강 내역</h2>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   <button className="action-btn">기타 활동 추가</button>
-                  <button className="action-btn">삭제</button>
+                  <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
 
@@ -206,7 +286,14 @@ function Main() {
                 <table className="course-table">
                   <thead>
                       <tr>
-                        <th>선택</th>
+                        <th>
+                          {/* [수정] 전체 선택 체크박스: 모든 강의가 선택되었을 때만 checked 상태가 됩니다. */}
+                          <input 
+                            type="checkbox" 
+                            onChange={handleSelectAllCourses} 
+                            checked={myCourses.length > 0 && selectedCourses.size === myCourses.length} 
+                          />
+                        </th>
                         <th>개설년도</th>
                         <th>개설학기</th>
                         <th>교과목명</th>
@@ -218,9 +305,16 @@ function Main() {
                       </tr>
                   </thead>
                   <tbody>
-                      {myCourses.map((course, i) => (
-                      <tr key={course._id || i}>
-                          <td><input type="checkbox" /></td>
+                      {myCourses.map((course) => (
+                      <tr key={course._id}>
+                          <td>
+                            {/* [수정] 개별 체크박스: selectedCourses Set에 현재 강의의 ID가 포함되어 있을 때만 checked 상태가 됩니다. */}
+                            <input 
+                              type="checkbox" 
+                              checked={selectedCourses.has(course._id)} 
+                              onChange={() => handleSelectCourse(course._id)} 
+                            />
+                          </td>
                           <td>{course.lectYear}</td>
                           <td>{course.lectSemester}</td>
                           <td>{course.lectName}</td>
@@ -229,15 +323,14 @@ function Main() {
                           <td>{course.lectDiv}</td>
                           <td>{course.lectTime}</td>
                           <td>{course.lectCredit}</td>
-                      </tr>
+                      </tr> 
                       ))}
                   </tbody>
               </table>
               )} 
             </div>
           )}
-          {activeTab === 'graduation-check' && (
-            // ... 졸업 자가 진단 탭 내용은 기존과 동일 ...
+          {activeTab === 'graduation-check' && (            
             <div className="content-box">
               <div className="content-header"><h2>나의 졸업 요건 충족 현황</h2><button className="action-btn-green">진단하기</button></div>
               <ul className="status-list">

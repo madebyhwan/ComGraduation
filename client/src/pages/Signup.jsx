@@ -94,7 +94,7 @@ function Signup() {
     <div className="signup-container">
       <div className="character-section">
         <div className="speech-bubble">
-          <p>정보는 회원가입 후에도<br/>수정이 가능합니다!</p>
+          <p>아이디 외의 정보는 <br/>회원가입 후에도<br/>수정이 가능합니다!</p>
         </div>
         <img src={character} alt="Mascot" className="character-image" />
       </div>
