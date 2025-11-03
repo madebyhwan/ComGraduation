@@ -1,5 +1,7 @@
 const allRules = require('../config/graduationRules.js');
 const majorCourses = require('../config/majorCourses.json');
+const ventureCourses = require('../config/ventureCourses.json');
+
 
 // --- 헬퍼 함수들 ---
 
@@ -7,12 +9,16 @@ const majorCourses = require('../config/majorCourses.json');
  * 학생의 수강 과목들을 '전공', '교양', '일반선택'으로 분류하고 학점을 계산합니다.
  */
 function classifyAndSumCredits(lectures, userDepartment) {
-  let majorCredits = 0;
-  let generalEducationCredits = 0;
-  let generalElectiveCredits = 0;
+  let majorCredits = 0;             // 전공
+  let generalEducationCredits = 0;  // 교양
+  let generalElectiveCredits = 0;   // 일반 선택
+  let startupCourseCredits = 0;     // 창업 교과목
+
   const ourMajorCourseList = majorCourses[userDepartment] || [];
+  const ventureCourseList = ventureCourses[userDepartment] || ventureCourses["common"] || [];
 
   lectures.forEach(lecture => {
+    // 1. 주 학점 분류 (졸업 총 학점 계산용)
     if (lecture.lectGeneral === '교양') {
       generalEducationCredits += lecture.credits;
     } else if (ourMajorCourseList.includes(lecture.lectCode)) {
@@ -20,9 +26,20 @@ function classifyAndSumCredits(lectures, userDepartment) {
     } else {
       generalElectiveCredits += lecture.credits;
     }
+
+    // 창업 교과목
+    if (ventureCourseList.includes(lecture.lectCode)) {
+      startupCourseCredits += lecture.credits;
+    }
   });
 
-  return { majorCredits, generalEducationCredits, generalElectiveCredits };
+  // ⭐ 4. [변경] 계산된 모든 학점을 반환합니다.
+  return {
+    majorCredits,
+    generalEducationCredits,
+    generalElectiveCredits,
+    startupCourseCredits,
+  };
 }
 
 /**
@@ -70,8 +87,14 @@ function check(user, takenLectures) {
   const results = {};
 
   // 1. 학점 계산 및 요건 판별
-  const { majorCredits, generalEducationCredits, generalElectiveCredits } = classifyAndSumCredits(takenLectures, user.userDepartment);
-  
+  const {
+    majorCredits,
+    generalEducationCredits,
+    generalElectiveCredits,
+    startupCourseCredits, // 계산된 창업 교과 학점
+  } = classifyAndSumCredits(takenLectures, user.userDepartment);
+
+  // 교양 학점
   const geRule = requirements.generalEducationCredits;
   results.generalEducationCredits = {
     pass: generalEducationCredits >= geRule.min,
@@ -79,6 +102,7 @@ function check(user, takenLectures) {
     required: `${geRule.min} ~ ${geRule.max}`,
   };
 
+  // 총 학점
   let recognizedGeCredits = Math.min(generalEducationCredits, geRule.max || Infinity);
   const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits;
   results.totalCredits = {
@@ -87,7 +111,8 @@ function check(user, takenLectures) {
     required: requirements.minTotalCredits,
     note: `교양 학점은 최대 ${geRule.max}학점까지만 반영됩니다.`
   };
-  
+
+  // 전공 학점
   results.majorCredits = {
     pass: majorCredits >= requirements.minMajorCredits.credits,
     current: majorCredits,
@@ -95,6 +120,8 @@ function check(user, takenLectures) {
   };
 
   // 2. 학점 외 기타 요건 판별
+
+  // 전공 필수
   const takenCourseCodes = takenLectures.map(lec => lec.lectCode);
   const missingCourses = requirements.requiredMajorCourses.courses.filter(reqCode => !takenCourseCodes.includes(reqCode));
   results.requiredMajorCourses = {
@@ -103,21 +130,65 @@ function check(user, takenLectures) {
     missing: missingCourses,
   };
 
+  // 지도 교수 상담
   results.counselingSessions = {
     pass: (user.counselingCount || 0) >= requirements.counselingSessions.minRequired,
     current: user.counselingCount || 0,
     required: requirements.counselingSessions.minRequired,
   };
 
+  // TOPCIT or 졸업인터뷰
   results.exitRequirement = {
     pass: (user.passedTopcit || false) || (user.passedInterview || false),
     note: requirements.exitRequirement.note,
   };
 
+  // 영어성적
   results.englishProficiency = {
     pass: checkEnglishProficiency(user, requirements.englishProficiency),
     note: requirements.englishProficiency.note,
   };
+
+  // 현장실습
+  if (requirements.internshipRequirement) {
+    results.internship = {
+      pass: (user.completedInternship || false),
+      current: (user.completedInternship || false),
+      required: requirements.internshipRequirement.required,
+      note: requirements.internshipRequirement.note
+    };
+  }
+
+  const startupRule = requirements.startupCourseCompetency;
+
+  if (startupRule) {
+    let passedStartupCourse = false;
+    let requiredCourseCredits = 0;
+
+    // 2. 창업 교과 요건 확인
+    const courseRule = startupRule.options.find(opt => opt.type === 'startup_course');
+    const userFoundedStartup = user.startupFounded || false;
+
+    if (courseRule) {
+      if (!userFoundedStartup && courseRule.alternative && courseRule.alternative.condition === 'if_not_startup_founded') {
+        requiredCourseCredits = courseRule.alternative.requiredCredits;
+      } else {
+        requiredCourseCredits = courseRule.baseCredits;
+      }
+
+      if (startupCourseCredits >= requiredCourseCredits) {
+        passedStartupCourse = true;
+      }
+    }
+
+    results.startupCourseCompetency = {
+      pass: passedStartupCourse,
+      note: startupRule.note,
+      details: {
+        startupCourse: { pass: passedStartupCourse, current: startupCourseCredits, required: requiredCourseCredits }
+      }
+    };
+  }
 
   // --- 최종 판별 ---
   const isEligible = Object.values(results).every(result => result.pass);
