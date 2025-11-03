@@ -314,7 +314,7 @@ function Main() {
                   <label>기타</label>
                   <div className="checkbox-item">
                     <input type="checkbox" id="startup-check" checked={info.hasStartup} onChange={e => updateInfo('hasStartup', e.target.checked)} />
-                    <label htmlFor="startup-check">창업</label>
+                    <label htmlFor="startup-check">창업 여부</label>
                     <input type="checkbox" id="exchange-check" checked={info.isExchangeStudent} onChange={e => updateInfo('isExchangeStudent', e.target.checked)} />
                     <label htmlFor="exchange-check">교환학생 여부</label>
                   </div>
