@@ -61,6 +61,13 @@ function Main() {
     }
     let payload = decodeJWT(token);
     setAuthUser(payload);
+
+    // [추가] 백엔드의 '심컴' 트랙을 UI의 '없음(심컴)'으로 변환합니다.
+    const uiPayload = {
+      ...payload,
+      userTrack: payload.userTrack === '심컴' ? '없음(심컴)' : payload.userTrack
+    };
+
     setInfo(prev => ({
       ...prev, ...payload, }));      
    
@@ -159,9 +166,37 @@ function Main() {
 
   // [추가] info 상태를 업데이트하는 범용 핸들러
   const updateInfo = (key, value) => {
-    setInfo(prev => ({ ...prev, [key]: value }));  };
+    setInfo(prev => ({ ...prev, [key]: value })); 
+    if (key === 'userDepartment') {
+      if (value === '심화컴퓨터공학전공') {
+        // '심화' 선택 시, 트랙을 '없음(심컴)'으로 강제 설정
+        setInfo(prev => ({ ...prev, userTrack: '없음(심컴)' }));
+      } else if (value === '글로벌SW융합전공') {
+        // '글로벌' 선택 시, 토큰에 저장된 원래 트랙 값으로 복원
+        // authUser는 원본 '심컴'/'다중전공' 등을 가지고 있음
+        const originalTrack = authUser.userTrack === '심컴' 
+          ? '없음(심컴)' // 원본이 '심컴'이어도 UI는 '없음(심컴)' (이 경우는 없어야 함)
+          : authUser.userTrack; // '다중전공' 등
+        
+        // 만약 원본 트랙이 '심컴'이면 (즉, 원래 '심화' 유저였다면) '글로벌'로 바꿀 때 트랙을 초기화
+        setInfo(prev => ({ 
+          ...prev, 
+          userTrack: authUser.userTrack === '심컴' ? '' : authUser.userTrack
+        }));
+      }
+    }
+   };
+
+    
   
-  const saveInfo = () => { console.log('저장된 정보:', info); alert('정보가 성공적으로 저장되었습니다! (서버 저장 API 미구현)'); };
+  const saveInfo = () => { 
+    const payload = {
+      ...info,
+      userTrack: info.userTrack === '없음(심컴)' ? '심컴' : info.userTrack
+      };
+    console.log('저장된 정보:', info); alert('정보가 성공적으로 저장되었습니다! (서버 저장 API 미구현)');
+   };
+
   const logout = () => {
     localStorage.removeItem('authToken');
     // navigate('/');
@@ -200,15 +235,39 @@ function Main() {
                 <div className="info-row"><label>전공</label>
                   <div className="tag-group" id="department-tags">
                     {['글로벌SW융합전공','심화컴퓨터공학전공'].map(dep => (
-                      <button type="button" key={dep} className={`tag-btn ${info.userDepartment===dep?'selected':''}`} onClick={() => updateInfo('userDepartment', dep)}>{dep}</button>
+                      <button type="button" key={dep} className={`tag-btn ${info.userDepartment===dep?'selected':''}`} 
+                      onClick={() => updateInfo('userDepartment', dep)}>{dep}</button>
                     ))}
                   </div>
                 </div>
                 <div className="info-row"><label>졸업 트랙</label>
                   <div className="tag-group" id="track-tags">
-                    {['없음(심컴)','다중전공','해외복수학위','학석사연계'].map(tr => (
-                      <button type="button" key={tr} className={`tag-btn ${info.userTrack===tr?'selected':''}`} onClick={() => updateInfo('userTrack', tr)}>{tr}</button>
-                    ))}
+                    {/* [수정] UI에 표시할 트랙 옵션들. 백엔드 '심컴'은 UI '없음(심컴)'으로 표시 */}
+                    {['없음(심컴)','다중전공','해외복수학위','학석사연계'].map(tr => {
+                      
+                      // [수정] 현재 전공이 '심화'일 경우, '없음(심컴)'이 아니면 버튼을 숨김
+                      if (info.userDepartment === '심화컴퓨터공학전공' && tr !== '없음(심컴)') {
+                        return null;
+                      }
+                      // [수정] 현재 전공이 '글로벌'일 경우, '없음(심컴)' 버튼을 숨김
+                      if (info.userDepartment === '글로벌SW융합전공' && tr === '없음(심컴)') {
+                        return null;
+                      }
+
+                      return (
+                        <button 
+                          type="button" 
+                          key={tr} 
+                          // [수정] info.userTrack이 '없음(심컴)'/'다중전공' 등과 일치하는지 확인
+                          className={`tag-btn ${info.userTrack === tr ? 'selected' : ''}`} 
+                          // [수정] '심화'일 경우 모든 트랙 버튼 비활성화
+                          disabled={info.userDepartment === '심화컴퓨터공학전공'}
+                          onClick={() => updateInfo('userTrack', tr)}
+                        >
+                          {tr}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 

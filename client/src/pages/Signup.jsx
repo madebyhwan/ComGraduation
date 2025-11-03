@@ -16,16 +16,27 @@ function Signup() {
     userTrack: ''
   });
   const [loading, setLoading] = useState(false);
+   const [idCheck, setIdCheck] = useState({ message: '', status: '' });
+   // [추가] 아이디 중복확인 버튼 로딩 상태
+  const [idCheckLoading, setIdCheckLoading] = useState(false);
 
   const update = (k, v) => {
     setForm(prev => ({ ...prev, [k]: v }));
+
     if (k === 'userId') {
       setIdCheck({ message: '', status: '' });
     }
-  };
-  const [idCheck, setIdCheck] = useState({ message: '', status: '' });
-   // [추가] 아이디 중복확인 버튼 로딩 상태
-  const [idCheckLoading, setIdCheckLoading] = useState(false);
+    // [추가] 전공(Department) 변경 시 트랙(Track) 로직 처리
+    if (k === 'userDepartment') {
+      if (v === '심화컴퓨터공학전공') {
+        // '심화' 선택 시 트랙을 '없음(심컴)'으로 자동 설정
+        setForm(prev => ({ ...prev, userTrack: '없음(심컴)' }));
+      } else if (v === '글로벌SW융합전공') {
+        // '글로벌' 선택 시 트랙을 초기화 (다시 선택해야 함)
+        setForm(prev => ({ ...prev, userTrack: '' }));
+      }
+    }
+  }; 
 
   const selectSingle = (k, value) => update(k, value === form[k] ? '' : value);
 
@@ -59,7 +70,11 @@ function Signup() {
     }
     if (form.userPassword !== form.passwordConfirm) return alert('비밀번호가 일치하지 않습니다.');
     if (!form.userDepartment) return alert('전공을 선택해주세요.');
-    if (!form.userTrack) return alert('졸업트랙을 선택해주세요.');
+        // [수정] '글로벌SW융합전공'일 때만 트랙 선택 여부를 검증합니다.
+    if (form.userDepartment === '글로벌SW융합전공' && !form.userTrack) {
+      return alert('졸업트랙을 선택해주세요.');
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -68,7 +83,7 @@ function Signup() {
         userYear: form.userYear,
         username: form.username,
         userDepartment: form.userDepartment,
-        userTrack: form.userTrack
+        userTrack: form.userTrack === '없음(심컴)' ? '심컴' : form.userTrack
       };
       await api.post('/api/users/register', payload);
       alert(`${form.username}님, 회원가입이 완료되었습니다!`);
@@ -86,7 +101,7 @@ function Signup() {
   // userTrack enum: ['심컴', '다중전공', '해외복수학위', '학석사연계']
   const yearOptions = ['21학번'];
   const departmentOptions = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
-  const trackOptions = ['없음(심컴)', '다중전공', '해외복수학위', '학석사연계'];
+  const trackOptions = ['다중전공', '해외복수학위', '학석사연계'];
 
   const isSubmitDisabled = loading || idCheck.status !== 'available';
 
@@ -150,14 +165,18 @@ function Signup() {
               ))}
             </div>
           </div>
-          <div className="button-select-group">
-            <label>졸업트랙</label>
-            <div className="options-box" id="trackOptions">
-              {trackOptions.map(t => (
-                <button type="button" key={t} className={`option-btn ${form.userTrack===t?'selected':''}`} onClick={() => selectSingle('userTrack', t)}>{t}</button>
-              ))}
+          {/* [수정] '글로벌SW융합전공'을 선택했을 때만 졸업트랙 섹션이 나타납니다. */}
+          {form.userDepartment === '글로벌SW융합전공' && (
+            <div className="button-select-group">
+              <label>졸업트랙</label>
+              <div className="options-box" id="trackOptions">
+                {trackOptions.map(t => (
+                  <button type="button" key={t} className={`option-btn ${form.userTrack===t?'selected':''}`} onClick={() => selectSingle('userTrack', t)}>{t}</button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
+          
           <div className="form-actions">
             <button type="submit" className="submit-btn" disabled={isSubmitDisabled}>{loading ? '처리 중...' : '회원가입'}</button>
           </div>
