@@ -16,17 +16,19 @@ function Login() {
     if (!userId) return alert('아이디를 입력해주세요.');
     if (!userPassword) return alert('비밀번호를 입력해주세요.');
     setLoading(true);
-    api.post('/api/users/login', { userId, userPassword })
+
+    api.post('api/users/login', { userId, userPassword })
       .then(res => {
-        const {token} = res.data;
-        if (!token) throw new Error('토큰이 없습니다.');
+        const { token } = res.data;
+
+        if (!token) throw new Error("토큰이 없습니다");
 
         const payload = decodeJWT(token);
         localStorage.setItem('authToken', token);
         localStorage.setItem('authUser', JSON.stringify({
           userId: payload?.userId,
           username: payload?.username,
-          token: res.token
+          token: token
         }));
         navigate('/app');
       })

@@ -1,0 +1,110 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 800px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #aaa;
+}
+
+.search-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-filters select,
+.search-filters input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.search-filters input {
+  flex-grow: 1;
+}
+
+.search-filters button {
+  padding: 8px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-filters button:disabled {
+  background-color: #aaa;
+}
+
+.search-results {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.results-table th,
+.results-table td {
+  border-bottom: 1px solid #ddd;
+  padding: 10px;
+}
+
+.results-table thead {
+  background-color: #f7f7f7;
+}
+
+.add-btn {
+  padding: 5px 10px;
+  font-size: 12px;
+  border: 1px solid #28a745;
+  background-color: #28a745;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.message-text {
+  text-align: center;
+  color: #888;
+  padding: 20px;
+}

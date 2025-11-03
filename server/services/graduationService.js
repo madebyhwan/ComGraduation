@@ -15,21 +15,22 @@ function classifyAndSumCredits(lectures, userDepartment) {
   let startupCourseCredits = 0;     // 창업 교과목
 
   const ourMajorCourseList = majorCourses[userDepartment] || [];
-  const ventureCourseList = ventureCourses[userDepartment] || ventureCourses["common"] || [];
+  const ventureCourseList = ventureCourses["ventures"];
 
   lectures.forEach(lecture => {
+    const credits = Number(lecture.lectCredit) || 0;
     // 1. 주 학점 분류 (졸업 총 학점 계산용)
     if (lecture.lectGeneral === '교양') {
-      generalEducationCredits += lecture.credits;
+      generalEducationCredits += credits;
     } else if (ourMajorCourseList.includes(lecture.lectCode)) {
-      majorCredits += lecture.credits;
+      majorCredits += credits;
     } else {
-      generalElectiveCredits += lecture.credits;
+      generalElectiveCredits += credits;
     }
 
     // 창업 교과목
     if (ventureCourseList.includes(lecture.lectCode)) {
-      startupCourseCredits += lecture.credits;
+      startupCourseCredits += credits;
     }
   });
 
@@ -159,14 +160,14 @@ function check(user, takenLectures) {
     };
   }
 
-  const startupRule = requirements.startupCourseCompetency;
+  const startupRule = requirements.ventureCourseCompetency;
 
   if (startupRule) {
     let passedStartupCourse = false;
     let requiredCourseCredits = 0;
 
     // 2. 창업 교과 요건 확인
-    const courseRule = startupRule.options.find(opt => opt.type === 'startup_course');
+    const courseRule = startupRule.options.find(opt => opt.type === 'venture_course');
     const userFoundedStartup = user.startupFounded || false;
 
     if (courseRule) {
@@ -181,7 +182,7 @@ function check(user, takenLectures) {
       }
     }
 
-    results.startupCourseCompetency = {
+    results.ventureCourseCompetency = {
       pass: passedStartupCourse,
       note: startupRule.note,
       details: {

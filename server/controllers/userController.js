@@ -17,10 +17,11 @@ async function lectureList(userId) {
       })
       .populate({
         path: 'userLectures',
-        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor'
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
       });
 
     const custom = (user.userCustomLectures || []).map(cl => ({
+      _id: cl?._id ?? null,
       lectName: cl?.lectName ?? null,
       lectCode: null,
       lectDiv: null,
@@ -31,13 +32,15 @@ async function lectureList(userId) {
     }));
 
     const univ = (user.userLectures || []).map(l => ({
+      _id: l?._id ?? null, // <--- 삭제 기능을 위해 _id도 추가해주는 것이 좋다고 권유
       lectName: l?.lectName ?? null,
       lectCode: l?.lectCode ?? null,
       lectDiv: l?.lectDiv ?? null,
       lectCredit: l?.lectCredit ?? null,
       lectYear: l?.lectYear ?? null,
       lectSemester: l?.lectSemester ?? null,
-      lectProfessor: l?.lectProfessor ?? null
+      lectProfessor: l?.lectProfessor ?? null,
+      lectTime: l?.lectTime ?? null   //강의시간 추가
     })).sort((a, b) => {
       // 1순위: lectYear (오름차순)
       if (a.lectYear !== b.lectYear) {
@@ -86,10 +89,18 @@ exports.loginUser = async (req, res) => {
 
     // 토큰 발행
     const token = jwt.sign(
-      { id: user._id, username: user.username, userId: user.userId },
+      {
+        id: user._id,
+        username: user.username,
+        userId: user.userId,
+        userDepartment: user.userDepartment, //방금 추가
+        userTrack: user.userTrack    //방금 추가 
+      },
       process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY',
       { expiresIn: '1d' }
     );
+
+
 
     // 토큰 전송
     res.json({
@@ -203,44 +214,38 @@ exports.deleteLecture = async (req, res) => {
   }
 
   try {
-    const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    const userExists = await User.exists({ _id: userId });
+    if (!userExists) return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
 
-    let removedFrom = null;
+    const lectureObjectId = new mongoose.Types.ObjectId(lectureId);
 
-    // 1) 커스텀 강의에서 먼저 제거 시도
-    const beforeCustom = user.userCustomLectures.length;
-    user.userCustomLectures = user.userCustomLectures.filter(id => id.toString() !== lectureId);
-    if (beforeCustom !== user.userCustomLectures.length) {
-      removedFrom = 'custom';
-    } else {
-      // 2) 일반 강의에서 제거 시도
-      const beforeStd = user.userLectures.length;
-      user.userLectures = user.userLectures.filter(id => id.toString() !== lectureId);
-      if (beforeStd !== user.userLectures.length) {
-        removedFrom = 'standard';
+    const pullResult = await User.updateOne(
+      { _id: userId },
+      {
+        $pull: {
+          userCustomLectures: lectureObjectId,
+          userLectures: lectureObjectId
+        }
       }
-    }
+    );
 
-    if (!removedFrom) {
+    if (!pullResult.modifiedCount) {
       return res.status(404).json({ message: '사용자 강의 목록(일반/커스텀)에 존재하지 않는 강의입니다.' });
     }
 
-    await user.save();
-    // const safeUser = user.toObject();
-    // delete safeUser.userPassword;
+    // 커스텀 강의 문서도 함께 제거 (해당 사용자의 문서일 때만)
+    await CustomLecture.deleteOne({ _id: lectureObjectId, userObjectId: userId });
 
     return res.status(200).json({
       message: '강의가 성공적으로 제거되었습니다.',
-      deletedLectureId: lectureId,
-      // removedFrom,
-      // user: safeUser
+      deletedLectureId: lectureId
     });
   } catch (error) {
     console.error('강의 제거 중 오류 발생:', error);
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
+
 exports.checkGraduation = async (req, res) => {
   try {
     // 1. 로그인된 사용자의 ID를 가져옵니다. (auth 미들웨어 사용 가정)
