@@ -17,7 +17,7 @@ async function lectureList(userId) {
       })
       .populate({
         path: 'userLectures',
-        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor'
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
       });
 
     const custom = (user.userCustomLectures || []).map(cl => ({
@@ -31,13 +31,15 @@ async function lectureList(userId) {
     }));
 
     const univ = (user.userLectures || []).map(l => ({
+       _id: l?._id ?? null, // <--- 삭제 기능을 위해 _id도 추가해주는 것이 좋다고 권유
       lectName: l?.lectName ?? null,
       lectCode: l?.lectCode ?? null,
       lectDiv: l?.lectDiv ?? null,
       lectCredit: l?.lectCredit ?? null,
       lectYear: l?.lectYear ?? null,
       lectSemester: l?.lectSemester ?? null,
-      lectProfessor: l?.lectProfessor ?? null
+      lectProfessor: l?.lectProfessor ?? null,
+      lectTime: l?.lectTime ?? null   //강의시간 추가
     })).sort((a, b) => {
       // 1순위: lectYear (오름차순)
       if (a.lectYear !== b.lectYear) {
@@ -86,10 +88,17 @@ exports.loginUser = async (req, res) => {
 
     // 토큰 발행
     const token = jwt.sign(
-      { id: user._id, username: user.username, userId: user.userId },
-      process.env.JWT_SECRET || 'JWT_SECRET_KEY',
+      { id: user._id, 
+        username: user.username, 
+        userId: user.userId,
+        userDepartment: user.userDepartment, //방금 추가
+        userTrack: user.userTrack    //방금 추가 
+      },
+      process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY',
       { expiresIn: '1d' }
     );
+
+    
 
     // 토큰 전송
     res.json({
