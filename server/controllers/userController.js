@@ -262,14 +262,8 @@ exports.checkGraduation = async (req, res) => {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
-    // [수정] 두 배열을 하나의 배열로 합칩니다. (스프레드 연산자 ... 사용)
-    const allTakenLectures = [
-      ...user.userLectures,
-      ...user.userCustomLectures
-    ];
-
     // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
-    const result = graduationService.check(user, allTakenLectures); // 합쳐진 배열 전달
+    const result = graduationService.check(user, user.userLectures, user.userCustomLectures); // 합쳐진 배열 전달
 
     // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
     res.status(200).json(result);
@@ -332,10 +326,10 @@ exports.getLecture = async (req, res) => {
 // 사용자 정보 조회 (아이디, 이름 포함 전체 정보)
 exports.getUserProfile = async (req, res) => {
   const userId = req.user.id;
-  
+
   try {
     const user = await User.findById(userId).select('-userPassword');
-    
+
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
@@ -376,11 +370,11 @@ exports.updateUserProfile = async (req, res) => {
     counselingCount
   } = req.body;
 
-  try {    
+  try {
     const user = await User.findById(userId);
-    
+
     if (!user) {
-      return res.status(404).json({ 
+      return res.status(404).json({
         message: '사용자를 찾을 수 없습니다.'
       });
     }
@@ -405,7 +399,7 @@ exports.updateUserProfile = async (req, res) => {
     // 영어 성적 업데이트
     if (englishTest !== undefined) {
       const validTestTypes = ['TOEIC', 'TOEIC SPEAKING', 'PBT', 'IBT', 'CBT', 'TEPS', 'TEPS SPEAKING', 'OPIC', 'G-TELP', 'IELTS'];
-      
+
       // englishTest가 null이거나 빈 객체인 경우 초기화
       if (!englishTest || englishTest.testType === null || englishTest.testType === '') {
         user.englishTest = { testType: null, score: null };
@@ -456,14 +450,14 @@ exports.updateUserProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('사용자 정보 수정 오류:', error);
-    
+
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
+      return res.status(400).json({
         message: '입력 값이 유효하지 않습니다.',
         errors: Object.values(error.errors).map(e => e.message)
       });
     }
-    
+
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };

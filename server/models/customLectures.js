@@ -6,17 +6,17 @@ const customLecuteresSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
-  lectName:{
+  lectName: {
     type: String,
     required: true,
     trim: true
   },
-  lectCredit:{
+  lectCredit: {
     type: Number,
     required: true,
     min: 1
   },
-  lectType:{
+  lectType: {
     type: String,
     enum: ['전공', '전공필수', '교양', '일반선택'],
     required: true
