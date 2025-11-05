@@ -8,7 +8,9 @@ const {
   checkIdDuplication,
   checkGraduation,
   addCustomLecture,
-  getLecture
+  getLecture,
+  getUserProfile,
+  updateUserProfile
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -36,5 +38,11 @@ router.post('/addCustomLect', authenticateToken, addCustomLecture);
 
 // 강의 불러오기
 router.get('/getLecture', authenticateToken, getLecture);
+
+// 사용자 정보 조회 (내 정보 페이지 진입 시)
+router.get('/profile', authenticateToken, getUserProfile);
+
+// 사용자 정보 수정 (내 정보 수정 후 저장 버튼 클릭 시)
+router.patch('/profile', authenticateToken, updateUserProfile);
 
 module.exports = router;
