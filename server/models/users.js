@@ -38,7 +38,42 @@ const usersSchema = new mongoose.Schema({
   userCustomLectures: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'CustomLecture'
-  }]
+  }],
+  // 영어 성적 정보
+  englishTest: {
+    testType: {
+      type: String,
+      enum: ['TOEIC', 'TOEIC SPEAKING', 'PBT', 'IBT', 'CBT', 'TEPS', 'TEPS SPEAKING', 'OPIC', 'G-TELP', 'IELTS', null],
+      default: null
+    },
+    score: {
+      type: String,  // OPIC의 경우 IL, IM1 같은 레벨이므로 String
+      default: null
+    }
+  },
+  // 졸업 요건 정보
+  passedInterview: {
+    type: Boolean,
+    default: false
+  },
+  passedTopcit: {
+    type: Boolean,
+    default: false
+  },
+  // 기타 정보
+  isStartup: {
+    type: Boolean,
+    default: false
+  },
+  isExchangeStudent: {
+    type: Boolean,
+    default: false
+  },
+  counselingCount: {
+    type: Number,
+    default: 0,
+    min: 0
+  }
 }, {
   timestamps: true
 });

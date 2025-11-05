@@ -33,6 +33,10 @@ const lecturesSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  lectGeneral:{
+    type: String,
+    required: true
+  },
   lectTime:{
     type: String
   }
