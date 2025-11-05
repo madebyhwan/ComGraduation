@@ -32,7 +32,7 @@ async function lectureList(userId) {
     }));
 
     const univ = (user.userLectures || []).map(l => ({
-       _id: l?._id ?? null, // <--- 삭제 기능을 위해 _id도 추가해주는 것이 좋다고 권유
+      _id: l?._id ?? null, // <--- 삭제 기능을 위해 _id도 추가해주는 것이 좋다고 권유
       lectName: l?.lectName ?? null,
       lectCode: l?.lectCode ?? null,
       lectDiv: l?.lectDiv ?? null,
@@ -46,7 +46,7 @@ async function lectureList(userId) {
       if (a.lectYear !== b.lectYear) {
         return (a.lectYear || 0) - (b.lectYear || 0);
       }
-      
+
       // 2순위: lectSemester (1학기 → 계절학기(하계) → 2학기 → 계절학기(동계))
       if (a.lectSemester !== b.lectSemester) {
         const semesterOrder = {
@@ -59,7 +59,7 @@ async function lectureList(userId) {
         const bOrder = semesterOrder[b.lectSemester] || 999;
         return aOrder - bOrder;
       }
-      
+
       // 3순위: lectName (사전순)
       return (a.lectName || '').localeCompare(b.lectName || '');
     });
@@ -89,8 +89,9 @@ exports.loginUser = async (req, res) => {
 
     // 토큰 발행
     const token = jwt.sign(
-      { id: user._id, 
-        username: user.username, 
+      {
+        id: user._id,
+        username: user.username,
         userId: user.userId,
         userDepartment: user.userDepartment, //방금 추가
         userTrack: user.userTrack    //방금 추가 
@@ -99,7 +100,7 @@ exports.loginUser = async (req, res) => {
       { expiresIn: '1d' }
     );
 
-    
+
 
     // 토큰 전송
     res.json({
@@ -250,18 +251,25 @@ exports.checkGraduation = async (req, res) => {
     // 1. 로그인된 사용자의 ID를 가져옵니다. (auth 미들웨어 사용 가정)
     const userId = req.user.id;
 
-    // 2. DB에서 사용자 정보와 수강 과목 목록을 가져옵니다.
-    const user = await User.findById(userId);
-    // 'takenLectures'는 User 모델에 populate하거나 직접 조회해야 합니다.
-    // 이 부분은 현재 DB 구조에 맞게 수정이 필요할 수 있습니다.
-    const takenLectures = await Lecture.find({ _id: { $in: user.userLectures } });
+    // 2. DB에서 사용자 정보와 수강 과목 목록을 *모두 populate 합니다.*
+    const user = await User.findById(userId)
+      .populate('userLectures')
+      .populate('userCustomLectures');
+
+    // [삭제] const takenLectures = ... <- .populate()가 이 작업을 이미 수행했으므로 불필요합니다.
 
     if (!user) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
+    // [수정] 두 배열을 하나의 배열로 합칩니다. (스프레드 연산자 ... 사용)
+    const allTakenLectures = [
+      ...user.userLectures,
+      ...user.userCustomLectures
+    ];
+
     // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
-    const result = graduationService.check(user, takenLectures);
+    const result = graduationService.check(user, allTakenLectures); // 합쳐진 배열 전달
 
     // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
     res.status(200).json(result);
@@ -281,8 +289,8 @@ exports.addCustomLecture = async (req, res) => {
     return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
   }
 
-  try { 
-    const user = await User.findById(userId); 
+  try {
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
@@ -301,9 +309,9 @@ exports.addCustomLecture = async (req, res) => {
       message: '강의가 성공적으로 추가되었습니다.',
       lectInfo: newCustomLecture.toJSON()
     });
-    } catch (error) {
-      console.error('강의 추가 중 오류 발생:', error);
-      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  } catch (error) {
+    console.error('강의 추가 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
 
@@ -311,7 +319,7 @@ exports.getLecture = async (req, res) => {
   const userId = req.user.id;
   try {
     const data = await lectureList(userId);
-    if(!data)
+    if (!data)
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     else
       return res.status(200).json({ data });
