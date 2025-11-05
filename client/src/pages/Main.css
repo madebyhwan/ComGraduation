@@ -172,6 +172,14 @@ html {
     background-color: #ffffff;
 }
 
+/* 작은 입력 필드 (지도교수상담 — 두 자리 숫자 정도) */
+.info-row .small-input {
+    width: 56px;
+    /* 두 자리 숫자에 적당한 너비 */
+    padding: 6px;
+    text-align: center;
+}
+
 .info-row input:focus {
     outline: none;
     border-color: #5897fb;
@@ -226,6 +234,13 @@ html {
     height: 16px;
 }
 
+/* 수강 내역 테이블이 페이지 높이를 초과할 때 내부에서 스크롤되도록 함 */
+.table-scroll {
+    max-height: 55vh;
+    /* 화면 높이의 적당량: 필요 시 조정 가능 */
+    overflow: auto;
+}
+
 /* ==================
    졸업 자가 진단
    ================== */
@@ -277,7 +292,9 @@ html {
     padding: 8px;
     font-size: 14px;
     border: 1px solid #ccc;
-    border-radius: 5px; /* 다른 입력 요소들과 통일성을 위해 추가 */
+    border-radius: 5px;
+    /* 다른 입력 요소들과 통일성을 위해 추가 */
     background-color: #ffffff;
-    font-family: inherit; /* body의 폰트를 그대로 사용 */
+    font-family: inherit;
+    /* body의 폰트를 그대로 사용 */
 }
