@@ -19,8 +19,8 @@ const authenticateToken = require('../middleware/auth');
 // 회원가입
 router.post('/register', registerUser);
 
- // 로그인
-router.post('/login',loginUser);
+// 로그인
+router.post('/login', loginUser);
 
 // 유저 강의 삭제
 router.delete('/deleteLecture/:lectureId', authenticateToken, deleteLecture);

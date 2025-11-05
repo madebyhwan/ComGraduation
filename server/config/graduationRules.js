@@ -57,13 +57,14 @@ const rules = {
       "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 700 },
-        { "test": "TOEIC_SPEAKING", "minScore": 120 },
-        { "test": "TOEFL_PBT", "minScore": 529 },
-        { "test": "TOEFL_IBT", "minScore": 71 },
-        { "test": "TEPS", "minScore": 264 },
-        { "test": "TEPS_SPEAKING", "minScore": 50 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
         { "test": "OPIC", "minLevel": "IM1" },
-        { "test": "G_TELP", "minScore": 65 },
+        { "test": "G-TELP", "minScore": 65 },
         { "test": "IELTS", "minScore": 6.0 }
       ]
     },
