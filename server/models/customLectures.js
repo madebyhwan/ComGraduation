@@ -11,14 +11,29 @@ const customLecuteresSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  lectCredit: {
-    type: Number,
-    required: true,
-    min: 1
-  },
   lectType: {
     type: String,
-    enum: ['전공', '전공필수', '교양', '일반선택'],
+    enum: ['전공', '교양', '일반선택'],
+    required: true
+  },
+  overseasCredit:{  // 해외학점
+    type: Number,
+    min: 0,
+    required: true
+  },
+  fieldPracticeCredit:{  // 현장실습학점
+    type: Number,
+    min: 0,
+    required: true
+  },
+  // entrepreneurshipCredit:{  // 창업교과목학점
+  //   type: Number,
+  //   min: 0,
+  //   required: true
+  // }
+  totalCredit:{  // 총 이수학점에 포함되는 학점
+    type: Number,
+    min: 0,
     required: true
   }
 }, {
