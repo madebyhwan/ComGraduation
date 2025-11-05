@@ -10,6 +10,8 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
   let generalEducationCredits = 0;  // 교양
   let generalElectiveCredits = 0;   // 일반 선택
   let startupCourseCredits = 0;     // 창업 교과목
+  let fieldPracticeCredits = 0;     // 현장실습
+  let overseasCredits = 0;          // 해외대학인정학점
 
   const ourMajorCourseList = majorCourses[userDepartment] || [];
   const ventureCourseList = ventureCourses["ventures"];
@@ -32,13 +34,22 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
   });
 
   userCustomLectures.forEach(lecture => {
-    const credits = Number(lecture.totalCredits) || 0;
+    const credit = Number(lecture.totalCredits) || 0;
     if (lecture.lectType === '교양') {
-      generalEducationCredits += credits;
+      generalEducationCredits += credit;
     } else if (lecture.lectType === '전공') {
-      majorCredits += credits;
+      majorCredits += credit;
     } else {
-      generalElectiveCredits += credits;
+      generalElectiveCredits += credit;
+    }
+
+    const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
+    if (lecture.fieldPracticeCredit > 0) {
+      fieldPracticeCredits += fieldPracticeCredit;
+    }
+    const overseasCredit = Number(lecture.overseasCredit) || 0;
+    if (lecture.overseasCredit > 0) {
+      overseasCredits += overseasCredit;
     }
   });
 
@@ -48,6 +59,8 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     generalEducationCredits,
     generalElectiveCredits,
     startupCourseCredits,
+    fieldPracticeCredits,
+    overseasCredits
   };
 }
 
@@ -107,7 +120,9 @@ function check(user, takenLectures, userCustomLectures) {
     majorCredits,
     generalEducationCredits,
     generalElectiveCredits,
-    startupCourseCredits, // 계산된 창업 교과 학점
+    startupCourseCredits,
+    fieldPracticeCredits,
+    overseasCredits
   } = classifyAndSumCredits(takenLectures, userCustomLectures, user.userDepartment);
 
   // 교양 학점

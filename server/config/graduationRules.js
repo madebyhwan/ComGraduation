@@ -69,7 +69,10 @@ const rules = {
       ]
     },
 
-    "minInternshipCredits": 3,
+    "internshipRequirement": {
+      "note": "인턴십 학점 및 이수 요건",
+      "minInternshipCredits": 3
+    },
 
     "counselingSessions": {
       "note": "지도교수 상담 8회 이상 충족 필요",
