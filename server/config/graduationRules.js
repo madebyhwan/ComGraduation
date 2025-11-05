@@ -13,8 +13,8 @@ const rules = {
     "requiredMajorCourses": {
       "note": "반드시 이수해야 하는 전공필수과목 목록",
       "courses": [
-        "COME0204",
-        "COME0204",
+        "COMP0204",
+        "COME0331",
         "GLSO0216",
         "COMP0312"
       ]
@@ -29,33 +29,29 @@ const rules = {
       "minOverseasCredits": 9
     },
 
-    "techStartupCompetency": {
-      "note": "기술창업역량 충족 조건. 아래 옵션을 모두 만족해야 함.",
+    "internshipRequirement": {
+      "note": "인턴십 이수 여부 (필수)",
+      "required": true
+    },
+
+    "ventureCourseCompetency": {
+      "note": "기술창업 교과목 이수 요건",
       "options": [
         {
-          "type": "internship",
-          "minCredits": 3
-        },
-        {
-          "type": "startup_course",
+          "type": "venture_course",
           "note": "기본 9학점, 창업 안 했을 시 15학점 필요",
           "baseCredits": 9,
           "alternative": {
             "condition": "if_not_startup_founded",
             "requiredCredits": 15
           }
-        },
-        {
-          "type": "startup_founded",
-          "required": true
         }
       ]
     },
-
-    "swConvergenceCompetency": {
-      "required": false,
-      "note": "종합설계교과목은 22학번부터 필수"
-    },
+    // "swConvergenceCompetency": {
+    //   "required": false,
+    //   "note": "종합설계교과목은 22학번부터 필수"
+    // },
 
     "englishProficiency": {
       "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
