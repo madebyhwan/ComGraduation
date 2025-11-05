@@ -329,7 +329,7 @@ function Main() {
           {activeTab === 'my-courses' && (
             <div className="content-box">
               <div className="content-header">
-                <h2>나의 수강 내역</h2>
+                <h2>나의 수강 및 활동 내역</h2>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   <button className="action-btn">기타 활동 추가</button>
