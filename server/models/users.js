@@ -31,6 +31,11 @@ const usersSchema = new mongoose.Schema({
     required: true,
     enum: ['심컴', '다중전공', '해외복수학위', '학석사연계']
   },
+  multiMajorTrack: {
+    type: String,
+    enum: ['복수전공', '연계전공', '융합전공', '부전공', null],
+    default: null
+  },
   userLectures: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lecture'
@@ -38,6 +43,10 @@ const usersSchema = new mongoose.Schema({
   userCustomLectures: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'CustomLecture'
+  }],
+  multiMajorTrackLectures: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Lecture'
   }],
   // 영어 성적 정보
   englishTest: {

@@ -25,7 +25,7 @@ async function lectureList(userId) {
       lectName: cl?.lectName ?? null,
       lectCode: null,
       lectDiv: null,
-      lectCredit: cl?.lectCredit ?? null,
+      totalCredit: cl?.totalCredit ?? null,
       lectYear: null,
       lectSemester: null,
       lectProfessor: null
@@ -64,9 +64,43 @@ async function lectureList(userId) {
       return (a.lectName || '').localeCompare(b.lectName || '');
     });
 
+
+    const multiMajor = (user.multiMajorTrackLectures || []).map(l => ({
+      _id: l?._id ?? null, // <--- 삭제 기능을 위해 _id도 추가해주는 것이 좋다고 권유
+      lectName: l?.lectName ?? null,
+      lectCode: l?.lectCode ?? null,
+      lectDiv: l?.lectDiv ?? null,
+      lectCredit: l?.lectCredit ?? null,
+      lectYear: l?.lectYear ?? null,
+      lectSemester: l?.lectSemester ?? null,
+      lectProfessor: l?.lectProfessor ?? null,
+      lectTime: l?.lectTime ?? null   //강의시간 추가
+    })).sort((a, b) => {
+      // 1순위: lectYear (오름차순)
+      if (a.lectYear !== b.lectYear) {
+        return (a.lectYear || 0) - (b.lectYear || 0);
+      }
+
+      // 2순위: lectSemester (1학기 → 계절학기(하계) → 2학기 → 계절학기(동계))
+      if (a.lectSemester !== b.lectSemester) {
+        const semesterOrder = {
+          '1학기': 1,
+          '계절학기(하계)': 2,
+          '2학기': 3,
+          '계절학기(동계)': 4
+        };
+        const aOrder = semesterOrder[a.lectSemester] || 999;
+        const bOrder = semesterOrder[b.lectSemester] || 999;
+        return aOrder - bOrder;
+      }
+
+      // 3순위: lectName (사전순)
+      return (a.lectName || '').localeCompare(b.lectName || '');
+    });
+
     if (!user) return null;
 
-    return [...custom, ...univ];
+    return [...custom, ...univ, ...multiMajor];
   } catch (error) {
     console.error('lectureList error:', error);
     throw error;
@@ -276,10 +310,10 @@ exports.checkGraduation = async (req, res) => {
 };
 
 exports.addCustomLecture = async (req, res) => {
-  const { lectName, lectCredit, lectType } = req.body;
+  const { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit } = req.body;
   const userId = req.user.id;
 
-  if (!lectName || !lectCredit || !lectType) {
+  if (!lectName || !lectType || !overseasCredit || !fieldPracticeCredit || !totalCredit) {
     return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
   }
 
@@ -292,8 +326,10 @@ exports.addCustomLecture = async (req, res) => {
     const newCustomLecture = await CustomLecture.create({
       userObjectId: user._id,
       lectName,
-      lectCredit,
-      lectType
+      lectType,
+      overseasCredit,
+      fieldPracticeCredit,
+      totalCredit
     });
     user.userCustomLectures.push(newCustomLecture._id);
     await user.save();
@@ -360,6 +396,7 @@ exports.getUserProfile = async (req, res) => {
 exports.updateUserProfile = async (req, res) => {
   const userId = req.user.id;
   const {
+    username,
     userDepartment,
     userTrack,
     englishTest,
@@ -380,6 +417,10 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     // 수정 가능한 필드만 업데이트
+    if (username !== undefined) {
+      user.username = String(username);
+    }
+
     if (userDepartment !== undefined) {
       const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
       if (!validDepartments.includes(userDepartment)) {
@@ -459,5 +500,46 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     return res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// 다중전공 넘기기
+exports.tossMultiMajorTracks = async (req, res) => {
+  const userId = req.user.id;
+  const { lectureId } = req.body;
+
+  if (!lectureId) {
+    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    const lecture = await Lecture.findById(lectureId);
+
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+    if (!lecture) {
+      return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
+    }
+    if (user.multiMajorTrackLectures.includes(lectureId)) {
+      return res.status(409).json({ message: '이미 추가된 강의입니다.' });
+    }
+    if (user.userTrack !== '다중전공') {
+      return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
+    }
+
+    user.userLectures.pop(lectureId);
+    user.multiMajorTrackLectures.push(lectureId);
+    await user.save();
+
+    res.status(200).json({
+      message: '강의가 성공적으로 추가되었습니다.',
+      lectInfo: lecture.toJSON()
+    });
+
+  } catch (error) {
+    console.error('강의 추가 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
