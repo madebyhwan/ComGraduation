@@ -41,7 +41,7 @@ const transformBackendToFrontend = (user) => {
     graduationRequirement: gradReq, // 백엔드 boolean 필드 -> UI 문자열
     hasStartup: user.isStartup || false, // 백엔드 isStartup -> UI hasStartup
     isExchangeStudent: user.isExchangeStudent || false,
-    multiMajorType: '', // 다중전공 분류 (예: 복수전공, 연계전공 등)
+    multiMajorType: user.multiMajorType || ' ', // 다중전공 분류 (예: 복수전공, 연계전공 등)
   };
 };
 
