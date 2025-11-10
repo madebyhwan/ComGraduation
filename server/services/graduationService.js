@@ -2,22 +2,21 @@ const allRules = require('../config/graduationRules.js');
 const majorCourses = require('../config/majorCourses.json');
 const ventureCourses = require('../config/ventureCourses.json');
 
-
-// --- 헬퍼 함수들 ---
-
 /**
- * 학생의 수강 과목들을 '전공', '교양', '일반선택'으로 분류하고 학점을 계산합니다.
+ * 학생의 수강 과목들을 '전공', '교양', '일반선택'으로 분류하고 학점을 계산
  */
-function classifyAndSumCredits(lectures, userDepartment) {
+function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment) {
   let majorCredits = 0;             // 전공
   let generalEducationCredits = 0;  // 교양
   let generalElectiveCredits = 0;   // 일반 선택
   let startupCourseCredits = 0;     // 창업 교과목
+  let fieldPracticeCredits = 0;     // 현장실습
+  let overseasCredits = 0;          // 해외대학인정학점
 
   const ourMajorCourseList = majorCourses[userDepartment] || [];
   const ventureCourseList = ventureCourses["ventures"];
 
-  lectures.forEach(lecture => {
+  takenLectures.forEach(lecture => {
     const credits = Number(lecture.lectCredit) || 0;
     // 1. 주 학점 분류 (졸업 총 학점 계산용)
     if (lecture.lectGeneral === '교양') {
@@ -34,39 +33,68 @@ function classifyAndSumCredits(lectures, userDepartment) {
     }
   });
 
-  // ⭐ 4. [변경] 계산된 모든 학점을 반환합니다.
+  userCustomLectures.forEach(lecture => {
+    const credit = Number(lecture.totalCredits) || 0;
+    if (lecture.lectType === '교양') {
+      generalEducationCredits += credit;
+    } else if (lecture.lectType === '전공') {
+      majorCredits += credit;
+    } else {
+      generalElectiveCredits += credit;
+    }
+
+    const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
+    if (lecture.fieldPracticeCredit > 0) {
+      fieldPracticeCredits += fieldPracticeCredit;
+    }
+    const overseasCredit = Number(lecture.overseasCredit) || 0;
+    if (lecture.overseasCredit > 0) {
+      overseasCredits += overseasCredit;
+    }
+  });
+
+  // 계산된 모든 학점을 반환합니다.
   return {
     majorCredits,
     generalEducationCredits,
     generalElectiveCredits,
     startupCourseCredits,
+    fieldPracticeCredits,
+    overseasCredits
   };
 }
 
 /**
  * 영어 성적 요건 충족 여부를 확인합니다.
+ * 스키마: user.englishTest = { testType: String, score: String }
  */
 function checkEnglishProficiency(user, rule) {
-  if (!rule || !rule.options) return true; // 규칙이 없으면 통과
+  if (!rule || !rule.options || !user.englishTest || !user.englishTest.testType || !user.englishTest.score) {
+    return false; // 규칙이나 사용자 성적 정보가 없으면 미충족
+  }
+
+  const userTestType = user.englishTest.testType;
+  let userScore = user.englishTest.score;
+
+  // OPIC 레벨 매핑을 위한 배열
+  const opicHierarchy = ['IL', 'IM1', 'IM2', 'IM3', 'IH', 'AL'];
 
   for (const option of rule.options) {
-    switch (option.test) {
-      case 'TOEIC':
-        if ((user.toeicScore || 0) >= option.minScore) return true;
-        break;
-      case 'TOEFL_IBT':
-        if ((user.toeflIbtScore || 0) >= option.minScore) return true;
-        break;
-      case 'TEPS':
-        if ((user.tepsScore || 0) >= option.minScore) return true;
-        break;
-      case 'OPIC':
-        const opicHierarchy = ['IL', 'IM1', 'IM2', 'IM3', 'IH', 'AL'];
-        const userLevelIndex = opicHierarchy.indexOf(user.opicLevel);
+    if (option.test === userTestType) {
+      if (option.test === 'OPIC') {
+        // OPIC 레벨 비교
+        const userLevelIndex = opicHierarchy.indexOf(userScore);
         const requiredLevelIndex = opicHierarchy.indexOf(option.minLevel);
-        if (userLevelIndex !== -1 && userLevelIndex >= requiredLevelIndex) return true;
-        break;
-      // ... 기타 영어 시험 case 추가 ...
+        if (userLevelIndex !== -1 && requiredLevelIndex !== -1 && userLevelIndex >= requiredLevelIndex) {
+          return true;
+        }
+      } else {
+        // 숫자 점수 비교 (문자열 점수를 숫자로 변환)
+        const scoreNumber = Number(userScore);
+        if (!isNaN(scoreNumber) && scoreNumber >= option.minScore) {
+          return true;
+        }
+      }
     }
   }
   return false;
@@ -77,7 +105,7 @@ function checkEnglishProficiency(user, rule) {
 /**
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
-function check(user, takenLectures) {
+function check(user, takenLectures, userCustomLectures) {
   const ruleKey = `${user.userDepartment}_${user.userTrack}_${user.userYear}`;
   const requirements = allRules[ruleKey];
 
@@ -92,8 +120,10 @@ function check(user, takenLectures) {
     majorCredits,
     generalEducationCredits,
     generalElectiveCredits,
-    startupCourseCredits, // 계산된 창업 교과 학점
-  } = classifyAndSumCredits(takenLectures, user.userDepartment);
+    startupCourseCredits,
+    fieldPracticeCredits,
+    overseasCredits
+  } = classifyAndSumCredits(takenLectures, userCustomLectures, user.userDepartment);
 
   // 교양 학점
   const geRule = requirements.generalEducationCredits;
@@ -133,6 +163,7 @@ function check(user, takenLectures) {
 
   // 지도 교수 상담
   results.counselingSessions = {
+    // 스키마의 counselingCount 필드 사용
     pass: (user.counselingCount || 0) >= requirements.counselingSessions.minRequired,
     current: user.counselingCount || 0,
     required: requirements.counselingSessions.minRequired,
@@ -151,12 +182,24 @@ function check(user, takenLectures) {
   };
 
   // 현장실습
-  if (requirements.internshipRequirement) {
+  if (requirements.internshipRequirement && requirements.internshipRequirement.minInternshipCredits) {
+    const requiredCredits = requirements.internshipRequirement.minInternshipCredits;
     results.internship = {
-      pass: (user.completedInternship || false),
-      current: (user.completedInternship || false),
-      required: requirements.internshipRequirement.required,
-      note: requirements.internshipRequirement.note
+      pass: fieldPracticeCredits >= requiredCredits,
+      current: fieldPracticeCredits,
+      required: requiredCredits,
+      note: requirements.internshipRequirement.note || `현장실습 학점 ${requiredCredits}학점 이상 이수`
+    };
+  }
+
+  // 해외대학인정학점
+  if (requirements.globalCompetency && requirements.globalCompetency.minOverseasCredits) {
+    const requiredCredits = requirements.globalCompetency.minOverseasCredits;
+    results.globalCompetency = {
+      pass: overseasCredits >= requiredCredits,
+      current: overseasCredits,
+      required: requiredCredits,
+      note: `해외 이수 학점 ${requiredCredits}학점 이상 이수`
     };
   }
 
@@ -168,7 +211,8 @@ function check(user, takenLectures) {
 
     // 2. 창업 교과 요건 확인
     const courseRule = startupRule.options.find(opt => opt.type === 'venture_course');
-    const userFoundedStartup = user.startupFounded || false;
+    const userFoundedStartup = user.isStartup || false;
+
 
     if (courseRule) {
       if (!userFoundedStartup && courseRule.alternative && courseRule.alternative.condition === 'if_not_startup_founded') {

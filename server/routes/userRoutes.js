@@ -10,7 +10,8 @@ const {
   addCustomLecture,
   getLecture,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  tossMultiMajorTracks
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -19,8 +20,8 @@ const authenticateToken = require('../middleware/auth');
 // 회원가입
 router.post('/register', registerUser);
 
- // 로그인
-router.post('/login',loginUser);
+// 로그인
+router.post('/login', loginUser);
 
 // 유저 강의 삭제
 router.delete('/deleteLecture/:lectureId', authenticateToken, deleteLecture);
@@ -44,5 +45,8 @@ router.get('/profile', authenticateToken, getUserProfile);
 
 // 사용자 정보 수정 (내 정보 수정 후 저장 버튼 클릭 시)
 router.patch('/profile', authenticateToken, updateUserProfile);
+
+// 복수/연계/융합/부전공 트랙 선택
+router.post('/tossMultiMajorTracks', authenticateToken, tossMultiMajorTracks);
 
 module.exports = router;
