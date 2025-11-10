@@ -67,9 +67,6 @@ const transformFrontendToBackend = (infoState) => {
     isStartup: infoState.hasStartup, // UI hasStartup -> 백엔드 isStartup
     isExchangeStudent: infoState.isExchangeStudent,
     counselingCount: parseInt(infoState.counsel) || 0 // UI counsel(String) -> 백엔드 counselingCount(Number)
-    ,
-    // 다중전공 분류 정보가 있을 경우 포함
-    multiMajorType: infoState.multiMajorType || null
   };
 };
 
