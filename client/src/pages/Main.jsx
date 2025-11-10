@@ -66,10 +66,8 @@ const transformFrontendToBackend = (infoState) => {
     passedTopcit: infoState.graduationRequirement === 'topcit', // UI 문자열 -> 백엔드 boolean
     isStartup: infoState.hasStartup, // UI hasStartup -> 백엔드 isStartup
     isExchangeStudent: infoState.isExchangeStudent,
-    counselingCount: parseInt(infoState.counsel) || 0 // UI counsel(String) -> 백엔드 counselingCount(Number)
-    ,
-    // 다중전공 분류 정보가 있을 경우 포함
-    multiMajorType: infoState.multiMajorType || null
+    counselingCount: parseInt(infoState.counsel) || 0 // UI counsel(String) -> 백엔드 counselingCount(Number)    
+
   };
 };
 
@@ -264,26 +262,37 @@ function Main() {
   // [추가] 선택된 강의들을 다중전공으로 이관 요청하는 함수
   const handleTossToMultiMajor = async () => {
     if (selectedCourses.size === 0) {
-      return alert('다중전공으로 이관할 강의를 선택해주세요.');
+      return alert('다중전공으로 변경할 강의를 선택해주세요.');
     }
 
-    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 이관하시겠습니까?`)) {
+    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 변경하시겠습니까?`)) {
       return;
     }
 
     try {
-      const lectureIds = Array.from(selectedCourses);
-      // API 호출: body에 선택된 강의 ID 배열 전송
-      const response = await api.post('/api/users/tossMultiMajorLectures', { lectureIds });
+      // 선택된 각 강의 ID별로 서버에 개별 요청을 병렬로 보냅니다 (delete와 동일한 방식)
+      const selectedIds = Array.from(selectedCourses);
+      console.log('선택된 강의 IDs:', selectedIds); // 디버깅용 로그
 
-      // 성공 시 로직: 최신 수강 내역 다시 불러오기 및 선택 초기화
+      const requests = selectedIds.map(id => {
+        console.log('요청 보내는 강의 ID:', id); // 디버깅용 로그
+        return api.post('/api/users/tossMultiMajorLectures', { lectureId: id });
+      });
+
+      // 모든 요청을 병렬로 처리
+      const responses = await Promise.all(requests);
+
+      // 성공했으므로 강의 목록 다시 불러오기
       await loadMyCourses();
+
+      // 선택 초기화
       setSelectedCourses(new Set());
 
-      alert(response.data?.message || '선택한 강의를 다중전공으로 이관 요청했습니다.');
+      // 성공 메시지 표시
+      alert('선택한 강의를 다중전공으로 변경했습니다.');
     } catch (error) {
-      console.error('다중전공 이관 실패:', error);
-      alert(error.response?.data?.message || '다중전공 이관에 실패했습니다.');
+      console.error('다중전공 변경 실패:', error);
+      alert(error.response?.data?.message || '다중전공 변경에 실패했습니다.');
     }
   };
 
