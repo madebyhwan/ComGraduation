@@ -65,7 +65,7 @@ async function lectureList(userId) {
     });
 
 
-    const multiMajor = (user.multiMajorTrackLectures || []).map(l => ({
+    const multiMajor = (user.multiMajorLectures || []).map(l => ({
       _id: l?._id ?? null, // <--- 삭제 기능을 위해 _id도 추가해주는 것이 좋다고 권유
       lectName: l?.lectName ?? null,
       lectCode: l?.lectCode ?? null,
@@ -383,7 +383,8 @@ exports.getUserProfile = async (req, res) => {
         passedTopcit: user.passedTopcit || false,
         isStartup: user.isStartup || false,
         isExchangeStudent: user.isExchangeStudent || false,
-        counselingCount: user.counselingCount || 0
+        counselingCount: user.counselingCount || 0,
+        multiMajorType: user.multiMajorType || null
       }
     });
   } catch (error) {
@@ -399,6 +400,7 @@ exports.updateUserProfile = async (req, res) => {
     username,
     userDepartment,
     userTrack,
+    multiMajorType,  // 유저 정보 업데이트 안됨: multiUserTrack
     englishTest,
     passedInterview,
     passedTopcit,
@@ -435,6 +437,14 @@ exports.updateUserProfile = async (req, res) => {
         return res.status(400).json({ message: '유효하지 않은 졸업 트랙입니다.' });
       }
       user.userTrack = userTrack;
+    }
+
+    if (multiMajorType !== undefined) {
+      const validMultiMajorTypes = ['복수전공', '연계전공', '융합전공', '부전공', null];
+      if (!validMultiMajorTypes.includes(multiMajorType)) {
+        return res.status(400).json({ message: '유효하지 않은 다중전공 트랙입니다.' });
+      }
+      user.multiMajorType = multiMajorType;
     }
 
     // 영어 성적 업데이트
@@ -504,7 +514,7 @@ exports.updateUserProfile = async (req, res) => {
 };
 
 // 다중전공 넘기기
-exports.tossMultiMajorTracks = async (req, res) => {
+exports.tossMultiMajorLectures = async (req, res) => {
   const userId = req.user.id;
   const { lectureId } = req.body;
 
@@ -522,7 +532,7 @@ exports.tossMultiMajorTracks = async (req, res) => {
     if (!lecture) {
       return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
     }
-    if (user.multiMajorTrackLectures.includes(lectureId)) {
+    if (user.multiMajorLectures.includes(lectureId)) {
       return res.status(409).json({ message: '이미 추가된 강의입니다.' });
     }
     if (user.userTrack !== '다중전공') {
@@ -530,7 +540,7 @@ exports.tossMultiMajorTracks = async (req, res) => {
     }
 
     user.userLectures.pop(lectureId);
-    user.multiMajorTrackLectures.push(lectureId);
+    user.multiMajorLectures.push(lectureId);
     await user.save();
 
     res.status(200).json({

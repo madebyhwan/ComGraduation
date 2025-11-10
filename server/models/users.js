@@ -31,7 +31,7 @@ const usersSchema = new mongoose.Schema({
     required: true,
     enum: ['심컴', '다중전공', '해외복수학위', '학석사연계']
   },
-  multiMajorTrack: {
+  multiMajorType: {
     type: String,
     enum: ['복수전공', '연계전공', '융합전공', '부전공', null],
     default: null
@@ -44,7 +44,7 @@ const usersSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'CustomLecture'
   }],
-  multiMajorTrackLectures: [{
+  multiMajorLectures: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Lecture'
   }],

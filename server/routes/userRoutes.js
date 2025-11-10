@@ -11,7 +11,7 @@ const {
   getLecture,
   getUserProfile,
   updateUserProfile,
-  tossMultiMajorTracks
+  tossMultiMajorLectures
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -47,6 +47,6 @@ router.get('/profile', authenticateToken, getUserProfile);
 router.patch('/profile', authenticateToken, updateUserProfile);
 
 // 복수/연계/융합/부전공 트랙 선택
-router.post('/tossMultiMajorTracks', authenticateToken, tossMultiMajorTracks);
+router.post('/tossMultiMajorLectures', authenticateToken, tossMultiMajorLectures);
 
 module.exports = router;
