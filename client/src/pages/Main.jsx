@@ -279,7 +279,8 @@ function Main() {
       });
 
       // 모든 요청을 병렬로 처리
-      const responses = await Promise.all(requests);
+      // const responses = await Promise.all(requests);
+      await Promise.all(requests);
 
       // 성공했으므로 강의 목록 다시 불러오기
       await loadMyCourses();
