@@ -26,16 +26,6 @@ const rules = {
       "max": 42
     },
 
-    "multiMajorCredit": {
-      "note": "복수전공은 ?학점, 부전공은 21학점 이상 이수해야함.",
-      "options": [
-        { "multiMajorType": "복수전공" },
-        { "multiMajorType": "부전공", "credits": 21 },
-        { "multiMajorType": "연계전공" },
-        { "multiMajorType": "융합전공" }
-      ]
-    },
-
     "globalCompetency": {
       "note": "해외대학인정학점",
       "minOverseasCredits": 9

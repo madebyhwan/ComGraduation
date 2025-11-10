@@ -288,15 +288,14 @@ exports.checkGraduation = async (req, res) => {
     // 2. DB에서 사용자 정보와 수강 과목 목록을 *모두 populate 합니다.*
     const user = await User.findById(userId)
       .populate('userLectures')
-      .populate('userCustomLectures')
-      .populate('multiMajorLectures');
+      .populate('userCustomLectures');
 
     if (!user) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
     // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
-    const result = graduationService.check(user, user.userLectures, user.userCustomLectures, user.multiMajorLectures); // 합쳐진 배열 전달
+    const result = graduationService.check(user, user.userLectures, user.userCustomLectures); // 합쳐진 배열 전달
 
     // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
     res.status(200).json(result);
