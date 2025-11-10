@@ -42,7 +42,6 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     } else {
       generalElectiveCredits += credit;
     }
-
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
@@ -60,7 +59,7 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     generalElectiveCredits,
     startupCourseCredits,
     fieldPracticeCredits,
-    overseasCredits
+    overseasCredits,
   };
 }
 
@@ -122,7 +121,7 @@ function check(user, takenLectures, userCustomLectures) {
     generalElectiveCredits,
     startupCourseCredits,
     fieldPracticeCredits,
-    overseasCredits
+    overseasCredits,
   } = classifyAndSumCredits(takenLectures, userCustomLectures, user.userDepartment);
 
   // 교양 학점
@@ -145,9 +144,9 @@ function check(user, takenLectures, userCustomLectures) {
 
   // 전공 학점
   results.majorCredits = {
-    pass: majorCredits >= requirements.minMajorCredits.credits,
+    pass: majorCredits >= requirements.majorCredits.credits,
     current: majorCredits,
-    required: requirements.minMajorCredits.credits,
+    required: requirements.majorCredits.credits,
   };
 
   // 2. 학점 외 기타 요건 판별
@@ -215,10 +214,15 @@ function check(user, takenLectures, userCustomLectures) {
 
 
     if (courseRule) {
-      if (!userFoundedStartup && courseRule.alternative && courseRule.alternative.condition === 'if_not_startup_founded') {
-        requiredCourseCredits = courseRule.alternative.requiredCredits;
-      } else {
-        requiredCourseCredits = courseRule.baseCredits;
+      if (courseRule.minCredits) {
+        requiredCourseCredits = courseRule.minCredits;
+      }
+      else if (courseRule.baseCredits) {
+        if (!userFoundedStartup && courseRule.alternative && courseRule.alternative.condition === 'if_not_startup_founded') {
+          requiredCourseCredits = courseRule.alternative.requiredCredits;
+        } else {
+          requiredCourseCredits = courseRule.baseCredits;
+        }
       }
 
       if (startupCourseCredits >= requiredCourseCredits) {

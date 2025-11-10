@@ -290,8 +290,6 @@ exports.checkGraduation = async (req, res) => {
       .populate('userLectures')
       .populate('userCustomLectures');
 
-    // [삭제] const takenLectures = ... <- .populate()가 이 작업을 이미 수행했으므로 불필요합니다.
-
     if (!user) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
