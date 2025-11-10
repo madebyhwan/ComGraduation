@@ -4,6 +4,7 @@ import { decodeJWT } from '../api/http';
 import './Main.css';
 import logo from '../img/knu-logo.png';
 import LecSearch from '../components/LecSearch';
+import CustomLectureModal from '../components/CustomLectureModal';
 import api from '../api/api';
 
 const TABS = [
@@ -51,8 +52,12 @@ const transformBackendToFrontend = (user) => {
  */
 const transformFrontendToBackend = (infoState) => {
   return {
+    // [수정] updateUserProfile이 username도 받도록 변경되었습니다.
+    username: infoState.username,
     userDepartment: infoState.userDepartment,
     userTrack: infoState.userTrack === '없음(심컴)' ? '심컴' : infoState.userTrack, // UI '없음(심컴)' -> 백엔드 '심컴'
+    // [수정] updateUserProfile이 multiMajorType도 받도록 변경되었습니다.
+    multiMajorType: infoState.multiMajorType || null,
     englishTest: { // UI 문자열 -> 백엔드 englishTest 객체
       testType: infoState.englishTest === '' ? null : infoState.englishTest,
       score: infoState.englishScore || null
@@ -62,9 +67,6 @@ const transformFrontendToBackend = (infoState) => {
     isStartup: infoState.hasStartup, // UI hasStartup -> 백엔드 isStartup
     isExchangeStudent: infoState.isExchangeStudent,
     counselingCount: parseInt(infoState.counsel) || 0 // UI counsel(String) -> 백엔드 counselingCount(Number)
-    ,
-    // 다중전공 분류 정보가 있을 경우 포함
-    multiMajorType: infoState.multiMajorType || null
   };
 };
 
@@ -73,6 +75,8 @@ function Main() {
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  // [추가] 기타 활동 추가 모달의 열림/닫힘 상태를 관리합니다.
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [myCourses, setMyCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   // [추가] 정보 저장 시 로딩 상태
@@ -147,14 +151,35 @@ function Main() {
       return alert('이미 추가된 강의입니다.');
     }
     try {
-      const response = await api.post('/api/users/addUnivLect', { lectureId: lecture._id });
-      setMyCourses(prevCourses => [...prevCourses, response.data.lectInfo]);
+      // [수정] 성공 시 myCourses 상태를 직접 업데이트하는 대신, loadMyCourses()를 호출하여 목록을 새로고침합니다.
+      await api.post('/api/users/addUnivLect', { lectureId: lecture._id });
+      loadMyCourses();
       alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
+      // setIsSearchModalOpen(false); // (선택사항) 성공 시 모달 닫기
 
-      //setIsSearchModalOpen(false); // 성공 시 모달 창을 닫습니다.
     } catch (error) {
       console.error('강의 추가 중 오류 발생:', error);
       alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
+    }
+  };
+
+  // [수정] 기타 활동 추가 핸들러
+  const handleAddCustomLecture = async (activityData) => {
+    // activityData는 { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit }
+    try {
+      // userController.js의 addCustomLecture API를 호출합니다.
+      await api.post('/api/users/addCustomLect', activityData);
+
+      alert('기타 활동이 성공적으로 추가되었습니다.');
+      setIsCustomModalOpen(false); // 성공 시 모달 닫기
+
+      // 활동 추가 후, 전체 목록을 다시 불러와 UI를 동기화합니다.
+      loadMyCourses();
+
+    } catch (error) {
+      console.error('기타 활동 추가 실패:', error);
+      alert(error.response?.data?.message || '기타 활동 추가에 실패했습니다.');
+      throw error; // Modal의 loading 상태를 해제하기 위해 에러를 다시 던짐
     }
   };
 
@@ -172,15 +197,31 @@ function Main() {
     });
   };
 
-  // [수정] 전체 선택 체크박스의 상태를 관리하는 함수입니다.
-  const handleSelectAllCourses = (e) => {
+  // // [수정] 전체 선택 체크박스의 상태를 관리하는 함수입니다.
+  // const handleSelectAllCourses = (e) => {
+  //   if (e.target.checked) {
+  //     // "전체 선택"이 체크되면, 현재 모든 강의의 ID를 Set에 담아 상태를 업데이트합니다.
+  //     const allCourseIds = new Set(myCourses.map(course => course._id));
+  //     setSelectedCourses(allCourseIds);
+  //   } else {
+  //     // "전체 선택"이 해제되면, Set을 비워서 모든 선택을 해제합니다.
+  //     setSelectedCourses(new Set());
+  //   }
+  // };
+
+  const handleSelectAllCourses = (e, courses) => {
+    // [수정] 전체 선택 시, 현재 테이블의 강의들만 선택/해제하도록 변경
+    const courseIds = new Set(courses.map(c => c._id));
     if (e.target.checked) {
-      // "전체 선택"이 체크되면, 현재 모든 강의의 ID를 Set에 담아 상태를 업데이트합니다.
-      const allCourseIds = new Set(myCourses.map(course => course._id));
-      setSelectedCourses(allCourseIds);
+      // 현재 선택된 Set에 지금 테이블의 ID들을 추가
+      setSelectedCourses(prevSelected => new Set([...prevSelected, ...courseIds]));
     } else {
-      // "전체 선택"이 해제되면, Set을 비워서 모든 선택을 해제합니다.
-      setSelectedCourses(new Set());
+      // 현재 선택된 Set에서 지금 테이블의 ID들을 제거
+      setSelectedCourses(prevSelected => {
+        const newSelected = new Set(prevSelected);
+        courseIds.forEach(id => newSelected.delete(id));
+        return newSelected;
+      });
     }
   };
 
@@ -202,8 +243,10 @@ function Main() {
       );
 
       const responses = await Promise.all(deletePromises);
+      // [수정] 응답에서 삭제된 ID 목록을 가져옵니다.
       const deletedIds = new Set(responses.map(res => res.data.deletedLectureId));
 
+      // [수정] myCourses 상태에서 삭제된 항목들을 제거합니다. (새로고침 없이)
       setMyCourses(prevCourses =>
         prevCourses.filter(course => !deletedIds.has(course._id))
       );
@@ -220,37 +263,26 @@ function Main() {
   // [추가] 선택된 강의들을 다중전공으로 이관 요청하는 함수
   const handleTossToMultiMajor = async () => {
     if (selectedCourses.size === 0) {
-      return alert('다중전공으로 변경할 강의를 선택해주세요.');
+      return alert('다중전공으로 이관할 강의를 선택해주세요.');
     }
 
-    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 변경하시겠습니까?`)) {
+    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 이관하시겠습니까?`)) {
       return;
     }
 
     try {
-      // 선택된 각 강의 ID별로 서버에 개별 요청을 병렬로 보냅니다 (delete와 동일한 방식)
-      const selectedIds = Array.from(selectedCourses);
-      console.log('선택된 강의 IDs:', selectedIds); // 디버깅용 로그
+      const lectureIds = Array.from(selectedCourses);
+      // API 호출: body에 선택된 강의 ID 배열 전송
+      const response = await api.post('/api/users/tossMultiMajorLectures', { lectureIds });
 
-      const requests = selectedIds.map(id => {
-        console.log('요청 보내는 강의 ID:', id); // 디버깅용 로그
-        return api.post('/api/users/tossMultiMajorLectures', { lectureId: id });
-      });
-
-      // 모든 요청을 병렬로 처리
-      const responses = await Promise.all(requests);
-
-      // 성공했으므로 강의 목록 다시 불러오기
+      // 성공 시 로직: 최신 수강 내역 다시 불러오기 및 선택 초기화
       await loadMyCourses();
-
-      // 선택 초기화
       setSelectedCourses(new Set());
 
-      // 성공 메시지 표시
-      alert('선택한 강의를 다중전공으로 변경했습니다.');
+      alert(response.data?.message || '선택한 강의를 다중전공으로 이관 요청했습니다.');
     } catch (error) {
-      console.error('다중전공 변경 실패:', error);
-      alert(error.response?.data?.message || '다중전공 변경에 실패했습니다.');
+      console.error('다중전공 이관 실패:', error);
+      alert(error.response?.data?.message || '다중전공 이관에 실패했습니다.');
     }
   };
 
@@ -301,6 +333,7 @@ function Main() {
         ...prev,
         userDepartment: user.userDepartment,
         userTrack: user.userTrack,
+        multiMajorType: user.multiMajorType,
       }));
 
       alert('정보가 성공적으로 저장되었습니다!');
@@ -318,6 +351,14 @@ function Main() {
     // navigate('/');
     window.location.href = '/'; // navigate 대신 사용
   };
+
+  // [추가] myCourses 배열을 두 개의 분리된 배열로 필터링합니다.
+  // lectCode가 있는 항목(null, undefined, ""가 아님)을 일반 강의로 간주합니다.
+  const regularCourses = myCourses.filter(course => course.lectCode);
+  const customCourses = myCourses.filter(course => !course.lectCode);
+  // [추가] 각 테이블의 모든 항목이 선택되었는지 확인하는 변수
+  const allRegularSelected = regularCourses.length > 0 && regularCourses.every(c => selectedCourses.has(c._id));
+  const allCustomSelected = customCourses.length > 0 && customCourses.every(c => selectedCourses.has(c._id));
 
   return (
     <div className="container">
@@ -467,13 +508,15 @@ function Main() {
                 <h2>나의 수강 및 활동 내역</h2>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
-                  <button className="action-btn">기타 활동 추가</button>
+                  <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
                   <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
 
-              {myCourses.length === 0 ? (
+              {/* === 첫 번째 테이블: 수강 내역 (일반 강의) === */}
+              <h3 className="table-title">수강 내역</h3>
+              {regularCourses.length === 0 ? (
                 <div className="empty-courses-message">
                   '강의 추가'를 눌러 수강한 과목을 추가해 주세요.
                 </div>
@@ -487,8 +530,8 @@ function Main() {
                           {/* [수정] 전체 선택 체크박스: 모든 강의가 선택되었을 때만 checked 상태가 됩니다. */}
                           <input
                             type="checkbox"
-                            onChange={handleSelectAllCourses}
-                            checked={myCourses.length > 0 && selectedCourses.size === myCourses.length}
+                            onChange={(e) => handleSelectAllCourses(e, regularCourses)}
+                            checked={allRegularSelected}
                           />
                         </th>
                         <th>개설년도</th>
@@ -502,7 +545,7 @@ function Main() {
                       </tr>
                     </thead>
                     <tbody>
-                      {myCourses.map((course) => (
+                      {regularCourses.map((course) => (
                         <tr key={course._id}>
                           <td>
                             {/* [수정] 개별 체크박스: selectedCourses Set에 현재 강의의 ID가 포함되어 있을 때만 checked 상태가 됩니다. */}
@@ -526,8 +569,56 @@ function Main() {
                   </table>
                 </div>
               )}
+              {/* === 두 번째 테이블: 기타 활동 내역 === */}
+              <h3 className="table-title" style={{ marginTop: '30px' }}>기타 활동 내역</h3>
+              {customCourses.length === 0 ? (
+                <div className="empty-courses-message">
+                  '기타 활동 추가'를 눌러 활동 내역을 추가해 주세요.
+                </div>
+              ) : (
+                <div className="table-scroll">
+                  {/* [참고] CSS 일관성을 위해 동일한 course-table 클래스 사용 */}
+                  <table className="course-table">
+                    <thead>
+                      <tr>
+                        <th>
+                          <input
+                            type="checkbox"
+                            onChange={(e) => handleSelectAllCourses(e, customCourses)}
+                            checked={allCustomSelected}
+                          />
+                        </th>
+                        <th>활동명</th>
+                        <th>교과 구분</th>
+                        <th>해외 인정 학점</th>
+                        <th>현장 실습 학점</th>
+                        <th>총 이수 학점 (포함)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customCourses.map((course) => (
+                        <tr key={course._id}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedCourses.has(course._id)}
+                              onChange={() => handleSelectCourse(course._id)}
+                            />
+                          </td>
+                          <td>{course.lectName}</td>
+                          <td>{course.lectType}</td>
+                          <td>{course.overseasCredit}</td>
+                          <td>{course.fieldPracticeCredit}</td>
+                          <td>{course.totalCredit}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
+
           {activeTab === 'graduation-check' && (
             <div className="content-box">
               <div className="content-header"><h2>나의 졸업 요건 충족 현황</h2><button className="action-btn-green">진단하기</button></div>
@@ -545,6 +636,14 @@ function Main() {
         <LecSearch
           onClose={() => setIsSearchModalOpen(false)}
           onAddLecture={handleAddLecture}
+        />
+      )}
+
+      {/* [추가] '기타 활동 추가' 모달을 렌더링합니다. */}
+      {isCustomModalOpen && (
+        <CustomLectureModal
+          onClose={() => setIsCustomModalOpen(false)}
+          onAdd={handleAddCustomLecture}
         />
       )}
 
