@@ -3,14 +3,14 @@ import axios from 'axios';
 // 1. Axios 인스턴스 생성
 // 앞으로 모든 API 요청은 이 'api' 인스턴스를 통해 이루어집니다.
 const api = axios.create({
-  baseURL: 'http://localhost:9000', // API 서버의 기본 주소를 설정할 수 있습니다.
+  baseURL: process.env.REACT_APP_API_URL, // API 서버의 기본 주소를 설정할 수 있습니다.
 });
 
 
 // 2. 요청 인터셉터(Request Interceptor) 설정
 //    - 모든 요청이 서버로 보내지기 전에 이 코드를 거칩니다.
 api.interceptors.request.use(
-  
+
   // 요청을 보내기 전 수행할 작업
   (config) => {
     // 로컬 스토리지에서 'authToken'이라는 이름으로 저장된 토큰을 가져옵니다.

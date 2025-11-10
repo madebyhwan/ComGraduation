@@ -131,6 +131,8 @@ function Main() {
   const loadMyCourses = async () => {
     try {
       const response = await api.get('/api/users/getLecture');
+      console.log('강의 목록 응답:', response.data); // 서버 응답 전체 확인
+      console.log('강의 데이터:', response.data.data); // 실제 강의 데이터만 확인
       setMyCourses(response.data.data || []);
     } catch (error) {
       console.error("수강 내역을 불러오는 중 오류 발생:", error);
@@ -212,6 +214,43 @@ function Main() {
     } catch (error) {
       console.error('강의 삭제 실패:', error);
       alert(error.response?.data?.message || '강의 삭제에 실패했습니다.');
+    }
+  };
+
+  // [추가] 선택된 강의들을 다중전공으로 이관 요청하는 함수
+  const handleTossToMultiMajor = async () => {
+    if (selectedCourses.size === 0) {
+      return alert('다중전공으로 변경할 강의를 선택해주세요.');
+    }
+
+    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 변경하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      // 선택된 각 강의 ID별로 서버에 개별 요청을 병렬로 보냅니다 (delete와 동일한 방식)
+      const selectedIds = Array.from(selectedCourses);
+      console.log('선택된 강의 IDs:', selectedIds); // 디버깅용 로그
+
+      const requests = selectedIds.map(id => {
+        console.log('요청 보내는 강의 ID:', id); // 디버깅용 로그
+        return api.post('/api/users/tossMultiMajorLectures', { lectureId: id });
+      });
+
+      // 모든 요청을 병렬로 처리
+      const responses = await Promise.all(requests);
+
+      // 성공했으므로 강의 목록 다시 불러오기
+      await loadMyCourses();
+
+      // 선택 초기화
+      setSelectedCourses(new Set());
+
+      // 성공 메시지 표시
+      alert('선택한 강의를 다중전공으로 변경했습니다.');
+    } catch (error) {
+      console.error('다중전공 변경 실패:', error);
+      alert(error.response?.data?.message || '다중전공 변경에 실패했습니다.');
     }
   };
 
@@ -429,6 +468,7 @@ function Main() {
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   <button className="action-btn">기타 활동 추가</button>
+                  <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
