@@ -13,7 +13,8 @@ async function lectureList(userId) {
     const user = await User.findById(userId)
       .populate({
         path: 'userCustomLectures',
-        select: 'lectName lectCredit'
+        // [필수 수정] customLectures 스키마의 모든 필드를 가져옵니다.
+        select: 'lectName lectType overseasCredit fieldPracticeCredit totalCredit'
       })
       .populate({
         path: 'userLectures',
@@ -25,7 +26,11 @@ async function lectureList(userId) {
       lectName: cl?.lectName ?? null,
       lectCode: null,
       lectDiv: null,
-      totalCredit: cl?.totalCredit ?? null,
+      // [필수 수정] 모든 필드를 반환합니다.
+      lectType: cl?.lectType ?? null,
+      overseasCredit: cl?.overseasCredit ?? 0,
+      fieldPracticeCredit: cl?.fieldPracticeCredit ?? 0,
+      totalCredit: cl?.totalCredit ?? 0,
       lectYear: null,
       lectSemester: null,
       lectProfessor: null
