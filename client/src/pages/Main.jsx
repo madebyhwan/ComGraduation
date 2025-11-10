@@ -135,6 +135,8 @@ function Main() {
   const loadMyCourses = async () => {
     try {
       const response = await api.get('/api/users/getLecture');
+      console.log('강의 목록 응답:', response.data); // 서버 응답 전체 확인
+      console.log('강의 데이터:', response.data.data); // 실제 강의 데이터만 확인
       setMyCourses(response.data.data || []);
     } catch (error) {
       console.error("수강 내역을 불러오는 중 오류 발생:", error);
@@ -149,30 +151,30 @@ function Main() {
       return alert('이미 추가된 강의입니다.');
     }
     try {
-   // [수정] 성공 시 myCourses 상태를 직접 업데이트하는 대신, loadMyCourses()를 호출하여 목록을 새로고침합니다.
+      // [수정] 성공 시 myCourses 상태를 직접 업데이트하는 대신, loadMyCourses()를 호출하여 목록을 새로고침합니다.
       await api.post('/api/users/addUnivLect', { lectureId: lecture._id });
-      loadMyCourses(); 
+      loadMyCourses();
       alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
       // setIsSearchModalOpen(false); // (선택사항) 성공 시 모달 닫기
-      
+
     } catch (error) {
       console.error('강의 추가 중 오류 발생:', error);
       alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
     }
   };
 
- // [수정] 기타 활동 추가 핸들러
+  // [수정] 기타 활동 추가 핸들러
   const handleAddCustomLecture = async (activityData) => {
     // activityData는 { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit }
     try {
       // userController.js의 addCustomLecture API를 호출합니다.
       await api.post('/api/users/addCustomLect', activityData);
-      
+
       alert('기타 활동이 성공적으로 추가되었습니다.');
       setIsCustomModalOpen(false); // 성공 시 모달 닫기
-      
+
       // 활동 추가 후, 전체 목록을 다시 불러와 UI를 동기화합니다.
-      loadMyCourses(); 
+      loadMyCourses();
 
     } catch (error) {
       console.error('기타 활동 추가 실패:', error);
@@ -539,9 +541,9 @@ function Main() {
                         <th>
                           {/* [수정] 전체 선택 체크박스: 모든 강의가 선택되었을 때만 checked 상태가 됩니다. */}
                           <input
-                           type="checkbox"
-                           onChange={(e) => handleSelectAllCourses(e, regularCourses)}
-                           checked={allRegularSelected}
+                            type="checkbox"
+                            onChange={(e) => handleSelectAllCourses(e, regularCourses)}
+                            checked={allRegularSelected}
                           />
                         </th>
                         <th>개설년도</th>
@@ -555,7 +557,7 @@ function Main() {
                       </tr>
                     </thead>
                     <tbody>
-                     {regularCourses.map((course) => (
+                      {regularCourses.map((course) => (
                         <tr key={course._id}>
                           <td>
                             {/* [수정] 개별 체크박스: selectedCourses Set에 현재 강의의 ID가 포함되어 있을 때만 checked 상태가 됩니다. */}
@@ -588,7 +590,7 @@ function Main() {
               ) : (
                 <div className="table-scroll">
                   {/* [참고] CSS 일관성을 위해 동일한 course-table 클래스 사용 */}
-                  <table className="course-table"> 
+                  <table className="course-table">
                     <thead>
                       <tr>
                         <th>

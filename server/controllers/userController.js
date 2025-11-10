@@ -262,7 +262,7 @@ exports.deleteLecture = async (req, res) => {
       { _id: userId },
       {
         $pull: {
-          userCustomLectures: lectureObjectId,
+          userCustomLectures: lectureObjectId, multiMajorLectures: lectureObjectId,
           userLectures: lectureObjectId
         }
       }

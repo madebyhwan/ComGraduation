@@ -10,7 +10,7 @@ const api = axios.create({
 // 2. 요청 인터셉터(Request Interceptor) 설정
 //    - 모든 요청이 서버로 보내지기 전에 이 코드를 거칩니다.
 api.interceptors.request.use(
-  
+
   // 요청을 보내기 전 수행할 작업
   (config) => {
     // 로컬 스토리지에서 'authToken'이라는 이름으로 저장된 토큰을 가져옵니다.
