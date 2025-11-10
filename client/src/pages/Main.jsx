@@ -4,8 +4,8 @@ import { decodeJWT } from '../api/http';
 import './Main.css';
 import logo from '../img/knu-logo.png';
 import LecSearch from '../components/LecSearch';
-import api from '../api/api';
 import CustomLectureModal from '../components/CustomLectureModal';
+import api from '../api/api';
 
 const TABS = [
   { key: 'home', label: 'Home' },
@@ -42,7 +42,7 @@ const transformBackendToFrontend = (user) => {
     graduationRequirement: gradReq, // 백엔드 boolean 필드 -> UI 문자열
     hasStartup: user.isStartup || false, // 백엔드 isStartup -> UI hasStartup
     isExchangeStudent: user.isExchangeStudent || false,
-    multiMajorType: user.multiMajorType || '', // 다중전공 분류 (예: 복수전공, 연계전공 등)
+    multiMajorType: user.multiMajorType || ' ', // 다중전공 분류 (예: 복수전공, 연계전공 등)
   };
 };
 
@@ -52,8 +52,11 @@ const transformBackendToFrontend = (user) => {
  */
 const transformFrontendToBackend = (infoState) => {
   return {
+    // [수정] updateUserProfile이 username도 받도록 변경되었습니다.
+    username: infoState.username,
     userDepartment: infoState.userDepartment,
     userTrack: infoState.userTrack === '없음(심컴)' ? '심컴' : infoState.userTrack, // UI '없음(심컴)' -> 백엔드 '심컴'
+
     englishTest: { // UI 문자열 -> 백엔드 englishTest 객체
       testType: infoState.englishTest === '' ? null : infoState.englishTest,
       score: infoState.englishScore || null
@@ -74,12 +77,12 @@ function Main() {
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  // [추가] 기타 활동 추가 모달의 열림/닫힘 상태를 관리합니다.
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [myCourses, setMyCourses] = useState([]);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   // [추가] 정보 저장 시 로딩 상태
   const [isSaving, setIsSaving] = useState(false);
-  // [추가] 기타 활동 추가 모달의 열림/닫힘 상태를 관리합니다.
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   // [수정] info 상태에 새로운 필드들 추가
   const [info, setInfo] = useState(() => ({
@@ -159,25 +162,22 @@ function Main() {
     }
   };
 
-  // [추가] 기타 활동을 서버에 추가하는 핸들러 함수
+ // [수정] 기타 활동 추가 핸들러
   const handleAddCustomLecture = async (activityData) => {
-    // activityData 객체에는 { lectName, lectType, ... } 등이 들어 있습니다.
+    // activityData는 { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit }
     try {
       // userController.js의 addCustomLecture API를 호출합니다.
-      // (백엔드가 이 5개 필드를 받도록 수정되었다고 가정)
       await api.post('/api/users/addCustomLect', activityData);
       
       alert('기타 활동이 성공적으로 추가되었습니다.');
       setIsCustomModalOpen(false); // 성공 시 모달 닫기
       
-      // [중요] 활동 추가 후, 전체 목록을 다시 불러와 UI를 동기화합니다.
-      // lectureList 함수가 DB의 customLectures와 userLectures를 합쳐서 반환해줍니다.
+      // 활동 추가 후, 전체 목록을 다시 불러와 UI를 동기화합니다.
       loadMyCourses(); 
 
     } catch (error) {
       console.error('기타 활동 추가 실패:', error);
       alert(error.response?.data?.message || '기타 활동 추가에 실패했습니다.');
-      // 에러가 발생해도 모달을 닫지 않고 사용자에게 수정을 허용
       throw error; // Modal의 loading 상태를 해제하기 위해 에러를 다시 던짐
     }
   };
@@ -241,6 +241,32 @@ function Main() {
     }
   };
 
+  // [추가] 선택된 강의들을 다중전공으로 이관 요청하는 함수
+  const handleTossToMultiMajor = async () => {
+    if (selectedCourses.size === 0) {
+      return alert('다중전공으로 이관할 강의를 선택해주세요.');
+    }
+
+    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 이관하시겠습니까?`)) {
+      return;
+    }
+
+    try {
+      const lectureIds = Array.from(selectedCourses);
+      // API 호출: body에 선택된 강의 ID 배열 전송
+      const response = await api.post('/api/users/tossMultiMajorLectures', { lectureIds });
+
+      // 성공 시 로직: 최신 수강 내역 다시 불러오기 및 선택 초기화
+      await loadMyCourses();
+      setSelectedCourses(new Set());
+
+      alert(response.data?.message || '선택한 강의를 다중전공으로 이관 요청했습니다.');
+    } catch (error) {
+      console.error('다중전공 이관 실패:', error);
+      alert(error.response?.data?.message || '다중전공 이관에 실패했습니다.');
+    }
+  };
+
   // [추가] info 상태를 업데이트하는 범용 핸들러
   const updateInfo = (key, value) => {
     setInfo(prev => ({ ...prev, [key]: value }));
@@ -288,6 +314,7 @@ function Main() {
         ...prev,
         userDepartment: user.userDepartment,
         userTrack: user.userTrack,
+        multiMajorType: user.multiMajorType,
       }));
 
       alert('정보가 성공적으로 저장되었습니다!');
@@ -456,6 +483,7 @@ function Main() {
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   {/* [수정] '기타 활동 추가' 버튼에 새 모달을 여는 onClick 핸들러를 연결합니다. */}
                   <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
+                  <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>

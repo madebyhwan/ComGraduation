@@ -4,10 +4,10 @@ import './CustomLectureModal.css';
 function CustomLectureModal({ onClose, onAdd }) {
   const [activity, setActivity] = useState({
     lectName: '',
-    lectType: '',
+    lectType: '', // [수정] '전공', '교양', '일반선택' 중 하나가 되어야 함
     overseasCredit: 0,
     fieldPracticeCredit: 0,
-    totalCredit: 0,
+    totalCredit: 0, // [수정] lectCredit -> totalCredit로 변경
   });
   const [loading, setLoading] = useState(false);
 
@@ -19,6 +19,10 @@ function CustomLectureModal({ onClose, onAdd }) {
     e.preventDefault();
     if (!activity.lectName) {
       return alert('활동명을 입력해주세요.');
+    }
+    // [수정] '교과 구분'이 필수값이 되었습니다.
+    if (!activity.lectType) {
+      return alert('교과 구분을 선택해주세요.');
     }
     
     // 학점 필드를 숫자로 변환
@@ -32,7 +36,8 @@ function CustomLectureModal({ onClose, onAdd }) {
     setLoading(true);
     try {
       await onAdd(payload);
-    } catch (error) {      
+    } catch (error) {
+      // 에러 처리는 Main.jsx의 핸들러가 담당
     } finally {
       setLoading(false);
     }
@@ -57,15 +62,22 @@ function CustomLectureModal({ onClose, onAdd }) {
                 required
               />
             </div>
+            
+            {/* [수정] '교과 구분'을 text input에서 select dropdown으로 변경 */}
             <div className="info-row">
               <label>교과 구분</label>
-              <input
-                type="text"
-                value={activity.lectType}
+              <select 
+                value={activity.lectType} 
                 onChange={(e) => update('lectType', e.target.value)}
-                placeholder="예: 현장실습, 해외교류"
-              />
+                required
+              >
+                <option value="" disabled>교과 구분을 선택하세요</option>
+                <option value="전공">전공</option>
+                <option value="교양">교양</option>
+                <option value="일반선택">일반선택</option>
+              </select>
             </div>
+
             <div className="info-row">
               <label>해외 인정 학점</label>
               <input
@@ -105,5 +117,15 @@ function CustomLectureModal({ onClose, onAdd }) {
     </div>
   );
 }
+
+// [참고] CSS 파일에 <select> 스타일을 추가해야 할 수 있습니다.
+// .modal-container .info-row select {
+//   padding: 10px;
+//   border: 1px solid #ccc;
+//   border-radius: 5px;
+//   font-size: 15px;
+//   width: 100%;
+//   box-sizing: border-box;
+// }
 
 export default CustomLectureModal;

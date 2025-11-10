@@ -1,4 +1,4 @@
-/* 1. 모달 배경 (LecSearch의 .modal-overlay와 동일) */
+/* 1. 모달 배경 */
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -12,81 +12,78 @@
   z-index: 1000;
 }
 
-/* 2. 모달 컨테이너 (LecSearch의 .modal-content와 동일) */
-/* 폼 형태에 맞게 max-width를 500px로 조정했습니다. */
+/* 2. 모달 컨테이너 */
 .modal-container {
   background-color: white;
   padding: 20px 25px;
   border-radius: 10px;
   width: 80%;
-  max-width: 500px; /* 폼에 더 적합한 너비로 조정 */
+  max-width: 500px; 
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
 
-/* 3. 모달 헤더 (LecSearch의 .modal-header와 동일) */
-.modal-header {
+/* 3. 모달 헤더 */
+.modal-container .modal-header { /* [수정] .modal-container 추가 */
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #eee;
   padding-bottom: 10px;
-  margin-bottom: 25px; /* 폼과의 간격 확보 */
+  margin-bottom: 25px; 
 }
 
-.modal-header h2 {
+.modal-container .modal-header h2 { /* [수정] .modal-container 추가 */
   margin: 0;
   font-size: 1.25rem;
 }
 
-/* 4. 닫기 버튼 (LecSearch의 .close-btn와 동일) */
-.modal-close-btn {
+/* 4. 닫기 버튼 */
+.modal-container .modal-close-btn { /* [수정] .modal-container 추가 */
   background: none;
   border: none;
   font-size: 2.2rem;
   cursor: pointer;
   color: #aaa;
-  line-height: 1; /* 버튼 정렬을 위해 추가 */
+  line-height: 1; 
 }
 
 /* 5. 모달 콘텐츠 (폼 영역) 
-.modal-content {
-  추가 패딩이 필요하면 여기에 작성 
+.modal-container .modal-content { 
+  추가 패딩이 필요하면 여기에 작성
 }*/
 
 /* 6. 커스텀 폼 스타일 */
-.custom-lecture-form {
+.modal-container .custom-lecture-form { /* [수정] .modal-container 추가 */
   display: flex;
   flex-direction: column;
-  gap: 16px; /* 각 입력 행(info-row) 사이의 간격 */
+  gap: 16px; 
 }
 
-/* 7. 폼 입력 행 (Main.css의 .info-row 스타일을 가져왔다고 가정) 
-   - .info-row가 Main.css에 없다면 이 스타일이 적용됩니다.
-*/
-.info-row {
+/* 7. [핵심] .info-row가 .modal-container 내부에 있을 때만 적용되도록 수정 */
+.modal-container .info-row {
   display: flex;
-  flex-direction: column; /* 레이블과 입력을 세로로 배치 */
-  gap: 6px; /* 레이블과 입력 사이의 간격 */
+  flex-direction: column; 
+  gap: 6px; 
 }
 
-.info-row label {
+.modal-container .info-row label { /* [수정] .modal-container 추가 */
   font-weight: bold;
   font-size: 14px;
   color: #333;
 }
 
-.info-row input[type="text"],
-.info-row input[type="number"] {
+.modal-container .info-row input[type="text"],
+.modal-container .info-row input[type="number"] { /* [수정] .modal-container 추가 */
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 15px;
   width: 100%;
-  box-sizing: border-box; /* 패딩을 포함하여 너비 100% */
+  box-sizing: border-box; 
 }
 
-/* 8. 폼 버튼 영역 (Main.css의 .form-actions 스타일과 유사) */
-.form-actions {
+/* 8. [핵심] .form-actions가 .modal-container 내부에 있을 때만 적용 */
+.modal-container .form-actions {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
@@ -95,10 +92,9 @@
   border-top: 1px solid #eee;
 }
 
-/* 9. 버튼 스타일 (Main.css의 버튼 스타일을 가져왔다고 가정) */
-/* Main.css에 .action-btn이 없다면 이 스타일이 적용됩니다. */
-.action-btn,
-.action-btn-gray {
+/* 9. [핵심] 버튼 스타일이 .modal-container 내부에 있을 때만 적용 */
+.modal-container .action-btn,
+.modal-container .action-btn-gray {
   padding: 10px 18px;
   border: none;
   border-radius: 5px;
@@ -107,17 +103,17 @@
   font-weight: 500;
 }
 
-.action-btn {
+.modal-container .action-btn {
   background-color: #007bff; /* '추가하기' 버튼 */
   color: white;
 }
 
-.action-btn:disabled {
+.modal-container .action-btn:disabled {
   background-color: #aaa;
   cursor: not-allowed;
 }
 
-.action-btn-gray {
+.modal-container .action-btn-gray {
   background-color: #e9ecef; /* '취소' 버튼 */
   color: #495057;
   border: 1px solid #ccc;

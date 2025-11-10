@@ -3,7 +3,7 @@ import axios from 'axios';
 // 1. Axios 인스턴스 생성
 // 앞으로 모든 API 요청은 이 'api' 인스턴스를 통해 이루어집니다.
 const api = axios.create({
-  baseURL: 'http://localhost:9000', // API 서버의 기본 주소를 설정할 수 있습니다.
+  baseURL: process.env.REACT_APP_API_URL, // API 서버의 기본 주소를 설정할 수 있습니다.
 });
 
 
