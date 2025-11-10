@@ -66,8 +66,7 @@ const transformFrontendToBackend = (infoState) => {
     passedTopcit: infoState.graduationRequirement === 'topcit', // UI 문자열 -> 백엔드 boolean
     isStartup: infoState.hasStartup, // UI hasStartup -> 백엔드 isStartup
     isExchangeStudent: infoState.isExchangeStudent,
-    counselingCount: parseInt(infoState.counsel) || 0 // UI counsel(String) -> 백엔드 counselingCount(Number)    
-
+    counselingCount: parseInt(infoState.counsel) || 0 // UI counsel(String) -> 백엔드 counselingCount(Number)
   };
 };
 
