@@ -5,6 +5,7 @@ import './Main.css';
 import logo from '../img/knu-logo.png';
 import LecSearch from '../components/LecSearch';
 import api from '../api/api';
+import CustomLectureModal from '../components/CustomLectureModal';
 
 const TABS = [
   { key: 'home', label: 'Home' },
@@ -41,7 +42,7 @@ const transformBackendToFrontend = (user) => {
     graduationRequirement: gradReq, // 백엔드 boolean 필드 -> UI 문자열
     hasStartup: user.isStartup || false, // 백엔드 isStartup -> UI hasStartup
     isExchangeStudent: user.isExchangeStudent || false,
-    multiMajorType: '', // 다중전공 분류 (예: 복수전공, 연계전공 등)
+    multiMajorType: user.multiMajorType || '', // 다중전공 분류 (예: 복수전공, 연계전공 등)
   };
 };
 
@@ -77,6 +78,8 @@ function Main() {
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   // [추가] 정보 저장 시 로딩 상태
   const [isSaving, setIsSaving] = useState(false);
+  // [추가] 기타 활동 추가 모달의 열림/닫힘 상태를 관리합니다.
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   // [수정] info 상태에 새로운 필드들 추가
   const [info, setInfo] = useState(() => ({
@@ -153,6 +156,29 @@ function Main() {
     } catch (error) {
       console.error('강의 추가 중 오류 발생:', error);
       alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
+    }
+  };
+
+  // [추가] 기타 활동을 서버에 추가하는 핸들러 함수
+  const handleAddCustomLecture = async (activityData) => {
+    // activityData 객체에는 { lectName, lectType, ... } 등이 들어 있습니다.
+    try {
+      // userController.js의 addCustomLecture API를 호출합니다.
+      // (백엔드가 이 5개 필드를 받도록 수정되었다고 가정)
+      await api.post('/api/users/addCustomLect', activityData);
+      
+      alert('기타 활동이 성공적으로 추가되었습니다.');
+      setIsCustomModalOpen(false); // 성공 시 모달 닫기
+      
+      // [중요] 활동 추가 후, 전체 목록을 다시 불러와 UI를 동기화합니다.
+      // lectureList 함수가 DB의 customLectures와 userLectures를 합쳐서 반환해줍니다.
+      loadMyCourses(); 
+
+    } catch (error) {
+      console.error('기타 활동 추가 실패:', error);
+      alert(error.response?.data?.message || '기타 활동 추가에 실패했습니다.');
+      // 에러가 발생해도 모달을 닫지 않고 사용자에게 수정을 허용
+      throw error; // Modal의 loading 상태를 해제하기 위해 에러를 다시 던짐
     }
   };
 
@@ -428,7 +454,8 @@ function Main() {
                 <h2>나의 수강 및 활동 내역</h2>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
-                  <button className="action-btn">기타 활동 추가</button>
+                  {/* [수정] '기타 활동 추가' 버튼에 새 모달을 여는 onClick 핸들러를 연결합니다. */}
+                  <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
@@ -505,6 +532,14 @@ function Main() {
         <LecSearch
           onClose={() => setIsSearchModalOpen(false)}
           onAddLecture={handleAddLecture}
+        />
+      )}
+
+      {/* [추가] '기타 활동 추가' 모달을 렌더링합니다. */}
+      {isCustomModalOpen && (
+        <CustomLectureModal
+          onClose={() => setIsCustomModalOpen(false)}
+          onAdd={handleAddCustomLecture}
         />
       )}
 
