@@ -5,8 +5,9 @@ const ventureCourses = require('../config/ventureCourses.json');
 /**
  * 학생의 수강 과목들을 '전공', '교양', '일반선택'으로 분류하고 학점을 계산
  */
-function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment) {
+function classifyAndSumCredits(takenLectures, userCustomLectures, multiMajorLectures, userDepartment) {
   let majorCredits = 0;             // 전공
+  let multiMajorCredits = 0;        // 다중전공
   let generalEducationCredits = 0;  // 교양
   let generalElectiveCredits = 0;   // 일반 선택
   let startupCourseCredits = 0;     // 창업 교과목
@@ -42,7 +43,6 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     } else {
       generalElectiveCredits += credit;
     }
-
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
@@ -53,6 +53,11 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     }
   });
 
+  multiMajorLectures.forEach(lecture => {
+    const credit = Number(lecture.lectCredit) || 0;
+    multiMajorCredits += credit;
+  });
+
   // 계산된 모든 학점을 반환합니다.
   return {
     majorCredits,
@@ -60,7 +65,8 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     generalElectiveCredits,
     startupCourseCredits,
     fieldPracticeCredits,
-    overseasCredits
+    overseasCredits,
+    multiMajorCredits
   };
 }
 
@@ -105,7 +111,7 @@ function checkEnglishProficiency(user, rule) {
 /**
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
-function check(user, takenLectures, userCustomLectures) {
+function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
   const ruleKey = `${user.userDepartment}_${user.userTrack}_${user.userYear}`;
   const requirements = allRules[ruleKey];
 
@@ -122,8 +128,9 @@ function check(user, takenLectures, userCustomLectures) {
     generalElectiveCredits,
     startupCourseCredits,
     fieldPracticeCredits,
-    overseasCredits
-  } = classifyAndSumCredits(takenLectures, userCustomLectures, user.userDepartment);
+    overseasCredits,
+    multiMajorCredits
+  } = classifyAndSumCredits(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
 
   // 교양 학점
   const geRule = requirements.generalEducationCredits;
@@ -145,11 +152,35 @@ function check(user, takenLectures, userCustomLectures) {
 
   // 전공 학점
   results.majorCredits = {
-    pass: majorCredits >= requirements.minMajorCredits.credits,
+    pass: majorCredits >= requirements.majorCredits.credits,
     current: majorCredits,
-    required: requirements.minMajorCredits.credits,
+    required: requirements.majorCredits.credits,
   };
 
+  // 다중 전공
+  const multiMajorRule = requirements.multiMajorCredit;
+  if (multiMajorRule && user.userTrack === '다중전공') {
+    let requiredMultiMajorCredits = 0;
+    let multiMajorPass = false;
+
+    const userMultiMajorType = user.multiMajorType;
+
+    const optionRule = multiMajorRule.options.find(opt => opt.multiMajorType === userMultiMajorType);
+
+    if (optionRule && optionRule.credits) {
+      requiredMultiMajorCredits = optionRule.credits;
+      multiMajorPass = multiMajorCredits >= requiredMultiMajorCredits;
+    } else {
+      multiMajorPass = true;
+    }
+
+    results.multiMajorCredits = {
+      pass: multiMajorPass,
+      current: multiMajorCredits,
+      required: requiredMultiMajorCredits || multiMajorRule.note,
+      note: multiMajorRule.note
+    };
+  }
   // 2. 학점 외 기타 요건 판별
 
   // 전공 필수
@@ -215,10 +246,15 @@ function check(user, takenLectures, userCustomLectures) {
 
 
     if (courseRule) {
-      if (!userFoundedStartup && courseRule.alternative && courseRule.alternative.condition === 'if_not_startup_founded') {
-        requiredCourseCredits = courseRule.alternative.requiredCredits;
-      } else {
-        requiredCourseCredits = courseRule.baseCredits;
+      if (courseRule.minCredits) {
+        requiredCourseCredits = courseRule.minCredits;
+      }
+      else if (courseRule.baseCredits) {
+        if (!userFoundedStartup && courseRule.alternative && courseRule.alternative.condition === 'if_not_startup_founded') {
+          requiredCourseCredits = courseRule.alternative.requiredCredits;
+        } else {
+          requiredCourseCredits = courseRule.baseCredits;
+        }
       }
 
       if (startupCourseCredits >= requiredCourseCredits) {
