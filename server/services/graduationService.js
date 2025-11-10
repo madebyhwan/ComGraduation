@@ -33,8 +33,7 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     if (ventureCourseList.includes(lecture.lectCode)) {
       startupCourseCredits += credits;
     }
-
-    if (isMajor && lecture.isEnglishlecture) {
+    if (isMajor && lecture.isEnglishLecture) {
       overseasCredits += 1;
     }
   });
