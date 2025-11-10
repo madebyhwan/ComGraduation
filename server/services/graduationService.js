@@ -18,10 +18,12 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
 
   takenLectures.forEach(lecture => {
     const credits = Number(lecture.lectCredit) || 0;
+    const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부")
+
     // 1. 주 학점 분류 (졸업 총 학점 계산용)
     if (lecture.lectGeneral === '교양') {
       generalEducationCredits += credits;
-    } else if (ourMajorCourseList.includes(lecture.lectCode)) {
+    } else if (isMajor) {
       majorCredits += credits;
     } else {
       generalElectiveCredits += credits;
@@ -30,6 +32,10 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     // 창업 교과목
     if (ventureCourseList.includes(lecture.lectCode)) {
       startupCourseCredits += credits;
+    }
+
+    if (isMajor && lecture.isEnglishlecture) {
+      overseasCredits += 1;
     }
   });
 
