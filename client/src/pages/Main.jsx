@@ -56,7 +56,8 @@ const transformFrontendToBackend = (infoState) => {
     username: infoState.username,
     userDepartment: infoState.userDepartment,
     userTrack: infoState.userTrack === '없음(심컴)' ? '심컴' : infoState.userTrack, // UI '없음(심컴)' -> 백엔드 '심컴'
-
+    // [수정] updateUserProfile이 multiMajorType도 받도록 변경되었습니다.
+    multiMajorType: infoState.multiMajorType || null,
     englishTest: { // UI 문자열 -> 백엔드 englishTest 객체
       testType: infoState.englishTest === '' ? null : infoState.englishTest,
       score: infoState.englishScore || null
@@ -151,11 +152,12 @@ function Main() {
       return alert('이미 추가된 강의입니다.');
     }
     try {
-      const response = await api.post('/api/users/addUnivLect', { lectureId: lecture._id });
-      setMyCourses(prevCourses => [...prevCourses, response.data.lectInfo]);
+   // [수정] 성공 시 myCourses 상태를 직접 업데이트하는 대신, loadMyCourses()를 호출하여 목록을 새로고침합니다.
+      await api.post('/api/users/addUnivLect', { lectureId: lecture._id });
+      loadMyCourses(); 
       alert(`'${lecture.lectName}' 강의가 추가되었습니다.`);
-
-      //setIsSearchModalOpen(false); // 성공 시 모달 창을 닫습니다.
+      // setIsSearchModalOpen(false); // (선택사항) 성공 시 모달 닫기
+      
     } catch (error) {
       console.error('강의 추가 중 오류 발생:', error);
       alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
@@ -196,15 +198,31 @@ function Main() {
     });
   };
 
-  // [수정] 전체 선택 체크박스의 상태를 관리하는 함수입니다.
-  const handleSelectAllCourses = (e) => {
+  // // [수정] 전체 선택 체크박스의 상태를 관리하는 함수입니다.
+  // const handleSelectAllCourses = (e) => {
+  //   if (e.target.checked) {
+  //     // "전체 선택"이 체크되면, 현재 모든 강의의 ID를 Set에 담아 상태를 업데이트합니다.
+  //     const allCourseIds = new Set(myCourses.map(course => course._id));
+  //     setSelectedCourses(allCourseIds);
+  //   } else {
+  //     // "전체 선택"이 해제되면, Set을 비워서 모든 선택을 해제합니다.
+  //     setSelectedCourses(new Set());
+  //   }
+  // };
+
+  const handleSelectAllCourses = (e, courses) => {
+    // [수정] 전체 선택 시, 현재 테이블의 강의들만 선택/해제하도록 변경
+    const courseIds = new Set(courses.map(c => c._id));
     if (e.target.checked) {
-      // "전체 선택"이 체크되면, 현재 모든 강의의 ID를 Set에 담아 상태를 업데이트합니다.
-      const allCourseIds = new Set(myCourses.map(course => course._id));
-      setSelectedCourses(allCourseIds);
+      // 현재 선택된 Set에 지금 테이블의 ID들을 추가
+      setSelectedCourses(prevSelected => new Set([...prevSelected, ...courseIds]));
     } else {
-      // "전체 선택"이 해제되면, Set을 비워서 모든 선택을 해제합니다.
-      setSelectedCourses(new Set());
+      // 현재 선택된 Set에서 지금 테이블의 ID들을 제거
+      setSelectedCourses(prevSelected => {
+        const newSelected = new Set(prevSelected);
+        courseIds.forEach(id => newSelected.delete(id));
+        return newSelected;
+      });
     }
   };
 
@@ -226,8 +244,10 @@ function Main() {
       );
 
       const responses = await Promise.all(deletePromises);
+      // [수정] 응답에서 삭제된 ID 목록을 가져옵니다.
       const deletedIds = new Set(responses.map(res => res.data.deletedLectureId));
 
+      // [수정] myCourses 상태에서 삭제된 항목들을 제거합니다. (새로고침 없이)
       setMyCourses(prevCourses =>
         prevCourses.filter(course => !deletedIds.has(course._id))
       );
@@ -332,6 +352,14 @@ function Main() {
     // navigate('/');
     window.location.href = '/'; // navigate 대신 사용
   };
+
+  // [추가] myCourses 배열을 두 개의 분리된 배열로 필터링합니다.
+  // lectCode가 있는 항목(null, undefined, ""가 아님)을 일반 강의로 간주합니다.
+  const regularCourses = myCourses.filter(course => course.lectCode);
+  const customCourses = myCourses.filter(course => !course.lectCode);
+  // [추가] 각 테이블의 모든 항목이 선택되었는지 확인하는 변수
+  const allRegularSelected = regularCourses.length > 0 && regularCourses.every(c => selectedCourses.has(c._id));
+  const allCustomSelected = customCourses.length > 0 && customCourses.every(c => selectedCourses.has(c._id));
 
   return (
     <div className="container">
@@ -481,14 +509,15 @@ function Main() {
                 <h2>나의 수강 및 활동 내역</h2>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
-                  {/* [수정] '기타 활동 추가' 버튼에 새 모달을 여는 onClick 핸들러를 연결합니다. */}
                   <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
                   <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
 
-              {myCourses.length === 0 ? (
+              {/* === 첫 번째 테이블: 수강 내역 (일반 강의) === */}
+              <h3 className="table-title">수강 내역</h3>
+              {regularCourses.length === 0 ? (
                 <div className="empty-courses-message">
                   '강의 추가'를 눌러 수강한 과목을 추가해 주세요.
                 </div>
@@ -501,9 +530,9 @@ function Main() {
                         <th>
                           {/* [수정] 전체 선택 체크박스: 모든 강의가 선택되었을 때만 checked 상태가 됩니다. */}
                           <input
-                            type="checkbox"
-                            onChange={handleSelectAllCourses}
-                            checked={myCourses.length > 0 && selectedCourses.size === myCourses.length}
+                           type="checkbox"
+                           onChange={(e) => handleSelectAllCourses(e, regularCourses)}
+                           checked={allRegularSelected}
                           />
                         </th>
                         <th>개설년도</th>
@@ -517,7 +546,7 @@ function Main() {
                       </tr>
                     </thead>
                     <tbody>
-                      {myCourses.map((course) => (
+                     {regularCourses.map((course) => (
                         <tr key={course._id}>
                           <td>
                             {/* [수정] 개별 체크박스: selectedCourses Set에 현재 강의의 ID가 포함되어 있을 때만 checked 상태가 됩니다. */}
@@ -541,8 +570,56 @@ function Main() {
                   </table>
                 </div>
               )}
+              {/* === 두 번째 테이블: 기타 활동 내역 === */}
+              <h3 className="table-title" style={{ marginTop: '30px' }}>기타 활동 내역</h3>
+              {customCourses.length === 0 ? (
+                <div className="empty-courses-message">
+                  '기타 활동 추가'를 눌러 활동 내역을 추가해 주세요.
+                </div>
+              ) : (
+                <div className="table-scroll">
+                  {/* [참고] CSS 일관성을 위해 동일한 course-table 클래스 사용 */}
+                  <table className="course-table"> 
+                    <thead>
+                      <tr>
+                        <th>
+                          <input
+                            type="checkbox"
+                            onChange={(e) => handleSelectAllCourses(e, customCourses)}
+                            checked={allCustomSelected}
+                          />
+                        </th>
+                        <th>활동명</th>
+                        <th>교과 구분</th>
+                        <th>해외 인정 학점</th>
+                        <th>현장 실습 학점</th>
+                        <th>총 이수 학점 (포함)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {customCourses.map((course) => (
+                        <tr key={course._id}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedCourses.has(course._id)}
+                              onChange={() => handleSelectCourse(course._id)}
+                            />
+                          </td>
+                          <td>{course.lectName}</td>
+                          <td>{course.lectType}</td>
+                          <td>{course.overseasCredit}</td>
+                          <td>{course.fieldPracticeCredit}</td>
+                          <td>{course.totalCredit}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           )}
+
           {activeTab === 'graduation-check' && (
             <div className="content-box">
               <div className="content-header"><h2>나의 졸업 요건 충족 현황</h2><button className="action-btn-green">진단하기</button></div>
