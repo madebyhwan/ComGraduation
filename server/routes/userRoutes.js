@@ -13,6 +13,7 @@ const {
   updateUserProfile,
   tossMultiMajorLectures,
   removeMultiMajorLectures,
+  updateCustomLecture
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -52,5 +53,8 @@ router.post('/tossMultiMajorLectures', authenticateToken, tossMultiMajorLectures
 
 // 다중전공 -> 일반
 router.post('/removeMultiMajorLectures', authenticateToken, removeMultiMajorLectures);
+
+// [추가] 기타 활동 수정 라우트
+router.patch('/customLecture/:lectureId', authenticateToken, updateCustomLecture);
 
 module.exports = router;
