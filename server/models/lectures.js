@@ -43,7 +43,7 @@ const lecturesSchema = new mongoose.Schema({
   lectDepartment: {
     type: String
   },
-  isEnglishlecture: {
+  isEnglishLecture: {
     type: Boolean,
     default: false
   }
