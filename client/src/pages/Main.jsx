@@ -75,7 +75,9 @@ function Main() {
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  // [수정] 'isCustomModalOpen' state를 'editingActivity' state로 변경
+  // null = 닫힘, {} = 추가 모드, { ... } = 수정 모드
+  const [editingActivity, setEditingActivity] = useState(null); 
  // [수정] 3개의 테이블을 위한 3개의 state
   const [regularCourses, setRegularCourses] = useState([]);
   const [customCourses, setCustomCourses] = useState([]);
@@ -173,15 +175,24 @@ function Main() {
   };
 
  // [수정] 기타 활동 추가 핸들러
-  const handleAddCustomLecture = async (activityData) => {    
-    try {      
-      await api.post('/api/users/addCustomLect', activityData);      
-      alert('기타 활동이 성공적으로 추가되었습니다.');
-      setIsCustomModalOpen(false);         
-      loadMyCourses(); 
+const handleSaveCustomLecture = async (activityData) => {
+    try {
+      if (activityData._id) {
+        // --- 수정 모드 ---
+        await api.patch(`/api/users/customLecture/${activityData._id}`, activityData);
+        alert('활동이 성공적으로 수정되었습니다.');
+      } else {
+        // --- 추가 모드 ---
+        await api.post('/api/users/addCustomLect', activityData);
+        alert('기타 활동이 성공적으로 추가되었습니다.');
+      }
+      
+      setEditingActivity(null); // 모달 닫기
+      loadMyCourses(); // 목록 새로고침
+
     } catch (error) {
-      console.error('기타 활동 추가 실패:', error);
-      alert(error.response?.data?.message || '기타 활동 추가에 실패했습니다.');
+      console.error('기타 활동 저장/수정 실패:', error);
+      alert(error.response?.data?.message || '작업에 실패했습니다.');
       throw error; 
     }
   };
@@ -564,7 +575,7 @@ function Main() {
 
               {/* === 첫 번째 테이블: 수강 내역 (일반 강의) === */}
             <div className="content-header" style={{ marginTop: '10px' }}>
-                <h3 className="table-title">수강 내역 (전공/교양)</h3>
+                <h3 className="table-title">수강 내역</h3>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
@@ -686,7 +697,7 @@ function Main() {
               <div className="content-header" style={{ marginTop: '30px' }}>
                 <h3 className="table-title">기타 활동 내역</h3>
                 <div className="form-actions">
-                  <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
+                  <button className="action-btn" onClick={() => setEditingActivity({})}>기타 활동 추가</button>
                 </div>
               </div>
               {customCourses.length === 0 ? (
@@ -728,6 +739,14 @@ function Main() {
                           <td>{course.overseasCredit}</td>
                           <td>{course.fieldPracticeCredit}</td>
                           <td>{course.totalCredit}</td>
+                          <td>
+                            <button 
+                              className="action-btn-small" // (CSS에 .action-btn-small 스타일 필요)
+                              onClick={() => setEditingActivity(course)} // '수정' 모드
+                            >
+                              수정
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -871,7 +890,7 @@ function Main() {
                     )}
                     {/* [추가] 다중전공 학점 표시 (요건x, 정보o) */}
                     <li>
-                      <span>다중전공 학점</span>
+                      <span>(별도) 다중전공 학점</span>
                       {/* pass/fail이 없으므로 회색 텍스트로 표시 */}
                       <div className="status-value info-only">
                         <span className="credit-box">
@@ -895,11 +914,14 @@ function Main() {
         />
       )}
 
-      {/* [추가] '기타 활동 추가' 모달을 렌더링합니다. */}
-      {isCustomModalOpen && (
+  {/* [수정] 'editingActivity' state에 따라 모달을 렌더링합니다. */}
+      {editingActivity && (
         <CustomLectureModal
-          onClose={() => setIsCustomModalOpen(false)}
-          onAdd={handleAddCustomLecture}
+          // '수정 모드'일 경우 객체가, '추가 모드'일 경우 빈 객체 {}가 전달됨
+          initialData={editingActivity} 
+          // 'onAdd' 대신 'onSave' prop 전달
+          onSave={handleSaveCustomLecture} 
+          onClose={() => setEditingActivity(null)}
         />
       )}
 

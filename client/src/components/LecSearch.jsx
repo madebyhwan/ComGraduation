@@ -49,6 +49,17 @@ function LecSearch({ onClose, onAddLecture }) {
     }
   };
 
+  // [추가] 엔터 키 입력 감지 함수
+  const handleKeyPress = (event) => {
+    // 1. 눌린 키가 'Enter'인지 확인합니다.
+    if (event.key === 'Enter') {
+      // 2. form 태그 안에서 Enter를 누를 때 기본 동작(페이지 새로고침)을 방지합니다.
+      event.preventDefault();
+      // 3. '검색' 버튼을 누른 것과 동일하게 handleSearch 함수를 호출합니다.
+      handleSearch();
+    }
+  };
+
   const yearOptions = [2021, 2022, 2023, 2024, 2025];
   const semesterOptions = ['1학기', '2학기', '계절학기(하계)', '계절학기(동계)'];
 
@@ -75,6 +86,7 @@ function LecSearch({ onClose, onAddLecture }) {
               placeholder="강의명 또는 교수명 또는 과목코드로 검색"
               value={filters.keyword}
               onChange={handleFilterChange}
+              onKeyDown={handleKeyPress}
             />
             <button onClick={handleSearch} disabled={loading}>
               {loading ? '검색 중...' : '검색'}
