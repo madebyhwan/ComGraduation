@@ -288,6 +288,31 @@ function Main() {
     }
   };
 
+  // [추가] 다중전공 해제 핸들러
+  const handleRemoveFromMultiMajor = async () => {
+    if (selectedCourses.size === 0) {
+      return alert('수강 내역으로 되돌릴 강의를 선택해주세요.');
+    }
+    if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 수강 내역으로 되돌리시겠습니까?`)) {
+      return;
+    }
+
+    try {      
+      const requests = Array.from(selectedCourses).map(id => 
+        api.post('/api/users/removeMultiMajorLectures', { lectureId: id })
+      );
+      
+      await Promise.all(requests);
+
+      await loadMyCourses(); // 성공 시 목록 새로고침
+      setSelectedCourses(new Set()); // 선택 초기화
+      alert('선택한 강의를 수강 내역으로 이동했습니다.');
+    } catch (error) {
+      console.error('다중전공 해제 실패:', error);
+      alert(error.response?.data?.message || '다중전공 해제에 실패했습니다.');
+    }
+  };
+
   // [추가] info 상태를 업데이트하는 범용 핸들러
   const updateInfo = (key, value) => {
     setInfo(prev => ({ ...prev, [key]: value }));
@@ -508,7 +533,7 @@ function Main() {
                     <input type="checkbox" id="startup-check" checked={info.hasStartup} onChange={e => updateInfo('hasStartup', e.target.checked)} />
                     <label htmlFor="startup-check">창업 여부</label>
                     <input type="checkbox" id="exchange-check" checked={info.isExchangeStudent} onChange={e => updateInfo('isExchangeStudent', e.target.checked)} />
-                    <label htmlFor="exchange-check">교환학생 여부</label>
+                    <label htmlFor="exchange-check">교환학생 여부(1년 이상)</label>
                   </div>
                 </div>
 
@@ -535,6 +560,7 @@ function Main() {
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
                   <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
                   <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
+                  <button className="action-btn" onClick={handleRemoveFromMultiMajor}>다중전공 해제</button>
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
@@ -771,7 +797,7 @@ function Main() {
                       <span>전공 필수</span>
                       <div className={`status-value ${gradDetails.requiredMajorCourses.pass ? 'pass' : 'fail'}`}>
                         {gradDetails.requiredMajorCourses.pass ? '충족' : 
-                         `미이수 (${gradDetails.requiredMajorCourses.missing.length}개)`}
+                         `미충족 (${gradDetails.requiredMajorCourses.missing.length}개 미이수)`}
                       </div>
                     </li>
                     {/* 지도교수 상담 */}
