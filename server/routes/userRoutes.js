@@ -11,7 +11,8 @@ const {
   getLecture,
   getUserProfile,
   updateUserProfile,
-  tossMultiMajorLectures
+  tossMultiMajorLectures,
+  removeMultiMajorLectures,
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -46,7 +47,10 @@ router.get('/profile', authenticateToken, getUserProfile);
 // 사용자 정보 수정 (내 정보 수정 후 저장 버튼 클릭 시)
 router.patch('/profile', authenticateToken, updateUserProfile);
 
-// 복수/연계/융합/부전공 트랙 선택
+// 일반 -> 다중전공
 router.post('/tossMultiMajorLectures', authenticateToken, tossMultiMajorLectures);
+
+// 다중전공 -> 일반
+router.post('/removeMultiMajorLectures', authenticateToken, removeMultiMajorLectures);
 
 module.exports = router;
