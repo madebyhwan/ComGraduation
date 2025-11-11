@@ -19,7 +19,6 @@ async function lectureList(userId) {
         path: 'userLectures',
         select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
       })
-      // [추가] multiMajorLectures(다중전공) 강의 목록도 populate 합니다.
       .populate({
         path: 'multiMajorLectures',
         select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
@@ -28,16 +27,10 @@ async function lectureList(userId) {
     const custom = (user.userCustomLectures || []).map(cl => ({
       _id: cl?._id ?? null,
       lectName: cl?.lectName ?? null,
-      lectCode: null,
-      lectDiv: null,
-      // [필수 수정] 모든 필드를 반환합니다.
       lectType: cl?.lectType ?? null,
       overseasCredit: cl?.overseasCredit ?? 0,
       fieldPracticeCredit: cl?.fieldPracticeCredit ?? 0,
       totalCredit: cl?.totalCredit ?? 0,
-      lectYear: null,
-      lectSemester: null,
-      lectProfessor: null
     }));
 
     const univ = (user.userLectures || []).map(l => ({
@@ -109,15 +102,12 @@ async function lectureList(userId) {
 
     if (!user) return null;
 
-    // return [...custom, ...univ, ...multiMajor];
-
-    // [수정] 반환 형식이 객체로 변경됨
-    return {
+    data = {
       'custom': custom,
       'univ': univ,
       'multiMajor': multiMajor
     }
-
+    return data;
   } catch (error) {
     console.error('lectureList error:', error);
     throw error;
@@ -150,8 +140,6 @@ exports.loginUser = async (req, res) => {
       process.env.JWT_SECRET_KEY || 'JWT_SECRET_KEY',
       { expiresIn: '1d' }
     );
-
-
 
     // 토큰 전송
     res.json({
@@ -259,7 +247,7 @@ exports.deleteLecture = async (req, res) => {
   const lectureId = req.params.lectureId;
 
   if (!userId) return res.status(401).json({ message: '인증 정보가 없습니다.' });
-  if (!lectureId) return res.status(400).json({ message: 'lectureId(customLectureId)가 필요합니다.' });
+  if (!lectureId) return res.status(400).json({ message: 'lectureId가 필요합니다.' });
   if (!mongoose.Types.ObjectId.isValid(lectureId)) {
     return res.status(400).json({ message: '유효하지 않은 강의 ID 형식입니다.' });
   }
@@ -274,9 +262,9 @@ exports.deleteLecture = async (req, res) => {
       { _id: userId },
       {
         $pull: {
+          userLectures: lectureObjectId,
           userCustomLectures: lectureObjectId,
-          multiMajorLectures: lectureObjectId,
-          userLectures: lectureObjectId
+          multiMajorLectures: lectureObjectId
         }
       }
     );
@@ -536,7 +524,7 @@ exports.updateUserProfile = async (req, res) => {
   }
 };
 
-// 다중전공 넘기기
+// 일반 -> 다중전공
 exports.tossMultiMajorLectures = async (req, res) => {
   const userId = req.user.id;
   const { lectureId } = req.body;
@@ -564,15 +552,8 @@ exports.tossMultiMajorLectures = async (req, res) => {
       return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
     }
 
-    // user.userLectures.pop(lectureId);
-    // user.multiMajorLectures.push(lectureId);
-    // await user.save();
-
-    // [핵심 수정] .pop() 대신 $pull과 $push를 사용한 원자적 업데이트
-    // 1. userLectures 배열에서 해당 ID 제거
-    // 2. multiMajorLectures 배열에 해당 ID 추가
     const updateResult = await User.updateOne(
-      { _id: userId, userLectures: lectureId }, // 조건: userLectures에 해당 ID가 있어야만 함
+      { _id: userId, userLectures: lectureId },
       {
         $pull: { userLectures: new mongoose.Types.ObjectId(lectureId) },
         $push: { multiMajorLectures: new mongoose.Types.ObjectId(lectureId) }
@@ -587,6 +568,78 @@ exports.tossMultiMajorLectures = async (req, res) => {
     res.status(200).json({
       message: '강의가 성공적으로 변경되었습니다.',
       lectInfo: lecture.toJSON()
+    });
+
+  } catch (error) {
+    console.error('강의 변경 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// 다중전공 -> 일반
+exports.removeMultiMajorLectures = async (req, res) => {
+  const userId = req.user.id;
+  const { lectureId } = req.body;
+
+  if (!lectureId) {
+    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(lectureId)) {
+    return res.status(400).json({ message: '유효하지 않은 강의 ID 형식입니다.' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+    
+    if (user.userTrack !== '다중전공') {
+      return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
+    }
+
+    const lectureObjectId = new mongoose.Types.ObjectId(lectureId);
+
+    // 강의가 존재하는지 확인
+    const lecture = await Lecture.findById(lectureObjectId);
+    if (!lecture) {
+      return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
+    }
+
+    // 이미 userLectures에 있는지 확인
+    const isAlreadyInUserLectures = user.userLectures.some(id => id.equals(lectureObjectId));
+    if (isAlreadyInUserLectures) {
+      return res.status(409).json({ message: '이미 수강 내역에 있는 강의입니다.' });
+    }
+
+    // multiMajorLectures에 있는지 확인
+    const isInMultiMajor = user.multiMajorLectures.some(id => id.equals(lectureObjectId));
+    if (!isInMultiMajor) {
+      return res.status(400).json({ message: '강의가 다중전공 목록에 존재하지 않습니다.' });
+    }
+
+    // 원자적 업데이트: multiMajorLectures에서 제거하고 userLectures에 추가
+    const updateResult = await User.updateOne(
+      { 
+        _id: userId,
+        multiMajorLectures: lectureObjectId,  // multiMajorLectures에 존재하는 경우만
+        userLectures: { $ne: lectureObjectId }  // userLectures에 없는 경우만
+      },
+      {
+        $pull: { multiMajorLectures: lectureObjectId },
+        $addToSet: { userLectures: lectureObjectId }
+      }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      return res.status(409).json({ message: '강의 이동에 실패했습니다. 조건을 만족하지 않습니다.' });
+    }
+
+    res.status(200).json({
+      message: '강의가 수강 내역으로 성공적으로 이동되었습니다.',
+      lectureId: lectureId
     });
 
   } catch (error) {
