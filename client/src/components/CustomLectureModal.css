@@ -73,15 +73,17 @@
 }
 
 .modal-container .info-row input[type="text"],
-.modal-container .info-row input[type="number"] { /* [수정] .modal-container 추가 */
+.modal-container .info-row input[type="number"],
+.modal-container .info-row select {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 15px;
   width: 100%;
   box-sizing: border-box; 
+  background-color: white; /* select 배경색 보정 */
+  font-family: inherit; /* 폰트 통일 */
 }
-
 /* 8. [핵심] .form-actions가 .modal-container 내부에 있을 때만 적용 */
 .modal-container .form-actions {
   display: flex;
