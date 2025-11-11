@@ -329,8 +329,14 @@ exports.addCustomLecture = async (req, res) => {
   const { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit } = req.body;
   const userId = req.user.id;
 
-  if (!lectName || !lectType || !overseasCredit || !fieldPracticeCredit || !totalCredit) {
-    return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+  // 0을 허용하도록 유효성 검사 수정
+  if (!lectName || !lectType) {
+    return res.status(400).json({ message: '활동명과 교과 구분은 필수 입력 항목입니다.' });
+  }
+  if (overseasCredit === undefined || overseasCredit === null ||
+      fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+      totalCredit === undefined || totalCredit === null) {
+    return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
   }
 
   try {
@@ -546,26 +552,44 @@ exports.tossMultiMajorLectures = async (req, res) => {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
     if (!lecture) {
+      // 이관할 강의가 Lecture DB에 존재하는지 확인
+      const lecture = await Lecture.findById(lectureId);
       return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
     }
     if (user.multiMajorLectures.includes(lectureId)) {
-      return res.status(409).json({ message: '이미 추가된 강의입니다.' });
+      return res.status(409).json({ message: '이미 다중전공으로 이관된 강의입니다.' });
     }
     if (user.userTrack !== '다중전공') {
       return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
     }
 
-    user.userLectures.pop(lectureId);
-    user.multiMajorLectures.push(lectureId);
-    await user.save();
+    // user.userLectures.pop(lectureId);
+    // user.multiMajorLectures.push(lectureId);
+    // await user.save();
+
+    // [핵심 수정] .pop() 대신 $pull과 $push를 사용한 원자적 업데이트
+    // 1. userLectures 배열에서 해당 ID 제거
+    // 2. multiMajorLectures 배열에 해당 ID 추가
+    const updateResult = await User.updateOne(
+      { _id: userId, userLectures: lectureId }, // 조건: userLectures에 해당 ID가 있어야만 함
+      {
+        $pull: { userLectures: new mongoose.Types.ObjectId(lectureId) },
+        $push: { multiMajorLectures: new mongoose.Types.ObjectId(lectureId) }
+      }
+    );
+
+    if (updateResult.modifiedCount === 0) {
+      // userLectures에 해당 강의가 없었거나, 이미 이관된 경우
+      return res.status(404).json({ message: '해당 강의가 수강 내역에 존재하지 않거나 이관에 실패했습니다.' });
+    }
 
     res.status(200).json({
-      message: '강의가 성공적으로 추가되었습니다.',
+      message: '강의가 성공적으로 변경되었습니다.',
       lectInfo: lecture.toJSON()
     });
 
   } catch (error) {
-    console.error('강의 추가 중 오류 발생:', error);
+    console.error('강의 변경 중 오류 발생:', error);
     res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
