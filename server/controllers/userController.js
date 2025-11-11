@@ -109,10 +109,10 @@ async function lectureList(userId) {
 
     if (!user) return null;
 
-   // return [...custom, ...univ, ...multiMajor];
+    // return [...custom, ...univ, ...multiMajor];
 
     // [수정] 반환 형식이 객체로 변경됨
-       return {
+    return {
       'custom': custom,
       'univ': univ,
       'multiMajor': multiMajor
@@ -274,7 +274,7 @@ exports.deleteLecture = async (req, res) => {
       { _id: userId },
       {
         $pull: {
-          userCustomLectures: lectureObjectId, 
+          userCustomLectures: lectureObjectId,
           multiMajorLectures: lectureObjectId,
           userLectures: lectureObjectId
         }
@@ -306,14 +306,15 @@ exports.checkGraduation = async (req, res) => {
     // 2. DB에서 사용자 정보와 수강 과목 목록을 *모두 populate 합니다.*
     const user = await User.findById(userId)
       .populate('userLectures')
-      .populate('userCustomLectures');
+      .populate('userCustomLectures')
+      .populate('multiMajorLectures');
 
     if (!user) {
       return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
     }
 
     // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
-    const result = graduationService.check(user, user.userLectures, user.userCustomLectures); // 합쳐진 배열 전달
+    const result = graduationService.check(user, user.userLectures, user.userCustomLectures, user.multiMajorLectures); // 합쳐진 배열 전달
 
     // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
     res.status(200).json(result);
@@ -334,8 +335,8 @@ exports.addCustomLecture = async (req, res) => {
     return res.status(400).json({ message: '활동명과 교과 구분은 필수 입력 항목입니다.' });
   }
   if (overseasCredit === undefined || overseasCredit === null ||
-      fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
-      totalCredit === undefined || totalCredit === null) {
+    fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+    totalCredit === undefined || totalCredit === null) {
     return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
   }
 
