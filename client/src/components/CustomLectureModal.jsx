@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import './CustomLectureModal.css'; 
 
-function CustomLectureModal({ onClose, onAdd }) {
+function CustomLectureModal({ onClose, onSave, initialData }) {
+
+  const isEditMode = initialData && initialData._id;
+
   const [activity, setActivity] = useState({
-    lectName: '',
-    lectType: '', // [수정] '전공', '교양', '일반선택' 중 하나가 되어야 함
-    overseasCredit: 0,
-    fieldPracticeCredit: 0,
-    totalCredit: 0, // [수정] lectCredit -> totalCredit로 변경
+    lectName: initialData?.lectName || '',
+    lectType: initialData?.lectType || '',
+    overseasCredit: initialData?.overseasCredit || 0,
+    fieldPracticeCredit: initialData?.fieldPracticeCredit || 0,
+    totalCredit: initialData?.totalCredit || 0,
   });
   const [loading, setLoading] = useState(false);
 
@@ -33,9 +36,14 @@ function CustomLectureModal({ onClose, onAdd }) {
       totalCredit: Number(activity.totalCredit) || 0,
     };
 
+    if (isEditMode) {
+      payload._id = initialData._id;
+    }
+
     setLoading(true);
     try {
-      await onAdd(payload);
+      // onSave는 Main.jsx의 handleSaveCustomLecture 함수입니다.
+      await onSave(payload); 
     } catch (error) {
       // 에러 처리는 Main.jsx의 핸들러가 담당
     } finally {
@@ -47,7 +55,7 @@ function CustomLectureModal({ onClose, onAdd }) {
     <div className="modal-backdrop">
       <div className="modal-container">
         <div className="modal-header">
-          <h2>기타 활동 추가</h2>
+          <h2>{isEditMode ? '기타 활동 수정' : '기타 활동 추가'}</h2>
           <button onClick={onClose} className="modal-close-btn">&times;</button>
         </div>
         <div className="modal-content">
@@ -107,8 +115,8 @@ function CustomLectureModal({ onClose, onAdd }) {
             </div>
             <div className="form-actions">
               <button type="button" className="action-btn-gray" onClick={onClose}>취소</button>
-              <button type="submit" className="action-btn" disabled={loading}>
-                {loading ? '추가 중...' : '추가'}
+             <button type="submit" className="action-btn" disabled={loading}>
+                {loading ? '저장 중...' : (isEditMode ? '수정하기' : '추가하기')}
               </button>
             </div>
           </form>
