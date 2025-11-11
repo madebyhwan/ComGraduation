@@ -102,14 +102,7 @@ async function lectureList(userId) {
 
     if (!user) return null;
 
-<<<<<<< HEAD
-    // return [...custom, ...univ, ...multiMajor];
-
-    // [수정] 반환 형식이 객체로 변경됨
-    return {
-=======
     data = {
->>>>>>> e333aa7977bc4d4cab4bf569e148b2da3d7c4a6a
       'custom': custom,
       'univ': univ,
       'multiMajor': multiMajor
@@ -269,15 +262,9 @@ exports.deleteLecture = async (req, res) => {
       { _id: userId },
       {
         $pull: {
-<<<<<<< HEAD
-          userCustomLectures: lectureObjectId,
-          multiMajorLectures: lectureObjectId,
-          userLectures: lectureObjectId
-=======
           userLectures: lectureObjectId,
           userCustomLectures: lectureObjectId,
           multiMajorLectures: lectureObjectId
->>>>>>> e333aa7977bc4d4cab4bf569e148b2da3d7c4a6a
         }
       }
     );
@@ -604,11 +591,11 @@ exports.removeMultiMajorLectures = async (req, res) => {
 
   try {
     const user = await User.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     if (user.userTrack !== '다중전공') {
       return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
     }
@@ -635,7 +622,7 @@ exports.removeMultiMajorLectures = async (req, res) => {
 
     // 원자적 업데이트: multiMajorLectures에서 제거하고 userLectures에 추가
     const updateResult = await User.updateOne(
-      { 
+      {
         _id: userId,
         multiMajorLectures: lectureObjectId,  // multiMajorLectures에 존재하는 경우만
         userLectures: { $ne: lectureObjectId }  // userLectures에 없는 경우만

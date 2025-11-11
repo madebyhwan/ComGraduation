@@ -297,11 +297,11 @@ function Main() {
       return;
     }
 
-    try {      
-      const requests = Array.from(selectedCourses).map(id => 
+    try {
+      const requests = Array.from(selectedCourses).map(id =>
         api.post('/api/users/removeMultiMajorLectures', { lectureId: id })
       );
-      
+
       await Promise.all(requests);
 
       await loadMyCourses(); // 성공 시 목록 새로고침
@@ -557,13 +557,13 @@ function Main() {
             <div className="content-box">
               <div className="content-header">
                 <h2>나의 수강 및 활동 내역</h2>
-                <div className="form-actions">      
+                <div className="form-actions">
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
 
               {/* === 첫 번째 테이블: 수강 내역 (일반 강의) === */}
-            <div className="content-header" style={{ marginTop: '10px' }}>
+              <div className="content-header" style={{ marginTop: '10px' }}>
                 <h3 className="table-title">수강 내역 (전공/교양)</h3>
                 <div className="form-actions">
                   <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
@@ -625,7 +625,7 @@ function Main() {
               )}
 
               {/* === [추가] 두 번째 테이블: 다중전공 수강 내역 === */}
-             <div className="content-header" style={{ marginTop: '30px' }}>
+              <div className="content-header" style={{ marginTop: '30px' }}>
                 <h3 className="table-title">다중전공 수강 내역</h3>
                 <div className="form-actions">
                   <button className="action-btn" onClick={handleRemoveFromMultiMajor}>다중전공 해제</button>
@@ -810,13 +810,8 @@ function Main() {
                     <li>
                       <span>전공 필수</span>
                       <div className={`status-value ${gradDetails.requiredMajorCourses.pass ? 'pass' : 'fail'}`}>
-<<<<<<< HEAD
                         {gradDetails.requiredMajorCourses.pass ? '충족' :
-                          `미이수 (${gradDetails.requiredMajorCourses.missing.length}개)`}
-=======
-                        {gradDetails.requiredMajorCourses.pass ? '충족' : 
-                         `미충족 (${gradDetails.requiredMajorCourses.missing.length}개 미이수)`}
->>>>>>> e333aa7977bc4d4cab4bf569e148b2da3d7c4a6a
+                          `미충족 (${gradDetails.requiredMajorCourses.missing.length}개 미이수)`}
                       </div>
                     </li>
                     {/* 지도교수 상담 */}
@@ -884,7 +879,7 @@ function Main() {
                         </span>
                       </div>
                     </li>
-                    
+
                   </ul>
                 </>
               )}
