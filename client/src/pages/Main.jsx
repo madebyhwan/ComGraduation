@@ -42,7 +42,7 @@ const transformBackendToFrontend = (user) => {
     graduationRequirement: gradReq, // 백엔드 boolean 필드 -> UI 문자열
     hasStartup: user.isStartup || false, // 백엔드 isStartup -> UI hasStartup
     isExchangeStudent: user.isExchangeStudent || false,
-    multiMajorType: user.multiMajorType || ' ', // 다중전공 분류 (예: 복수전공, 연계전공 등)
+    multiMajorType: user.multiMajorType || '', // 다중전공 분류 (예: 복수전공, 연계전공 등)
   };
 };
 
@@ -401,6 +401,7 @@ function Main() {
   const allMultiMajorSelected = multiMajorCourses.length > 0 && multiMajorCourses.every(c => selectedCourses.has(c._id));
   // [추가] graduationResult가 있을 때 세부 항목을 쉽게 참조하기 위한 변수
   const gradDetails = graduationResult?.details;
+  const gradSummary = graduationResult?.creditSummary;
 
   return (
     <div className="container">
@@ -556,17 +557,19 @@ function Main() {
             <div className="content-box">
               <div className="content-header">
                 <h2>나의 수강 및 활동 내역</h2>
-                <div className="form-actions">
-                  <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
-                  <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
-                  <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
-                  <button className="action-btn" onClick={handleRemoveFromMultiMajor}>다중전공 해제</button>
+                <div className="form-actions">      
                   <button className="action-btn" onClick={handleDeleteLectures}>삭제</button>
                 </div>
               </div>
 
               {/* === 첫 번째 테이블: 수강 내역 (일반 강의) === */}
-              <h3 className="table-title">수강 내역</h3>
+            <div className="content-header" style={{ marginTop: '10px' }}>
+                <h3 className="table-title">수강 내역 (전공/교양)</h3>
+                <div className="form-actions">
+                  <button className="action-btn" onClick={() => setIsSearchModalOpen(true)}>강의 추가</button>
+                  <button className="action-btn" onClick={handleTossToMultiMajor}>다중전공 변경</button>
+                </div>
+              </div>
               {regularCourses.length === 0 ? (
                 <div className="empty-courses-message">
                   '강의 추가'를 눌러 수강한 과목을 추가해 주세요.
@@ -622,7 +625,12 @@ function Main() {
               )}
 
               {/* === [추가] 두 번째 테이블: 다중전공 수강 내역 === */}
-              <h3 className="table-title" style={{ marginTop: '30px' }}>다중전공 수강 내역</h3>
+             <div className="content-header" style={{ marginTop: '30px' }}>
+                <h3 className="table-title">다중전공 수강 내역</h3>
+                <div className="form-actions">
+                  <button className="action-btn" onClick={handleRemoveFromMultiMajor}>다중전공 해제</button>
+                </div>
+              </div>
               {multiMajorCourses.length === 0 ? (
                 <div className="empty-courses-message">
                   '다중전공 변경' 버튼을 눌러 수강 내역을 이관해 주세요.
@@ -675,7 +683,12 @@ function Main() {
               )}
 
               {/* === 세 번째 테이블: 기타 활동 내역 === */}
-              <h3 className="table-title" style={{ marginTop: '30px' }}>기타 활동 내역</h3>
+              <div className="content-header" style={{ marginTop: '30px' }}>
+                <h3 className="table-title">기타 활동 내역</h3>
+                <div className="form-actions">
+                  <button className="action-btn" onClick={() => setIsCustomModalOpen(true)}>기타 활동 추가</button>
+                </div>
+              </div>
               {customCourses.length === 0 ? (
                 <div className="empty-courses-message">
                   '기타 활동 추가'를 눌러 활동 내역을 추가해 주세요.
@@ -753,7 +766,8 @@ function Main() {
               )}
 
               {/* 진단 결과가 있을 때 */}
-              {!isDiagnosing && graduationResult && (
+              {/* [수정] gradDetails와 gradSummary를 모두 확인 */}
+              {!isDiagnosing && graduationResult && gradDetails && gradSummary && (
                 <>
                   <div className={`graduation-summary ${graduationResult.eligible ? 'pass' : 'fail'}`}>
                     <strong>
@@ -855,6 +869,17 @@ function Main() {
                         </div>
                       </li>
                     )}
+                    {/* [추가] 다중전공 학점 표시 (요건x, 정보o) */}
+                    <li>
+                      <span>다중전공 학점</span>
+                      {/* pass/fail이 없으므로 회색 텍스트로 표시 */}
+                      <div className="status-value info-only">
+                        <span className="credit-box">
+                          {gradSummary.multiMajorCredits}
+                        </span>
+                      </div>
+                    </li>
+                    
                   </ul>
                 </>
               )}

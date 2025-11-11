@@ -1,17 +1,19 @@
 const allRules = require('../config/graduationRules.js');
 const majorCourses = require('../config/majorCourses.json');
 const ventureCourses = require('../config/ventureCourses.json');
+const lectures = require('../models/lectures.js');
 
 /**
  * 학생의 수강 과목들을 '전공', '교양', '일반선택'으로 분류하고 학점을 계산
  */
-function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment) {
+function classifyAndSumCredits(takenLectures, userCustomLectures, multiMajorLectures, userDepartment) {
   let majorCredits = 0;             // 전공
   let generalEducationCredits = 0;  // 교양
   let generalElectiveCredits = 0;   // 일반 선택
   let startupCourseCredits = 0;     // 창업 교과목
   let fieldPracticeCredits = 0;     // 현장실습
   let overseasCredits = 0;          // 해외대학인정학점
+  let multiMajorCredits = 0;
 
   const ourMajorCourseList = majorCourses[userDepartment] || [];
   const ventureCourseList = ventureCourses["ventures"];
@@ -39,7 +41,7 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
   });
 
   userCustomLectures.forEach(lecture => {
-    const credit = Number(lecture.totalCredits) || 0;
+    const credit = Number(lecture.totalCredit) || 0;
     if (lecture.lectType === '교양') {
       generalEducationCredits += credit;
     } else if (lecture.lectType === '전공') {
@@ -57,6 +59,11 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     }
   });
 
+  multiMajorLectures.forEach(lecture => {
+    const credit = Number(lecture.lectCredit) || 0;
+    multiMajorCredits += credit;
+  });
+
   // 계산된 모든 학점을 반환합니다.
   return {
     majorCredits,
@@ -65,6 +72,7 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, userDepartment
     startupCourseCredits,
     fieldPracticeCredits,
     overseasCredits,
+    multiMajorCredits
   };
 }
 
@@ -109,7 +117,7 @@ function checkEnglishProficiency(user, rule) {
 /**
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
-function check(user, takenLectures, userCustomLectures) {
+function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
   const ruleKey = `${user.userDepartment}_${user.userTrack}_${user.userYear}`;
   const requirements = allRules[ruleKey];
 
@@ -127,7 +135,8 @@ function check(user, takenLectures, userCustomLectures) {
     startupCourseCredits,
     fieldPracticeCredits,
     overseasCredits,
-  } = classifyAndSumCredits(takenLectures, userCustomLectures, user.userDepartment);
+    multiMajorCredits
+  } = classifyAndSumCredits(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
 
   // 교양 학점
   const geRule = requirements.generalEducationCredits;
@@ -139,7 +148,7 @@ function check(user, takenLectures, userCustomLectures) {
 
   // 총 학점
   let recognizedGeCredits = Math.min(generalEducationCredits, geRule.max || Infinity);
-  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits;
+  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits + multiMajorCredits;
   results.totalCredits = {
     pass: recognizedTotalCredits >= requirements.minTotalCredits,
     current: recognizedTotalCredits,
@@ -251,6 +260,16 @@ function check(user, takenLectures, userCustomLectures) {
     eligible: isEligible,
     checkedAt: new Date().toISOString(),
     details: results,
+
+    creditSummary: {
+      majorCredits,
+      generalEducationCredits,
+      generalElectiveCredits,
+      startupCourseCredits,
+      fieldPracticeCredits,
+      overseasCredits,
+      multiMajorCredits // 다중전공 학점 추가
+    }
   };
 }
 
