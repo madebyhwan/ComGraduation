@@ -75,11 +75,16 @@ function Main() {
   const [authUser, setAuthUser] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  // [추가] 기타 활동 추가 모달의 열림/닫힘 상태를 관리합니다.
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
-  const [myCourses, setMyCourses] = useState([]);
+ // [수정] 3개의 테이블을 위한 3개의 state
+  const [regularCourses, setRegularCourses] = useState([]);
+  const [customCourses, setCustomCourses] = useState([]);
+  const [multiMajorCourses, setMultiMajorCourses] = useState([]);
+  // [추가] 졸업 진단 로딩 및 결과 state
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [graduationResult, setGraduationResult] = useState(null);
+  
   const [selectedCourses, setSelectedCourses] = useState(new Set());
-  // [추가] 정보 저장 시 로딩 상태
   const [isSaving, setIsSaving] = useState(false);
 
   // [수정] info 상태에 새로운 필드들 추가
@@ -132,10 +137,14 @@ function Main() {
     }
   };
 
+// [수정] loadMyCourses 함수가 3개의 state를 채우도록 변경
   const loadMyCourses = async () => {
     try {
       const response = await api.get('/api/users/getLecture');
-      setMyCourses(response.data.data || []);
+      const { custom, univ, multiMajor } = response.data.data;
+      setCustomCourses(custom || []);
+      setRegularCourses(univ || []);
+      setMultiMajorCourses(multiMajor || []);
     } catch (error) {
       console.error("수강 내역을 불러오는 중 오류 발생:", error);
       alert('수강 내역을 불러오는 데 실패했습니다.');
@@ -145,7 +154,9 @@ function Main() {
 
   // [수정] 모달에서 강의를 추가하는 함수
   const handleAddLecture = async (lecture) => {
-    if (myCourses.some(course => course._id === lecture._id)) {
+    // [수정] 중복 검사를 3개 배열 모두에 대해 수행
+    const allCourses = [...regularCourses, ...customCourses, ...multiMajorCourses];
+    if (allCourses.some(course => course._id === lecture._id)) {
       return alert('이미 추가된 강의입니다.');
     }
     try {
@@ -162,29 +173,22 @@ function Main() {
   };
 
  // [수정] 기타 활동 추가 핸들러
-  const handleAddCustomLecture = async (activityData) => {
-    // activityData는 { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit }
-    try {
-      // userController.js의 addCustomLecture API를 호출합니다.
-      await api.post('/api/users/addCustomLect', activityData);
-      
+  const handleAddCustomLecture = async (activityData) => {    
+    try {      
+      await api.post('/api/users/addCustomLect', activityData);      
       alert('기타 활동이 성공적으로 추가되었습니다.');
-      setIsCustomModalOpen(false); // 성공 시 모달 닫기
-      
-      // 활동 추가 후, 전체 목록을 다시 불러와 UI를 동기화합니다.
+      setIsCustomModalOpen(false);         
       loadMyCourses(); 
-
     } catch (error) {
       console.error('기타 활동 추가 실패:', error);
       alert(error.response?.data?.message || '기타 활동 추가에 실패했습니다.');
-      throw error; // Modal의 loading 상태를 해제하기 위해 에러를 다시 던짐
+      throw error; 
     }
   };
 
   // [수정] 개별 체크박스의 상태를 관리하는 함수입니다.
   const handleSelectCourse = (lectureId) => {
-    setSelectedCourses(prevSelected => {
-      // 불변성을 유지하기 위해 이전 Set을 복사하여 새로운 Set을 만듭니다.
+    setSelectedCourses(prevSelected => {      
       const newSelected = new Set(prevSelected);
       if (newSelected.has(lectureId)) {
         newSelected.delete(lectureId); // 이미 있으면 제거 (체크 해제)
@@ -235,21 +239,22 @@ function Main() {
 
     try {
       // 1. 선택된 모든 강의 ID에 대해 병렬로 삭제 API를 호출합니다.
-      const deletePromises = Array.from(selectedCourses).map(lectureId =>
-        // URL 파라미터로 lectureId를 전달하여 DELETE 요청을 보냅니다.
+      const deletePromises = Array.from(selectedCourses).map(lectureId =>       
         api.delete(`/api/users/deleteLecture/${lectureId}`)
       );
+      await Promise.all(deletePromises);
+      // const responses = await Promise.all(deletePromises);
+      // // [수정] 응답에서 삭제된 ID 목록을 가져옵니다.
+      // const deletedIds = new Set(responses.map(res => res.data.deletedLectureId));
 
-      const responses = await Promise.all(deletePromises);
-      // [수정] 응답에서 삭제된 ID 목록을 가져옵니다.
-      const deletedIds = new Set(responses.map(res => res.data.deletedLectureId));
+      // // [수정] myCourses 상태에서 삭제된 항목들을 제거합니다. (새로고침 없이)
+      // setMyCourses(prevCourses =>
+      //   prevCourses.filter(course => !deletedIds.has(course._id))
+      // );
 
-      // [수정] myCourses 상태에서 삭제된 항목들을 제거합니다. (새로고침 없이)
-      setMyCourses(prevCourses =>
-        prevCourses.filter(course => !deletedIds.has(course._id))
-      );
-
-      setSelectedCourses(new Set()); // 선택 상태를 초기화
+      // [수정] 삭제 성공 시, 목록을 다시 불러와 3개 테이블을 모두 갱신
+      await loadMyCourses(); 
+      setSelectedCourses(new Set()); // 선택 초기화
       alert('선택한 강의가 성공적으로 삭제되었습니다.');
 
     } catch (error) {
@@ -258,37 +263,24 @@ function Main() {
     }
   };
 
-  // [추가] 선택된 강의들을 다중전공으로 이관 요청하는 함수
+// [수정] 다중전공 이관 함수 (userController.js에 맞게 수정)
   const handleTossToMultiMajor = async () => {
     if (selectedCourses.size === 0) {
       return alert('다중전공으로 변경할 강의를 선택해주세요.');
     }
-
     if (!window.confirm(`선택된 ${selectedCourses.size}개의 강의를 다중전공으로 변경하시겠습니까?`)) {
       return;
     }
 
     try {
-      // 선택된 각 강의 ID별로 서버에 개별 요청을 병렬로 보냅니다 (delete와 동일한 방식)
-      const selectedIds = Array.from(selectedCourses);
-      console.log('선택된 강의 IDs:', selectedIds); // 디버깅용 로그
-
-      const requests = selectedIds.map(id => {
-        console.log('요청 보내는 강의 ID:', id); // 디버깅용 로그
-        return api.post('/api/users/tossMultiMajorLectures', { lectureId: id });
-      });
-
-      // 모든 요청을 병렬로 처리
-      // const responses = await Promise.all(requests);
+      // [수정] 백엔드는 lectureId를 하나씩 받으므로, Promise.all을 사용해 병렬 처리
+      const requests = Array.from(selectedCourses).map(id => 
+        api.post('/api/users/tossMultiMajorLectures', { lectureId: id })
+      );
+      
       await Promise.all(requests);
-
-      // 성공했으므로 강의 목록 다시 불러오기
-      await loadMyCourses();
-
-      // 선택 초기화
-      setSelectedCourses(new Set());
-
-      // 성공 메시지 표시
+      await loadMyCourses(); // 성공 시 목록 새로고침
+      setSelectedCourses(new Set()); // 선택 초기화
       alert('선택한 강의를 다중전공으로 변경했습니다.');
     } catch (error) {
       console.error('다중전공 변경 실패:', error);
@@ -362,13 +354,28 @@ function Main() {
     window.location.href = '/'; // navigate 대신 사용
   };
 
-  // [추가] myCourses 배열을 두 개의 분리된 배열로 필터링합니다.
-  // lectCode가 있는 항목(null, undefined, ""가 아님)을 일반 강의로 간주합니다.
-  const regularCourses = myCourses.filter(course => course.lectCode);
-  const customCourses = myCourses.filter(course => !course.lectCode);
-  // [추가] 각 테이블의 모든 항목이 선택되었는지 확인하는 변수
+// [추가] 졸업 자가 진단 실행 함수
+  const handleCheckGraduation = async () => {
+    setIsDiagnosing(true);
+    setGraduationResult(null); // 이전 결과 초기화
+    try {
+      // 백엔드의 /api/users/graduation 엔드포인트를 호출
+      const response = await api.get('/api/users/graduation');
+      setGraduationResult(response.data); // { eligible: ..., details: {...} } 객체를 저장
+    } catch (error) {
+      console.error('졸업 진단 실패:', error);
+      alert(error.response?.data?.message || '졸업 요건을 불러오는 데 실패했습니다.');
+    } finally {
+      setIsDiagnosing(false);
+    }
+  };
+
+  // [수정] 각 테이블의 전체 선택 상태 변수 (state 이름을 직접 사용)
   const allRegularSelected = regularCourses.length > 0 && regularCourses.every(c => selectedCourses.has(c._id));
   const allCustomSelected = customCourses.length > 0 && customCourses.every(c => selectedCourses.has(c._id));
+  const allMultiMajorSelected = multiMajorCourses.length > 0 && multiMajorCourses.every(c => selectedCourses.has(c._id));
+  // [추가] graduationResult가 있을 때 세부 항목을 쉽게 참조하기 위한 변수
+  const gradDetails = graduationResult?.details;
 
   return (
     <div className="container">
@@ -477,18 +484,26 @@ function Main() {
                   </div>
                 </div>
 
-                {/* [추가] 졸업요건(인터뷰/TOPCIT) 선택 */}
+                {/* [수정] '졸업요건' 섹션의 onClick 핸들러 변경 */}
                 <div className="info-row">
-                  <label>졸업요건</label>
+                  <label>졸업심사</label>
                   <div className="tag-group">
-                    <button type="button" className={`tag-btn ${info.graduationRequirement === 'interview' ? 'selected' : ''}`} onClick={() => updateInfo('graduationRequirement', 'interview')}>졸업 인터뷰</button>
-                    <button type="button" className={`tag-btn ${info.graduationRequirement === 'topcit' ? 'selected' : ''}`} onClick={() => updateInfo('graduationRequirement', 'topcit')}>TOPCIT</button>
+                    <button 
+                      type="button" 
+                      className={`tag-btn ${info.graduationRequirement === 'interview' ? 'selected' : ''}`}                       
+                      onClick={() => updateInfo('graduationRequirement', info.graduationRequirement === 'interview' ? '' : 'interview')}
+                    >졸업 인터뷰</button>
+                    <button 
+                      type="button" 
+                      className={`tag-btn ${info.graduationRequirement === 'topcit' ? 'selected' : ''}`}                       
+                      onClick={() => updateInfo('graduationRequirement', info.graduationRequirement === 'topcit' ? '' : 'topcit')}
+                    >TOPCIT</button>
                   </div>
                 </div>
 
                 {/* [추가] 창업 유무, 교환학생 여부 체크박스 */}
                 <div className="info-row checkbox-group">
-                  <label>기타</label>
+                  <label>창업 & 교환학생</label>
                   <div className="checkbox-item">
                     <input type="checkbox" id="startup-check" checked={info.hasStartup} onChange={e => updateInfo('hasStartup', e.target.checked)} />
                     <label htmlFor="startup-check">창업 여부</label>
@@ -579,7 +594,61 @@ function Main() {
                   </table>
                 </div>
               )}
-              {/* === 두 번째 테이블: 기타 활동 내역 === */}
+
+              {/* === [추가] 두 번째 테이블: 다중전공 수강 내역 === */}
+              <h3 className="table-title" style={{ marginTop: '30px' }}>다중전공 수강 내역</h3>
+              {multiMajorCourses.length === 0 ? (
+                <div className="empty-courses-message">
+                  '다중전공 변경' 버튼을 눌러 수강 내역을 이관해 주세요.
+                </div>
+              ) : (
+                <div className="table-scroll">
+                  <table className="course-table"> 
+                    <thead>
+                      <tr>
+                        <th>
+                          <input
+                            type="checkbox"
+                            onChange={(e) => handleSelectAllCourses(e, multiMajorCourses)}
+                            checked={allMultiMajorSelected}
+                          />
+                        </th>
+                        <th>개설년도</th>
+                        <th>개설학기</th>
+                        <th>교과목명</th>
+                        <th>교과목코드</th>
+                        <th>담당교수</th>
+                        <th>분반</th>
+                        <th>강의시간</th>
+                        <th>학점</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {multiMajorCourses.map((course) => (
+                        <tr key={course._id}>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={selectedCourses.has(course._id)}
+                              onChange={() => handleSelectCourse(course._id)}
+                            />
+                          </td>
+                          <td>{course.lectYear}</td>
+                          <td>{course.lectSemester}</td>
+                          <td>{course.lectName}</td>
+                          <td>{course.lectCode}</td>
+                          <td>{course.lectProfessor}</td>
+                          <td>{course.lectDiv}</td>
+                          <td>{course.lectTime}</td>
+                          <td>{course.lectCredit}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* === 세 번째 테이블: 기타 활동 내역 === */}
               <h3 className="table-title" style={{ marginTop: '30px' }}>기타 활동 내역</h3>
               {customCourses.length === 0 ? (
                 <div className="empty-courses-message">
@@ -629,14 +698,140 @@ function Main() {
             </div>
           )}
 
+{/* [수정] 'graduation-check' 탭 JSX: 동적 렌더링으로 변경 */}
           {activeTab === 'graduation-check' && (
             <div className="content-box">
-              <div className="content-header"><h2>나의 졸업 요건 충족 현황</h2><button className="action-btn-green">진단하기</button></div>
-              <ul className="status-list">
-                <li><span>총 이수학점</span><div className="status-value"><span className="credit-box">**</span> / 130</div></li>
-                <li><span>전공 학점</span><div className="status-value"><span className="credit-box">30</span> / 54</div></li>
-                <li><span>교양 학점</span><div className="status-value"><span className="credit-box">36</span> / 24 ~ 42</div></li>
-              </ul>
+              <div className="content-header">
+                <h2>나의 졸업 요건 충족 현황</h2>
+                <button 
+                  className="action-btn-green"
+                  onClick={handleCheckGraduation}
+                  disabled={isDiagnosing}
+                >
+                  {isDiagnosing ? '진단 중...' : '진단하기'}
+                </button>
+              </div>
+
+              {/* 진단 중일 때 */}
+              {isDiagnosing && (
+                <div className="empty-courses-message" style={{ marginTop: '20px' }}>
+                  졸업 요건을 진단 중입니다...
+                </div>
+              )}
+              
+              {/* 진단 전 (초기 상태) */}
+              {!isDiagnosing && !graduationResult && (
+                <div className="empty-courses-message" style={{ marginTop: '20px' }}>
+                  '진단하기' 버튼을 눌러 졸업 요건을 확인하세요.
+                </div>
+              )}
+
+              {/* 진단 결과가 있을 때 */}
+              {!isDiagnosing && graduationResult && (
+                <>
+                  <div className={`graduation-summary ${graduationResult.eligible ? 'pass' : 'fail'}`}>
+                    <strong>
+                      종합 판정: {graduationResult.eligible ? '졸업 가능' : '졸업 불가능'}
+                    </strong>
+                    <p>
+                      최종 진단 시간: {new Date(graduationResult.checkedAt).toLocaleString()}
+                    </p>
+                  </div>
+
+                  <ul className="status-list">
+                    {/* 총 이수학점 */}
+                    <li>
+                      <span>총 이수학점</span>
+                      <div className={`status-value ${gradDetails.totalCredits.pass ? 'pass' : 'fail'}`}>
+                        <span className="credit-box">
+                          {gradDetails.totalCredits.current}
+                        </span> / {gradDetails.totalCredits.required}
+                      </div>
+                    </li>
+                    {/* 전공 학점 */}
+                    <li>
+                      <span>전공 학점</span>
+                      <div className={`status-value ${gradDetails.majorCredits.pass ? 'pass' : 'fail'}`}>
+                        <span className="credit-box">
+                          {gradDetails.majorCredits.current}
+                        </span> / {gradDetails.majorCredits.required}
+                      </div>
+                    </li>
+                    {/* 교양 학점 */}
+                    <li>
+                      <span>교양 학점</span>
+                      <div className={`status-value ${gradDetails.generalEducationCredits.pass ? 'pass' : 'fail'}`}>
+                        <span className="credit-box">
+                          {gradDetails.generalEducationCredits.current}
+                        </span> / {gradDetails.generalEducationCredits.required}
+                      </div>
+                    </li>
+                    {/* 전공 필수 */}
+                    <li>
+                      <span>전공 필수</span>
+                      <div className={`status-value ${gradDetails.requiredMajorCourses.pass ? 'pass' : 'fail'}`}>
+                        {gradDetails.requiredMajorCourses.pass ? '충족' : 
+                         `미이수 (${gradDetails.requiredMajorCourses.missing.length}개)`}
+                      </div>
+                    </li>
+                    {/* 지도교수 상담 */}
+                    <li>
+                      <span>지도교수 상담</span>
+                      <div className={`status-value ${gradDetails.counselingSessions.pass ? 'pass' : 'fail'}`}>
+                        <span className="credit-box">
+                          {gradDetails.counselingSessions.current}
+                        </span> / {gradDetails.counselingSessions.required}
+                      </div>
+                    </li>
+                    {/* 졸업요건 (TOPCIT/인터뷰) */}
+                    <li>
+                      <span>졸업심사 (TOPCIT/인터뷰)</span>
+                      <div className={`status-value ${gradDetails.exitRequirement.pass ? 'pass' : 'fail'}`}>
+                        {gradDetails.exitRequirement.pass ? '충족' : '미충족'}
+                      </div>
+                    </li>
+                    {/* 영어 성적 */}
+                    <li>
+                      <span>영어 성적</span>
+                      <div className={`status-value ${gradDetails.englishProficiency.pass ? 'pass' : 'fail'}`}>
+                        {gradDetails.englishProficiency.pass ? '충족' : '미충족'}
+                      </div>
+                    </li>
+                    
+                    {/* [추가] 동적으로 생성되는 요건들 (있는 경우에만 표시) */}
+                    {gradDetails.internship && (
+                      <li>
+                        <span>현장실습</span>
+                        <div className={`status-value ${gradDetails.internship.pass ? 'pass' : 'fail'}`}>
+                          <span className="credit-box">
+                            {gradDetails.internship.current}
+                          </span> / {gradDetails.internship.required}
+                        </div>
+                      </li>
+                    )}
+                    {gradDetails.globalCompetency && (
+                      <li>
+                        <span>해외대학인정학점</span>
+                        <div className={`status-value ${gradDetails.globalCompetency.pass ? 'pass' : 'fail'}`}>
+                          <span className="credit-box">
+                            {gradDetails.globalCompetency.current}
+                          </span> / {gradDetails.globalCompetency.required}
+                        </div>
+                      </li>
+                    )}
+                    {gradDetails.ventureCourseCompetency && (
+                      <li>
+                        <span>창업 교과</span>
+                        <div className={`status-value ${gradDetails.ventureCourseCompetency.pass ? 'pass' : 'fail'}`}>
+                          <span className="credit-box">
+                            {gradDetails.ventureCourseCompetency.details.startupCourse.current}
+                          </span> / {gradDetails.ventureCourseCompetency.details.startupCourse.required}
+                        </div>
+                      </li>
+                    )}
+                  </ul>
+                </>
+              )}
             </div>
           )}
         </section>
