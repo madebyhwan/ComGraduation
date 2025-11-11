@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path')
 
 // DB
 const dotenv = require('dotenv');
@@ -24,6 +25,10 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/users', userRoutes);
 app.use('/api/lectures', lectureRoutes);
 
+app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
+app.get(/^(?!\/api).*/, (req, res) => {
+  res.sendFile(path.resolve(__dirname, '..', 'client', 'build', 'index.html'));
+});
 const PORT = process.env.PORT || 9000;
 
 app.listen(PORT, () => {
