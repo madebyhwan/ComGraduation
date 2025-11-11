@@ -13,11 +13,15 @@ async function lectureList(userId) {
     const user = await User.findById(userId)
       .populate({
         path: 'userCustomLectures',
-        // [필수 수정] customLectures 스키마의 모든 필드를 가져옵니다.
         select: 'lectName lectType overseasCredit fieldPracticeCredit totalCredit'
       })
       .populate({
         path: 'userLectures',
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
+      })
+      // [추가] multiMajorLectures(다중전공) 강의 목록도 populate 합니다.
+      .populate({
+        path: 'multiMajorLectures',
         select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
       });
 
@@ -105,7 +109,15 @@ async function lectureList(userId) {
 
     if (!user) return null;
 
-    return [...custom, ...univ, ...multiMajor];
+   // return [...custom, ...univ, ...multiMajor];
+
+    // [수정] 반환 형식이 객체로 변경됨
+       return {
+      'custom': custom,
+      'univ': univ,
+      'multiMajor': multiMajor
+    }
+
   } catch (error) {
     console.error('lectureList error:', error);
     throw error;
@@ -262,7 +274,8 @@ exports.deleteLecture = async (req, res) => {
       { _id: userId },
       {
         $pull: {
-          userCustomLectures: lectureObjectId,
+          userCustomLectures: lectureObjectId, 
+          multiMajorLectures: lectureObjectId,
           userLectures: lectureObjectId
         }
       }

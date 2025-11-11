@@ -58,7 +58,7 @@ function CustomLectureModal({ onClose, onAdd }) {
                 type="text"
                 value={activity.lectName}
                 onChange={(e) => update('lectName', e.target.value)}
-                placeholder="예: 2024 하계 K-Digital"
+                placeholder="예: 2025 하계 인도 인턴십"
                 required
               />
             </div>
@@ -79,7 +79,7 @@ function CustomLectureModal({ onClose, onAdd }) {
             </div>
 
             <div className="info-row">
-              <label>해외 인정 학점</label>
+              <label>해외인정학점</label>
               <input
                 type="number"
                 min="0"
@@ -88,7 +88,7 @@ function CustomLectureModal({ onClose, onAdd }) {
               />
             </div>
             <div className="info-row">
-              <label>현장 실습 학점</label>
+              <label>현장실습학점</label>
               <input
                 type="number"
                 min="0"
@@ -97,7 +97,7 @@ function CustomLectureModal({ onClose, onAdd }) {
               />
             </div>
             <div className="info-row">
-              <label>총 이수 학점 (포함)</label>
+              <label>총 이수학점에 포함되는 학점 (미포함 시 0 기입)</label>
               <input
                 type="number"
                 min="0"
@@ -108,7 +108,7 @@ function CustomLectureModal({ onClose, onAdd }) {
             <div className="form-actions">
               <button type="button" className="action-btn-gray" onClick={onClose}>취소</button>
               <button type="submit" className="action-btn" disabled={loading}>
-                {loading ? '추가 중...' : '추가하기'}
+                {loading ? '추가 중...' : '추가'}
               </button>
             </div>
           </form>
