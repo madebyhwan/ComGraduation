@@ -2,63 +2,58 @@ body,
 html {
     margin: 0;
     padding: 0;
-    /* 전체 화면의 높이를 꽉 채우고 스크롤바를 숨깁니다. */
-    height: 100%;
-    overflow: hidden;
     font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+    background-color: #ffffff;
 }
 
 .signup-container {
-    /* 화면 전체를 덮도록 높이 100% 설정 */
-    height: 100vh;
     display: flex;
-    /* 중앙 정렬에서 시작점으로 변경하고, 상단에 여백 추가 */
-    align-items: flex-start;
-    padding-top: 80px;
-    /* 상단 여백 추가 */
-    gap: 40px;
+    flex-wrap: wrap;
     justify-content: center;
-    padding-left: 20px;
-    padding-right: 20px;
-    background-color: #ffffff;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 20px;
+    min-height: 100vh;
     box-sizing: border-box;
 }
 
 .character-section {
     position: relative;
-    /* 캐릭터 전체를 아래로 내림 */
-    padding-bottom: 20px;
-    left: -50px;
-    /* 수직 정렬을 위해 높이를 컨테이너에 맞춤 */
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto;
     align-self: flex-end;
-    /* 캐릭터 섹션은 컨테이너 하단에 배치 */
-    margin-bottom: 40px;
-    /* 컨테이너 하단으로부터 간격 조정 */
+    margin-bottom: 5%;
 }
 
 .character-image {
-    height: 300px;
+    height: 250px;
+    width: auto;
+    max-width: 100%;
+    order: 2;
 }
 
 .speech-bubble {
-    width: 200px;
+    width: 180px;
     background: #fff;
     border: 2px solid #000;
     border-radius: 50%;
-    padding: 20px;
+    padding: 15px;
     text-align: center;
-    position: absolute;
-    /* bottom 값을 조정하여 캐릭터 위에 배치 */
-    bottom: 350px;
-    left: 50%;
-    transform: translateX(-50%);
+    margin-bottom: 10px;
+    font-size: 14px;
+    position: relative;
+    order: 1;
 }
 
 .speech-bubble p {
     margin: 0;
-    font-size: 18px;
+    font-size: 14px;
     font-weight: bold;
-    line-height: 1.5;
+    line-height: 1.4;
 }
 
 .speech-bubble::after {
@@ -77,13 +72,12 @@ html {
 .form-section {
     background: #e0e0e0;
     border-radius: 30px;
-    padding: 40px;
-    width: 400px;
-    /* 스크롤 고정 핵심 수정 */
-    max-height: 90vh;
-    /* 뷰포트 높이에 따라 최대 높이 지정 */
+    padding: 30px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 85vh;
     overflow-y: auto;
-    /* 내용이 넘칠 경우에만 스크롤 가능 */
+    box-sizing: border-box;
 }
 
 .form-title {
@@ -223,4 +217,185 @@ html {
 
 #check-username-btn:hover {
     background-color: #e0e0e0;
+}
+
+/* ================================ */
+/* 반응형 미디어 쿼리 */
+/* ================================ */
+
+/* 태블릿/작은 노트북 (768px 이상 1024px 미만) */
+@media (max-width: 1024px) {
+    .signup-container {
+        flex-direction: column;
+        padding: 30px 15px;
+        gap: 15px;
+    }
+
+    .character-section {
+        min-height: auto;
+        margin-bottom: 20px;
+    }
+
+    .character-image {
+        height: 200px;
+    }
+
+    .speech-bubble {
+        width: 160px;
+        padding: 12px;
+        font-size: 12px;
+    }
+
+    .form-section {
+        padding: 25px;
+        max-width: 100%;
+        max-height: 75vh;
+    }
+
+    .form-title {
+        font-size: 20px;
+        margin-bottom: 25px;
+    }
+
+    .input-group,
+    .button-select-group {
+        margin-bottom: 15px;
+    }
+}
+
+/* 작은 화면/모바일 (768px 미만) */
+@media (max-width: 768px) {
+
+    body,
+    html {
+        padding: 0;
+    }
+
+    .signup-container {
+        flex-direction: column;
+        padding: 20px 12px;
+        gap: 10px;
+        min-height: auto;
+        justify-content: flex-start;
+    }
+
+    .character-section {
+        display: none;
+    }
+
+    .character-image {
+        height: 150px;
+    }
+
+    .form-section {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px;
+        border-radius: 15px;
+        max-height: 85vh;
+    }
+
+    .form-title {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .input-group label,
+    .button-select-group label {
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+
+    .input-group input,
+    .styled-select {
+        padding: 10px;
+        font-size: 15px;
+    }
+
+    .input-group,
+    .button-select-group {
+        margin-bottom: 12px;
+    }
+
+    .options-box {
+        gap: 8px;
+    }
+
+    .option-btn {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .input-with-button {
+        gap: 8px;
+    }
+
+    #check-username-btn {
+        padding: 0 12px;
+        font-size: 12px;
+        height: 40px;
+    }
+
+    .submit-btn {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .form-actions {
+        margin-top: 20px;
+    }
+
+    .label-group {
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .check-result-msg {
+        font-size: 11px;
+    }
+}
+
+/* 매우 작은 화면 (480px 미만) */
+@media (max-width: 480px) {
+    .signup-container {
+        padding: 15px 10px;
+    }
+
+    .form-section {
+        padding: 15px;
+        border-radius: 10px;
+        max-height: 90vh;
+    }
+
+    .form-title {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .input-group input,
+    .styled-select {
+        padding: 9px;
+        font-size: 14px;
+    }
+
+    .input-group,
+    .button-select-group {
+        margin-bottom: 10px;
+    }
+
+    .option-btn {
+        padding: 6px;
+        font-size: 12px;
+    }
+
+    .input-with-button input {
+        min-width: 0;
+    }
+
+    #check-username-btn {
+        padding: 0 10px;
+        font-size: 11px;
+        height: 38px;
+        white-space: nowrap;
+    }
 }

@@ -224,8 +224,18 @@ exports.addUnivLecture = async (req, res) => {
     if (!lecture) {
       return res.status(404).json({ message: '존재하지 않는 강의입니다.' });
     }
+
     if (user.userLectures.includes(lectureId)) {
       return res.status(409).json({ message: '이미 추가된 강의입니다.' });
+    }
+
+    const existingLectureWithSameCode = await Lecture.findOne({
+      lectCode: lecture.lectCode,
+      _id: { $in: user.userLectures }
+    });
+
+    if (existingLectureWithSameCode) {
+      return res.status(409).json({ message: '존재하는 교과목코드입니다.' });
     }
 
     user.userLectures.push(lectureId);
@@ -591,11 +601,11 @@ exports.removeMultiMajorLectures = async (req, res) => {
 
   try {
     const user = await User.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
-    
+
     if (user.userTrack !== '다중전공') {
       return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
     }
@@ -622,7 +632,7 @@ exports.removeMultiMajorLectures = async (req, res) => {
 
     // 원자적 업데이트: multiMajorLectures에서 제거하고 userLectures에 추가
     const updateResult = await User.updateOne(
-      { 
+      {
         _id: userId,
         multiMajorLectures: lectureObjectId,  // multiMajorLectures에 존재하는 경우만
         userLectures: { $ne: lectureObjectId }  // userLectures에 없는 경우만
