@@ -118,7 +118,7 @@ const LecSearch = ({ onLectureAdded }) => {
               <div>
                 <p className="font-semibold text-gray-800">{lec.lectName} <span className="text-gray-500 text-sm font-normal">({lec.lectCode})</span></p>
                 <p className="text-sm text-gray-600 mt-1">
-                  {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
+                  {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                 </p>
               </div>
               <button

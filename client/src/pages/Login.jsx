@@ -34,11 +34,11 @@ const Login = () => {
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="form-group">
-            <label className="block text-sm font-medium text-gray-700" htmlFor="studentId">
+            <label className="form-label" htmlFor="studentId">
               ID
             </label>
             <input
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-knu-blue focus:ring-knu-blue"
+              className="form-input"
               id="studentId"
               type="text"
               value={studentId}
@@ -48,11 +48,11 @@ const Login = () => {
           </div>
 
           <div className="form-group">
-            <label className="block text-sm font-medium text-gray-700" htmlFor="password">
+            <label className="form-label" htmlFor="password">
               비밀번호
             </label>
             <input
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-knu-blue focus:ring-knu-blue"
+              className="form-input"
               id="password"
               type="password"
               value={password}
@@ -74,10 +74,7 @@ const Login = () => {
 
         <div className="text-center text-sm text-gray-600">
           <p>
-            계정이 없으신가요?
-            <Link to="/signup" className="font-medium text-knu-blue hover:underline">
-              회원가입
-            </Link>
+            계정이 없으신가요? <Link to="/signup" className="font-medium text-knu-blue hover:underline"> 회원가입 </Link>
           </p>
         </div>
       </div>
