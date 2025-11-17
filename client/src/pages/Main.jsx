@@ -369,6 +369,7 @@ const handleSaveCustomLecture = async (activityData) => {
       const { user } = response.data;
       setAuthUser(prev => ({
         ...prev,
+        username:user.username,
         userDepartment: user.userDepartment,
         userTrack: user.userTrack,
         multiMajorType: user.multiMajorType,
