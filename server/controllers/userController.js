@@ -312,7 +312,7 @@ exports.checkGraduation = async (req, res) => {
     }
 
     // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
-    const result = graduationService.check(user, user.userLectures, user.userCustomLectures, user.multiMajorLectures); // 합쳐진 배열 전달
+    const result = await graduationService.check(user, user.userLectures, user.userCustomLectures, user.multiMajorLectures); // 합쳐진 배열 전달
 
     // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
     res.status(200).json(result);
@@ -654,6 +654,56 @@ exports.removeMultiMajorLectures = async (req, res) => {
 
   } catch (error) {
     console.error('강의 변경 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// [추가] 기타 활동 수정
+exports.updateCustomLecture = async (req, res) => {
+  const { lectureId } = req.params; // URL에서 수정할 항목의 ID를 가져옴
+  const userId = req.user.id;
+  const { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit } = req.body;
+
+  // 0을 허용하도록 유효성 검사
+  if (!lectName || !lectType) {
+    return res.status(400).json({ message: '활동명과 교과 구분은 필수 입력 항목입니다.' });
+  }
+  if (overseasCredit === undefined || overseasCredit === null ||
+      fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+      totalCredit === undefined || totalCredit === null) {
+    return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
+  }
+
+  try {
+    // 1. 수정할 활동을 찾습니다.
+    const lecture = await CustomLecture.findById(lectureId);
+
+    if (!lecture) {
+      return res.status(404).json({ message: '해당 활동을 찾을 수 없습니다.' });
+    }
+
+    // 2. 본인의 활동이 맞는지 확인합니다 (중요)
+    if (lecture.userObjectId.toString() !== userId) {
+      return res.status(403).json({ message: '이 활동을 수정할 권한이 없습니다.' });
+    }
+
+    // 3. 찾은 문서의 내용을 업데이트합니다.
+    lecture.lectName = lectName;
+    lecture.lectType = lectType;
+    lecture.overseasCredit = Number(overseasCredit);
+    lecture.fieldPracticeCredit = Number(fieldPracticeCredit);
+    lecture.totalCredit = Number(totalCredit);
+
+    // 4. 변경 사항을 저장합니다.
+    await lecture.save();
+    
+    res.status(200).json({
+      message: '활동이 성공적으로 수정되었습니다.',
+      lectInfo: lecture.toJSON() // 수정된 내용을 다시 보냄
+    });
+
+  } catch (error) {
+    console.error('활동 수정 중 오류 발생:', error);
     res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };

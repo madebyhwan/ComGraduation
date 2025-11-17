@@ -1,13 +1,55 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* --- 로그인 & 회원가입 페이지 스타일 --- */
+.auth-layout {
+  @apply flex min-h-screen items-center justify-center bg-gray-100 p-4;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.auth-card {
+  @apply w-full max-w-md space-y-6 rounded-lg bg-white p-8 shadow-md;
+}
+
+.auth-title {
+  @apply text-center text-3xl font-bold text-knu-blue;
+}
+
+.auth-form {
+  @apply space-y-6;
+}
+
+.auth-footer {
+  @apply pt-4 text-center text-sm text-gray-600;
+}
+
+.auth-footer a {
+  @apply font-medium text-knu-blue hover:underline;
+}
+
+/* --- 폼 공용 스타일 --- */
+.form-group {
+  @apply space-y-1;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input {
+  @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-knu-blue focus:ring-knu-blue;
+}
+
+.form-input {
+  @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-knu-blue focus:ring-knu-blue;
+  padding: 0.75rem 1rem !important;
+}
+
+select.form-input {
+  padding-right: 2.5rem !important;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
 }

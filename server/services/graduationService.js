@@ -117,7 +117,7 @@ function checkEnglishProficiency(user, rule) {
 /**
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
-function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
+async function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
   const ruleKey = `${user.userDepartment}_${user.userTrack}_${user.userYear}`;
   const requirements = allRules[ruleKey];
 
@@ -168,10 +168,23 @@ function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
   // 전공 필수
   const takenCourseCodes = takenLectures.map(lec => lec.lectCode);
   const missingCourses = requirements.requiredMajorCourses.courses.filter(reqCode => !takenCourseCodes.includes(reqCode));
+  
+  // 미이수 과목의 이름을 가져오기
+  const missingCourseNames = [];
+  for (const courseCode of missingCourses) {
+    const courseInfo = await lectures.findOne({ lectCode: courseCode });
+    if (courseInfo) {
+      missingCourseNames.push(courseInfo.lectName);
+    } else {
+      missingCourseNames.push(courseCode); // 과목을 찾지 못하면 코드 그대로
+    }
+  }
+  
   results.requiredMajorCourses = {
     pass: missingCourses.length === 0,
-    required: requirements.requiredMajorCourses.courses,
-    missing: missingCourses,
+    current: requirements.requiredMajorCourses.courses.length - missingCourses.length,
+    required: requirements.requiredMajorCourses.courses.length,
+    missing: missingCourseNames, // 과목 코드 대신 과목 이름
   };
 
   if (requirements.capstoneDesignRequirement) {

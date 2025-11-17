@@ -1,107 +1,122 @@
 import React, { useState } from 'react';
-import api from '../api/api'; 
-import './LecSearch.css'; 
+import { searchLectures, addUnivLecture } from '../api/api.js';
+import { PlusCircle } from 'lucide-react';
 
-function LecSearch({ onClose, onAddLecture }) {
-  const [filters, setFilters] = useState({ keyword: '', year: '', semester: '' });
+const LecSearch = ({ onLectureAdded }) => { // 과목 추가 성공 시 부모에게 알림
+  const [keyword, setKeyword] = useState('');
+  const [year, setYear] = useState('');
+  const [semester, setSemester] = useState('');
+
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setFilters(prev => ({ ...prev, [name]: value }));
-  };
-
   const handleSearch = async () => {
-    if (!filters.keyword) {
-      return alert('검색어를 입력해주세요.');
+    if (!keyword) {
+      setMessage('검색어를 입력하세요.');
+      return;
     }
     setLoading(true);
     setMessage('');
     setResults([]);
     try {
-      // [수정] 실제 API를 호출합니다.
-      const response = await api.get('/api/lectures/search', {
-        params: {
-          keyword: filters.keyword,
-          year: filters.year || undefined, // 값이 없으면 쿼리에서 제외
-          semester: filters.semester || undefined,
-        }
+      const data = await searchLectures({
+        keyword,
+        year: year || undefined, // 비어있으면 보내지 않음
+        semester: semester || undefined
       });
 
-      const data = response.data; // Axios 응답 데이터는 .data에 있습니다.
-      
-      // 서버 응답에 따라 결과 처리
-      if (Array.isArray(data) && data.length > 0) {
+      if (data.message) { // "검색된 강의가 없습니다."
+        setMessage(data.message);
+      } else if (data.length > 0) {
         setResults(data);
       } else {
-        // 백엔드에서 "검색된 강의가 없습니다."와 같은 메시지를 보낼 경우
-        setMessage(data.message || '검색된 강의가 없습니다.');
+        setMessage('검색된 강의가 없습니다.');
       }
     } catch (error) {
-      // 4xx, 5xx 에러 처리
-      const msg = error.response?.data?.message || '검색 중 오류가 발생했습니다.';
-      setMessage(msg);
-      console.error("강의 검색 실패:", error);
+      setMessage('검색 중 오류가 발생했습니다.');
     } finally {
       setLoading(false);
     }
   };
 
-  const yearOptions = [2021, 2022, 2023, 2024, 2025];
-  const semesterOptions = ['1학기', '2학기', '계절학기(하계)', '계절학기(동계)'];
+  const handleAdd = async (lectureId) => {
+    try {
+      await addUnivLecture(lectureId);
+      alert('강의가 추가되었습니다.');
+      if (onLectureAdded) onLectureAdded(); // 부모 컴포넌트(CoursesPage)에 알림
+    } catch (error) {
+      alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
+    }
+  };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>강의 검색</h2>
-          <button onClick={onClose} className="close-btn">&times;</button>
-        </div>
-        <div className="modal-body">
-          <div className="search-filters">
-            <select name="year" value={filters.year} onChange={handleFilterChange}>
-              <option value="">전체 연도</option>
-              {yearOptions.map(y => <option key={y} value={y}>{y}년</option>)}
-            </select>
-            <select name="semester" value={filters.semester} onChange={handleFilterChange}>
-              <option value="">전체 학기</option>
-              {semesterOptions.map(s => <option key={s} value={s}>{s}</option>)}
-            </select>
-            <input
-              type="text"
-              name="keyword"
-              placeholder="강의명 또는 교수명 또는 과목코드로 검색"
-              value={filters.keyword}
-              onChange={handleFilterChange}
-            />
-            <button onClick={handleSearch} disabled={loading}>
-              {loading ? '검색 중...' : '검색'}
-            </button>
-          </div>
-          <div className="search-results">
-            {message && !loading && <p className="message-text">{message}</p>}
-            {results.length > 0 && (
-              <table className="results-table">
-                <thead>
-                  <tr><th>교과목명</th><th>교과목코드</th><th>담당교수</th><th>분반</th><th>강의시간</th><th>학점</th><th>추가</th></tr>
-                </thead>
-                <tbody>
-                  {results.map((lec) => (
-                    <tr key={lec._id}> {/* DB의 고유 ID 사용 권장 */}
-                      <td>{lec.lectName}</td><td>{lec.lectCode}</td><td>{lec.lectProfessor}</td><td>{lec.lectDiv}</td><td>{lec.lectTime}</td><td>{lec.lectCredit}</td>
-                      <td><button onClick={() => onAddLecture(lec)} className="add-btn">추가</button></td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
+    <div className="p-6 bg-white rounded-lg border shadow-sm">
+      <h3 className="text-xl font-semibold mb-4">강의계획서 검색</h3>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
+        <input
+          type="text"
+          placeholder="과목명, 코드, 교수명"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          className="form-input md:col-span-2"
+        />
+        <select
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className="form-input"
+        >
+          <option value="">(연도)</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+        </select>
+        <select
+          value={semester}
+          onChange={(e) => setSemester(e.target.value)}
+          className="form-input"
+        >
+          <option value="">(학기)</option>
+          <option value="1학기">1학기</option>
+          <option value="2학기">2학기</option>
+          <option value="계절학기(하계)">계절학기(하계)</option>
+          <option value="계절학기(동계)">계절학기(동계)</option>
+        </select>
+      </div>
+      <button
+        onClick={handleSearch}
+        disabled={loading}
+        className="w-full rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80 disabled:bg-gray-400"
+      >
+        {loading ? '검색 중...' : '검색'}
+      </button>
+
+      {/* 검색 결과 */}
+      <div className="mt-6 max-h-60 overflow-y-auto">
+        {message && <p className="text-center text-gray-500">{message}</p>}
+        <ul className="divide-y divide-gray-200">
+          {results.map((lec) => (
+            <li key={lec._id} className="flex items-center justify-between p-3">
+              <div>
+                <p className="font-semibold">{lec.lectName} ({lec.lectCode})</p>
+                <p className="text-sm text-gray-600">
+                  {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectCredit}학점
+                </p>
+              </div>
+              <button
+                onClick={() => handleAdd(lec._id)}
+                title="추가하기"
+                className="text-knu-blue hover:text-blue-700"
+              >
+                <PlusCircle className="w-6 h-6" />
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
-}
+};
 
 export default LecSearch;
