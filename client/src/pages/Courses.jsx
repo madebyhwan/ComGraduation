@@ -97,7 +97,7 @@ const CoursesPage = () => {
             ) : (
                 <div className="mt-8 space-y-8">
                     <LectureList
-                        title="수강 내역 (대학 강의)"
+                        title="수강 내역"
                         lectures={lectures.univ}
                         onDelete={handleDelete}
                         onToss={handleToss}
@@ -113,7 +113,7 @@ const CoursesPage = () => {
                     />
 
                     <LectureList
-                        title="기타 활동 (커스텀)"
+                        title="기타 활동 내역"
                         lectures={lectures.custom}
                         onDelete={handleDelete}
                         onEdit={handleShowEditModal} // (추가!) 수정 핸들러 전달
@@ -148,14 +148,14 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                     {lectures.map(lec => (
                         <li key={lec._id} className="flex items-center justify-between p-3">
                             <div>
-                                <p className="font-semibold">{lec.lectName}</p>
+                                <p className="font-semibold text-gray-800">{lec.lectName} <span className="text-gray-500 text-sm font-normal">({lec.lectCode})</span></p>
                                 {type === 'custom' ? (
                                     <p className="text-sm text-gray-600">
                                         {lec.lectType} | 총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
                                     </p>
                                 ) : (
                                     <p className="text-sm text-gray-600">
-                                        {lec.lectCode} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectCredit}학점
+                                      {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                                     </p>
                                 )}
                             </div>
