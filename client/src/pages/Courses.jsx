@@ -148,14 +148,14 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                     {lectures.map(lec => (
                         <li key={lec._id} className="flex items-center justify-between p-3">
                             <div>
-                                <p className="font-semibold">{lec.lectName}</p>
+                                <p className="font-semibold text-gray-800">{lec.lectName} <span className="text-gray-500 text-sm font-normal">({lec.lectCode})</span></p>
                                 {type === 'custom' ? (
                                     <p className="text-sm text-gray-600">
                                         {lec.lectType} | 총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
                                     </p>
                                 ) : (
                                     <p className="text-sm text-gray-600">
-                                        {lec.lectCode} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectCredit}학점
+                                      {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                                     </p>
                                 )}
                             </div>
