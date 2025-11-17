@@ -187,6 +187,23 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     missing: missingCourseNames, // 과목 코드 대신 과목 이름
   };
 
+  if (requirements.capstoneDesignRequirement) {
+    const capstoneRule = requirements.capstoneDesignRequirement;
+    // (예: ['ITEC0401', 'ITEC0402'])
+    const requiredOptions = capstoneRule.options.map(opt => opt.courseCode);
+
+    // 학생이 이수한 과목 중, 요건 옵션에 해당하는 과목이 있는지 찾기
+    const passedCourse = requiredOptions.find(code => takenCourseCodes.has(code));
+    const isSatisfied = !!passedCourse; // true/false
+
+    results.capstoneDesignRequirement = {
+      pass: isSatisfied,
+      current: passedCourse || '미이수',
+      required: requiredOptions.join(' 또는 '),
+      note: capstoneRule.note
+    };
+  }
+
   // 지도 교수 상담
   results.counselingSessions = {
     // 스키마의 counselingCount 필드 사용
