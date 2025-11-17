@@ -6,7 +6,7 @@ const Signup = () => {
   // users.js 모델과 userController/registerUser를 기반으로
   const [username, setUsername] = useState('');
   const [userYear, setUserYear] = useState('21학번');
-  const [userDepartment, setUserDepartment] = useState('글로벌SW융합전공');
+  const [userDepartment, setUserDepartment] = useState('');
   const [userTrack, setUserTrack] = useState('');
 
   const [studentId, setStudentId] = useState('');
@@ -171,9 +171,15 @@ const Signup = () => {
                   key={dep}
                   type="button"
                   onClick={() => {
-                    setUserDepartment(dep);
-                    if (dep !== '심화컴퓨터공학전공') setUserTrack('');
-                    else if (!userTrack) setUserTrack('다중전공');
+                    if (userDepartment === dep) {
+                      // 같은 버튼을 다시 누르면 선택 해제
+                      setUserDepartment('');
+                      setUserTrack('');
+                    } else {
+                      setUserDepartment(dep);
+                      if (dep !== '심화컴퓨터공학전공') setUserTrack('');
+                      else if (!userTrack) setUserTrack('다중전공');
+                    }
                   }}
                   className={`w-full py-2 rounded-md border text-sm text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${userDepartment === dep ? 'bg-knu-blue text-white border-knu-blue' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
                   {dep}
