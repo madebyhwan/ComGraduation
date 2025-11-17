@@ -97,7 +97,7 @@ const CoursesPage = () => {
             ) : (
                 <div className="mt-8 space-y-8">
                     <LectureList
-                        title="수강 내역 (대학 강의)"
+                        title="수강 내역"
                         lectures={lectures.univ}
                         onDelete={handleDelete}
                         onToss={handleToss}
@@ -113,7 +113,7 @@ const CoursesPage = () => {
                     />
 
                     <LectureList
-                        title="기타 활동 (커스텀)"
+                        title="기타 활동 내역"
                         lectures={lectures.custom}
                         onDelete={handleDelete}
                         onEdit={handleShowEditModal} // (추가!) 수정 핸들러 전달
