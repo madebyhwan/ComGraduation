@@ -7,7 +7,7 @@ const RequirementItem = ({ title, result }) => {
   if (!result) return null; // 결과가 없으면 렌더링 안 함
 
   return (
-    <div className="flex items-start gap-3 p-4 border rounded-lg">
+    <div className="flex items-start gap-3 p-4 border rounded-lg bg-white">
       {result.pass ? (
         <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5" />
       ) : (
@@ -98,7 +98,7 @@ const Main = () => {
       </div>
 
       <h2 className="text-xl font-semibold mt-8 mb-4">기타 요건</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <RequirementItem title="전공 필수 과목" result={status.details.requiredMajorCourses} />
         <RequirementItem title="지도 교수 상담" result={status.details.counselingSessions} />
         <RequirementItem title="TOPCIT/졸업인터뷰" result={status.details.exitRequirement} />

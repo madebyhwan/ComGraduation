@@ -302,7 +302,7 @@ exports.checkGraduation = async (req, res) => {
     }
 
     // 3. 준비된 데이터를 graduationService에 전달하여 결과를 받습니다.
-    const result = graduationService.check(user, user.userLectures, user.userCustomLectures, user.multiMajorLectures); // 합쳐진 배열 전달
+    const result = await graduationService.check(user, user.userLectures, user.userCustomLectures, user.multiMajorLectures); // 합쳐진 배열 전달
 
     // 4. 최종 결과를 클라이언트에게 성공적으로 응답합니다.
     res.status(200).json(result);
