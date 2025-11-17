@@ -1,79 +1,88 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';
-import logo from '../img/knu-logo.png';
-import { decodeJWT } from '../api/http';
-import api from '../api/api'
+import { Link, useNavigate } from 'react-router-dom';
+import { login } from '../api/api.js'; // 4단계에서 수정한 api.js
 
-function Login() {
+const Login = () => {
+  const [studentId, setStudentId] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const [userId, setUserId] = useState('');
-  const [userPassword, setUserPassword] = useState('');
-  const [loading, setLoading] = useState(false);
 
-  const onSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return alert('아이디를 입력해주세요.');
-    if (!userPassword) return alert('비밀번호를 입력해주세요.');
-    setLoading(true);
-
-    api.post('api/users/login', { userId, userPassword })
-      .then(res => {
-        const { token } = res.data;
-
-        if (!token) throw new Error("토큰이 없습니다");
-
-        const payload = decodeJWT(token);
-        localStorage.setItem('authToken', token);
-        localStorage.setItem('authUser', JSON.stringify({
-          userId: payload?.userId,
-          username: payload?.username,
-          token: token
-        }));
+    setError('');
+    try {
+      const response = await login({ studentId, password });
+      if (response && response.token) {
+        localStorage.setItem('token', response.token);
         navigate('/app');
-      })
-      .catch(err => {
-        const errorMessage = err.response?.data?.message || '아이디 또는 비밀번호가 일치하지 않습니다.';
-        alert(errorMessage);
-      })
-      .finally(() => setLoading(false));
+      } else {
+        setError('학번 또는 비밀번호가 올바르지 않습니다.');
+      }
+    } catch (err) {
+      setError('로그인 중 오류가 발생했습니다.');
+    }
   };
 
-  const goSignup = () => navigate('/signup');
-
   return (
-    <div className="login-page">
-      <header className="login-header">
-        <div className="logo-box">
-          <img src={logo} alt="KNU Logo" />
+    // Tailwind 스타일 적용
+    <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
+        <h1 className="text-center text-3xl font-bold text-knu-blue">
+          ComGraduation
+        </h1>
+
+        <form className="space-y-6" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="block text-sm font-medium text-gray-700" htmlFor="studentId">
+              ID
+            </label>
+            <input
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-knu-blue focus:ring-knu-blue"
+              id="studentId"
+              type="text"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="block text-sm font-medium text-gray-700" htmlFor="password">
+              비밀번호
+            </label>
+            <input
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-knu-blue focus:ring-knu-blue"
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && (
+            <p className="text-center text-sm text-red-600">
+              {error}
+            </p>
+          )}
+
+          <button className="w-full justify-center rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80" type="submit">
+            로그인
+          </button>
+        </form>
+
+        <div className="text-center text-sm text-gray-600">
+          <p>
+            계정이 없으신가요?
+            <Link to="/signup" className="font-medium text-knu-blue hover:underline">
+              회원가입
+            </Link>
+          </p>
         </div>
-        <div className="welcome-message-box">
-          <strong>Comgraduation</strong>에 오신 것을 환영합니다.
-        </div>
-      </header>
-      <main className="login-main">
-        <h1 className="login-title">Login</h1>
-        <div className="login-form-box">
-          <form onSubmit={onSubmit}>
-            <div className="input-group">
-              <label htmlFor="login-userId">아이디</label>
-              <input id="login-userId" value={userId} onChange={e => setUserId(e.target.value)} />
-            </div>
-            <div className="input-group">
-              <label htmlFor="login-password">비밀번호</label>
-              <input id="login-password" type="password" value={userPassword} onChange={e => setUserPassword(e.target.value)} />
-            </div>
-            <div className="button-group">
-              <button type="submit" className="btn-login" disabled={loading}>
-                {loading ? '로그인 중...' : '로그인'}
-              </button>
-              <button type="button" className="btn-signup" onClick={goSignup}>회원가입</button>
-            </div>
-          </form>
-        </div>
-      </main>
+      </div>
     </div>
   );
-}
+};
 
 export default Login;

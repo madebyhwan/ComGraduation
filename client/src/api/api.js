@@ -1,37 +1,220 @@
-import axios from 'axios';
+// client/src/api/api.js (최종본)
+import apiClient from './http.js'; // baseURL: 'http://localhost:9000'
 
-// 1. Axios 인스턴스 생성
-// 앞으로 모든 API 요청은 이 'api' 인스턴스를 통해 이루어집니다.
-const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL, // API 서버의 기본 주소를 설정할 수 있습니다.
-});
+// --- 1. User API ---
 
-
-// 2. 요청 인터셉터(Request Interceptor) 설정
-//    - 모든 요청이 서버로 보내지기 전에 이 코드를 거칩니다.
-api.interceptors.request.use(
-  
-  // 요청을 보내기 전 수행할 작업
-  (config) => {
-    // 로컬 스토리지에서 'authToken'이라는 이름으로 저장된 토큰을 가져옵니다.
-    const token = localStorage.getItem('authToken');
-
-    // 만약 토큰이 존재한다면,
-    if (token) {
-      // 요청 헤더(headers)의 Authorization 필드에 'Bearer 토큰' 형식으로 값을 설정합니다.
-      config.headers['Authorization'] = `Bearer ${token}`;
-    }
-
-    // 수정된 설정(config)을 반환해야 요청이 정상적으로 진행됩니다.
-    return config;
-  },
-
-  // 요청 에러가 발생했을 때 수행할 작업
-  (error) => {
-    // 에러를 그대로 다음으로 넘깁니다.
-    return Promise.reject(error);
+// POST /api/users/login
+export const login = async (loginData) => {
+  try {
+    const payload = {
+      userId: loginData.studentId,
+      userPassword: loginData.password
+    };
+    const response = await apiClient.post('/api/users/login', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Login API error:', error.response || error);
+    throw error;
   }
-);
+};
 
-// 3. 다른 파일에서 이 인스턴스를 사용할 수 있도록 export 합니다.
-export default api;
+// POST /api/users/register
+export const signup = async (signupData) => {
+  try {
+    // userController/registerUser가 기대하는 payload
+    const payload = {
+      userId: signupData.studentId,
+      userPassword: signupData.password,
+      username: signupData.username,
+      userYear: signupData.userYear,
+      userDepartment: signupData.userDepartment,
+      userTrack: signupData.userTrack
+    };
+    const response = await apiClient.post('/api/users/register', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Signup API error:', error.response || error);
+    throw error;
+  }
+};
+
+// GET /api/users/checkId
+export const checkIdDuplication = async (userId) => {
+  try {
+    const response = await apiClient.get('/api/users/checkId', {
+      params: { userId } // 쿼리 파라미터로 전송
+    });
+    return response.data; // { isAvailable: true }
+  } catch (error) {
+    // 409 (Conflict)는 "중복됨"을 의미하므로 정상 응답으로 처리
+    if (error.response && error.response.status === 409) {
+      return error.response.data; // { isAvailable: false }
+    }
+    console.error('Check ID API error:', error.response || error);
+    throw error;
+  }
+};
+
+// GET /api/users/profile
+export const getMyInfo = async () => {
+  try {
+    const response = await apiClient.get('/api/users/profile');
+    return response.data; // { message: '...', user: {...} }
+  } catch (error) {
+    console.error('Get My Info API error:', error.response || error);
+    throw error;
+  }
+};
+
+// PATCH /api/users/profile
+export const updateMyInfo = async (profileData) => {
+  try {
+    // userController/updateUserProfile이 받는 모든 필드
+    const payload = {
+      username: profileData.username,
+      userDepartment: profileData.userDepartment,
+      userTrack: profileData.userTrack,
+      multiMajorType: profileData.multiMajorType,
+      englishTest: profileData.englishTest, // { testType, score } 객체
+      passedInterview: profileData.passedInterview,
+      passedTopcit: profileData.passedTopcit,
+      isStartup: profileData.isStartup,
+      isExchangeStudent: profileData.isExchangeStudent,
+      counselingCount: profileData.counselingCount
+    };
+    const response = await apiClient.patch('/api/users/profile', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Update My Info API error:', error.response || error);
+    throw error;
+  }
+};
+
+// GET /api/users/graduation
+export const getGraduationStatus = async () => {
+  try {
+    const response = await apiClient.get('/api/users/graduation');
+    return response.data; // 졸업 요건 결과 JSON
+  } catch (error) {
+    console.error('Get Graduation API error:', error.response || error);
+    throw error;
+  }
+};
+
+// --- 2. Lecture API ---
+
+// GET /api/users/getLecture
+export const getMyLectures = async () => {
+  try {
+    const response = await apiClient.get('/api/users/getLecture');
+    return response.data; // { data: { custom: [], univ: [], multiMajor: [] } }
+  } catch (error) {
+    console.error('Get My Lectures API error:', error.response || error);
+    throw error;
+  }
+};
+
+// GET /api/lectures/search
+export const searchLectures = async (searchParams) => {
+  try {
+    // lectureController/searchLecture가 기대하는 쿼리 파라미터
+    const response = await apiClient.get('/api/lectures/search', {
+      params: {
+        keyword: searchParams.keyword,
+        year: searchParams.year || null,
+        semester: searchParams.semester || null
+      }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Search Lectures API error:', error.response || error);
+    throw error;
+  }
+};
+
+// POST /api/users/addUnivLect
+export const addUnivLecture = async (lectureId) => {
+  try {
+    const payload = { lectureId };
+    const response = await apiClient.post('/api/users/addUnivLect', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Add Univ Lecture API error:', error.response || error);
+    throw error;
+  }
+};
+
+// POST /api/users/addCustomLect
+export const addCustomLecture = async (lectureData) => {
+  try {
+    // customLectures.js 모델이 기대하는 payload
+    const payload = {
+      lectName: lectureData.lectName,
+      lectType: lectureData.lectType,
+      overseasCredit: lectureData.overseasCredit || 0,
+      fieldPracticeCredit: lectureData.fieldPracticeCredit || 0,
+      totalCredit: lectureData.totalCredit || 0
+    };
+    const response = await apiClient.post('/api/users/addCustomLect', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Add Custom Lecture API error:', error.response || error);
+    throw error;
+  }
+};
+
+export const updateCustomLecture = async (lectureId, lectureData) => {
+  try {
+    // userController/updateCustomLecture가 기대하는 payload
+    const payload = {
+      lectName: lectureData.lectName,
+      lectType: lectureData.lectType,
+      overseasCredit: lectureData.overseasCredit || 0,
+      fieldPracticeCredit: lectureData.fieldPracticeCredit || 0,
+      totalCredit: lectureData.totalCredit || 0
+    };
+    // URL 파라미터로 lectureId를 전달하고, payload를 body로 전송
+    const response = await apiClient.patch(`/api/users/customLecture/${lectureId}`, payload);
+    return response.data;
+  } catch (error) {
+    console.error('Update Custom Lecture API error:', error.response || error);
+    throw error;
+  }
+};
+
+// DELETE /api/users/deleteLecture/:lectureId
+export const deleteLecture = async (lectureId) => {
+  try {
+    const response = await apiClient.delete(`/api/users/deleteLecture/${lectureId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete Lecture API error:', error.response || error);
+    throw error;
+  }
+};
+
+// --- 3. Multi-Major API ---
+
+// POST /api/users/tossMultiMajorLectures (일반 -> 다중)
+export const tossMultiMajor = async (lectureId) => {
+  try {
+    const payload = { lectureId };
+    const response = await apiClient.post('/api/users/tossMultiMajorLectures', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Toss Multi-Major API error:', error.response || error);
+    throw error;
+  }
+};
+
+// POST /api/users/removeMultiMajorLectures (다중 -> 일반)
+export const removeMultiMajor = async (lectureId) => {
+  try {
+    const payload = { lectureId };
+    const response = await apiClient.post('/api/users/removeMultiMajorLectures', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Remove Multi-Major API error:', error.response || error);
+    throw error;
+  }
+};

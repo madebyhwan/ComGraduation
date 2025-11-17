@@ -1,189 +1,213 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Signup.css';
-import character from '../img/character.png';
-import api from '../api/api'
+import { Link, useNavigate } from 'react-router-dom';
+import { signup, checkIdDuplication } from '../api/api.js';
 
-function Signup() {
+const Signup = () => {
+  // users.js 모델과 userController/registerUser를 기반으로
+  const [username, setUsername] = useState('');
+  const [userYear, setUserYear] = useState('21학번');
+  const [userDepartment, setUserDepartment] = useState('글로벌SW융합전공');
+  const [userTrack, setUserTrack] = useState('심컴');
+
+  const [studentId, setStudentId] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+
+  const [error, setError] = useState('');
+  const [idCheckMsg, setIdCheckMsg] = useState('');
+  const [isIdChecked, setIsIdChecked] = useState(false);
+
   const navigate = useNavigate();
-  const [form, setForm] = useState({
-    username: '', // -> backend: username (사용자 표시 이름)
-    userId: '',   // -> backend: userId (로그인 ID)
-    userPassword: '',
-    passwordConfirm: '',
-    userYear: '',
-    userDepartment: '',
-    userTrack: ''
-  });
-  const [loading, setLoading] = useState(false);
-   const [idCheck, setIdCheck] = useState({ message: '', status: '' });
-   // [추가] 아이디 중복확인 버튼 로딩 상태
-  const [idCheckLoading, setIdCheckLoading] = useState(false);
 
-  const update = (k, v) => {
-    setForm(prev => ({ ...prev, [k]: v }));
-
-    if (k === 'userId') {
-      setIdCheck({ message: '', status: '' });
+  // 아이디 중복 확인 핸들러
+  const handleCheckId = async () => {
+    if (!studentId) {
+      setIdCheckMsg('아이디를 입력하세요.');
+      return;
     }
-    // [추가] 전공(Department) 변경 시 트랙(Track) 로직 처리
-    if (k === 'userDepartment') {
-      if (v === '심화컴퓨터공학전공') {
-        // '심화' 선택 시 트랙을 '없음(심컴)'으로 자동 설정
-        setForm(prev => ({ ...prev, userTrack: '없음(심컴)' }));
-      } else if (v === '글로벌SW융합전공') {
-        // '글로벌' 선택 시 트랙을 초기화 (다시 선택해야 함)
-        setForm(prev => ({ ...prev, userTrack: '' }));
+    try {
+      const data = await checkIdDuplication(studentId);
+      if (data.isAvailable) {
+        setIdCheckMsg('사용 가능한 아이디입니다.');
+        setIsIdChecked(true); // 중복 확인 완료
+      }
+    } catch (error) {
+      // api.js에서 409 오류를 처리해서 data.isAvailable = false로 옴
+      if (error.response && error.response.data && !error.response.data.isAvailable) {
+        setIdCheckMsg('이미 사용 중인 아이디입니다.');
+        setIsIdChecked(false);
+      } else {
+        setIdCheckMsg('중복 확인 중 오류');
+        setIsIdChecked(false);
       }
     }
-  }; 
+  };
 
-  const selectSingle = (k, value) => update(k, value === form[k] ? '' : value);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  // [수정] 아이디 중복 확인 함수 (API 호출 수정)
-  const onCheckId = async () => {
-    if (!form.userId) {
-      return alert('아이디를 입력해주세요.');
+    if (!isIdChecked) {
+      setError('아이디 중복 확인을 해주세요.');
+      return;
     }
-    setIdCheckLoading(true); // 로딩 시작
-    setIdCheck({ message: '', status: '' });
+    if (password !== confirmPassword) {
+      setError('비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
     try {
-      // apiRequest 사용
-        await api.get('/api/users/checkId', {
-          params: {
-          userId: form.userId
-        }
+      const response = await signup({
+        studentId,
+        password,
+        username,
+        userYear,
+        userDepartment,
+        userTrack
       });
 
-        setIdCheck({ message: '사용 가능한 아이디입니다.', status: 'available' });
+      if (response && response.user) {
+        alert('회원가입에 성공했습니다. 로그인 페이지로 이동합니다.');
+        navigate('/');
+      } else {
+        setError(response.message || '회원가입에 실패했습니다.');
+      }
     } catch (err) {
-        setIdCheck({ message: '이미 사용 중이거나 사용할 수 없는 아이디입니다.', status: 'unavailable' });
-    } finally {
-      setIdCheckLoading(false);
+      setError(err.response?.data?.message || '회원가입 중 오류가 발생했습니다.');
     }
   };
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    if (idCheck.status !== 'available') {
-      return alert('아이디 중복 확인을 해주세요.');
-    }
-    if (form.userPassword !== form.passwordConfirm) return alert('비밀번호가 일치하지 않습니다.');
-    if (!form.userDepartment) return alert('전공을 선택해주세요.');
-        // [수정] '글로벌SW융합전공'일 때만 트랙 선택 여부를 검증합니다.
-    if (form.userDepartment === '글로벌SW융합전공' && !form.userTrack) {
-      return alert('졸업트랙을 선택해주세요.');
-    }
-
-    setLoading(true);
-    try {
-      const payload = {
-        userId: form.userId,
-        userPassword: form.userPassword,
-        userYear: form.userYear,
-        username: form.username,
-        userDepartment: form.userDepartment,
-        userTrack: form.userTrack === '없음(심컴)' ? '심컴' : form.userTrack
-      };
-      await api.post('/api/users/register', payload);
-      alert(`${form.username}님, 회원가입이 완료되었습니다!`);
-      navigate('/');
-    } catch (err) {
-      alert(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // 백엔드 enum과 매핑 필요
-  // userYear enum: ['21학번'] -> UI는 선택 제한
-  // userDepartment enum: ['글로벌SW융합전공', '심화컴퓨터공학전공']
-  // userTrack enum: ['심컴', '다중전공', '해외복수학위', '학석사연계']
-  const yearOptions = ['21학번'];
-  const departmentOptions = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
-  const trackOptions = ['다중전공', '해외복수학위', '학석사연계'];
-
-  const isSubmitDisabled = loading || idCheck.status !== 'available';
 
   return (
-    <div className="signup-container">
-      <div className="character-section">
-        <div className="speech-bubble">
-          <p>아이디 외의 정보는 <br/>회원가입 후에도<br/>수정이 가능합니다!</p>
-        </div>
-        <img src={character} alt="Mascot" className="character-image" />
-      </div>
-      <div className="form-section">
-        <h1 className="form-title">Comgraduation</h1>
-        <form id="signupForm" onSubmit={onSubmit}>
-          <div className="input-group">
-            <label htmlFor="username">이름</label>
-            <input id="username" value={form.username} onChange={e => update('username', e.target.value)} required />
-          </div>
-          
-      <div className="input-group">
-            <div className="label-group">
-              <label htmlFor="userId">아이디</label>
-              <span className={`check-result-msg ${idCheck.status}`}>
-                {idCheck.message}
-              </span>
-            </div>
-            <div className="input-with-button">
-              <input id="userId" value={form.userId} onChange={e => update('userId', e.target.value)} required />
-              {/* [수정] 로딩 상태에 따라 버튼 비활성화 및 텍스트 변경 */}
-              <button
-                type="button"
-                onClick={onCheckId}
-                id="check-username-btn"
-                disabled={idCheckLoading}
-              >
-                {idCheckLoading ? '확인 중...' : '중복확인'}
-              </button>
-            </div>
+    <div className="auth-layout">
+      <div className="auth-card">
+        <h1 className="auth-title">회원가입</h1>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label" htmlFor="username">이름</label>
+            <input
+              className="form-input"
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
           </div>
 
-          <div className="input-group">
-            <label htmlFor="password">비밀번호</label>
-            <input id="password" type="password" value={form.userPassword} onChange={e => update('userPassword', e.target.value)} required />
+          <div className="form-group">
+            <label className="form-label" htmlFor="studentId">ID</label>
+            <div className="flex gap-2">
+              <input
+                className="form-input flex-1"
+                id="studentId"
+                type="text"
+                value={studentId}
+                onChange={(e) => {
+                  setStudentId(e.target.value);
+                  setIsIdChecked(false); // ID 변경 시 중복 확인 리셋
+                  setIdCheckMsg('');
+                }}
+                required
+              />
+              <button
+                type="button"
+                onClick={handleCheckId}
+                className="rounded-md bg-gray-600 py-2 px-3 text-sm font-medium text-white shadow-sm hover:bg-gray-700"
+              >
+                중복확인
+              </button>
+            </div>
+            {idCheckMsg && (
+              <p className={`mt-1 text-sm ${isIdChecked ? 'text-green-600' : 'text-red-600'}`}>
+                {idCheckMsg}
+              </p>
+            )}
           </div>
-            <div className="input-group">
-            <label htmlFor="passwordConfirm">비밀번호 재확인</label>
-            <input id="passwordConfirm" type="password" value={form.passwordConfirm} onChange={e => update('passwordConfirm', e.target.value)} required />
-          </div>
-          <div className="input-group">
-            <label htmlFor="studentYear">학번</label>
-            <select id="studentYear" className="styled-select" value={form.userYear} onChange={e => update('userYear', e.target.value)} required>
-              <option value="" disabled> 학번을 선택하세요</option>
-              {yearOptions.map(y => <option key={y} value={y}>{y}</option>)}
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="userYear">입학년도</label>
+            <select
+              className="form-input"
+              id="userYear"
+              value={userYear}
+              onChange={(e) => setUserYear(e.target.value)}
+            >
+              <option value="21학번">21학번</option>
+              {/* (필요시 다른 학번 추가) */}
             </select>
           </div>
-          <div className="button-select-group">
-            <label>전공 (Department)</label>
-            <div className="options-box" id="departmentOptions">
-              {departmentOptions.map(dep => (
-                <button type="button" key={dep} className={`option-btn ${form.userDepartment===dep?'selected':''}`} onClick={() => selectSingle('userDepartment', dep)}>{dep}</button>
-              ))}
-            </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="userDepartment">전공</label>
+            <select
+              className="form-input"
+              id="userDepartment"
+              value={userDepartment}
+              onChange={(e) => setUserDepartment(e.target.value)}
+            >
+              <option value="글로벌SW융합전공">글로벌SW융합전공</option>
+              <option value="심화컴퓨터공학전공">심화컴퓨터공학전공</option>
+            </select>
           </div>
-          {/* [수정] '글로벌SW융합전공'을 선택했을 때만 졸업트랙 섹션이 나타납니다. */}
-          {form.userDepartment === '글로벌SW융합전공' && (
-            <div className="button-select-group">
-              <label>졸업트랙</label>
-              <div className="options-box" id="trackOptions">
-                {trackOptions.map(t => (
-                  <button type="button" key={t} className={`option-btn ${form.userTrack===t?'selected':''}`} onClick={() => selectSingle('userTrack', t)}>{t}</button>
-                ))}
-              </div>
-            </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="userTrack">트랙</label>
+            <select
+              className="form-input"
+              id="userTrack"
+              value={userTrack}
+              onChange={(e) => setUserTrack(e.target.value)}
+            >
+              <option value="심컴">심컴</option>
+              <option value="다중전공">다중전공</option>
+              <option value="해외복수학위">해외복수학위</option>
+              <option value="학석사연계">학석사연계</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="password">비밀번호</label>
+            <input
+              className="form-input"
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label className="form-label" htmlFor="confirmPassword">비밀번호 확인</label>
+            <input
+              className="form-input"
+              id="confirmPassword"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+
+          {error && (
+            <p className="text-center text-sm text-red-600">
+              {error}
+            </p>
           )}
-          
-          <div className="form-actions">
-            <button type="submit" className="submit-btn" disabled={isSubmitDisabled}>{loading ? '처리 중...' : '회원가입'}</button>
-          </div>
+
+          <button className="w-full justify-center rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80" type="submit">
+            회원가입
+          </button>
         </form>
+
+        <div className="auth-footer">
+          <p>
+            이미 계정이 있으신가요? <Link to="/">로그인</Link>
+          </p>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default Signup;

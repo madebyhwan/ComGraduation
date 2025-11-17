@@ -1,33 +1,25 @@
-// export async function apiRequest(path, { method = 'GET', body, token } = {}) {
-//   const headers = { 'Content-Type': 'application/json' };
-//   if (token) headers.Authorization = `Bearer ${token}`;
-//   const res = await fetch(path, {
-//     method,
-//     headers,
-//     body: body ? JSON.stringify(body) : undefined,
-//   });
-//   const data = await res.json().catch(() => ({}));
-//   if (!res.ok) {
-//     const message = data.message || data.error || '요청 실패';
-//     throw new Error(message);
-//   }
-//   return data;
-// }
+import axios from 'axios';
 
-// 매우 간단한 JWT payload 디코드 (검증 없음)
-export function decodeJWT(token) {
-  try {
-    const base64 = token.split('.')[1];
-    const json = atob(base64.replace(/-/g, '+').replace(/_/g, '/'));
-    return JSON.parse(decodeURIComponent(escape(json)));
-  } catch (e) {
-    return null;
+// 1. 서버의 전체 주소를 baseURL로 하는 axios 인스턴스를 생성합니다.
+const apiClient = axios.create({
+  baseURL: 'http://localhost:9000', // 님의 package.json에 있던 9000번 포트
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// 2. 요청 인터셉터: 로컬 스토리지에서 토큰을 가져와 모든 요청 헤더에 추가합니다.
+apiClient.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token'); // 'token' 이름이 맞는지 확인
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-}
+);
 
-export function isTokenExpired(token) {
-  const payload = decodeJWT(token);
-  if (!payload || !payload.exp) return true;
-  const now = Date.now() / 1000;
-  return payload.exp < now;
-}
+export default apiClient;
