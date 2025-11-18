@@ -6,8 +6,8 @@ const Signup = () => {
   // users.js 모델과 userController/registerUser를 기반으로
   const [username, setUsername] = useState('');
   const [userYear, setUserYear] = useState('21학번');
-  const [userDepartment, setUserDepartment] = useState('글로벌SW융합전공');
-  const [userTrack, setUserTrack] = useState('심컴');
+  const [userDepartment, setUserDepartment] = useState('');
+  const [userTrack, setUserTrack] = useState('');
 
   const [studentId, setStudentId] = useState('');
   const [password, setPassword] = useState('');
@@ -30,10 +30,13 @@ const Signup = () => {
       if (data.isAvailable) {
         setIdCheckMsg('사용 가능한 아이디입니다.');
         setIsIdChecked(true); // 중복 확인 완료
+      } else {
+        setIdCheckMsg('이미 사용 중인 아이디입니다.');
+        setIsIdChecked(false);
       }
     } catch (error) {
       // api.js에서 409 오류를 처리해서 data.isAvailable = false로 옴
-      if (error.response && error.response.data && !error.response.data.isAvailable) {
+      if (error.response && error.response.data && error.response.data.isAvailable === false) {
         setIdCheckMsg('이미 사용 중인 아이디입니다.');
         setIsIdChecked(false);
       } else {
@@ -124,48 +127,6 @@ const Signup = () => {
               </p>
             )}
           </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="userYear">입학년도</label>
-            <select
-              className="form-input"
-              id="userYear"
-              value={userYear}
-              onChange={(e) => setUserYear(e.target.value)}
-            >
-              <option value="21학번">21학번</option>
-              {/* (필요시 다른 학번 추가) */}
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="userDepartment">전공</label>
-            <select
-              className="form-input"
-              id="userDepartment"
-              value={userDepartment}
-              onChange={(e) => setUserDepartment(e.target.value)}
-            >
-              <option value="글로벌SW융합전공">글로벌SW융합전공</option>
-              <option value="심화컴퓨터공학전공">심화컴퓨터공학전공</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label" htmlFor="userTrack">트랙</label>
-            <select
-              className="form-input"
-              id="userTrack"
-              value={userTrack}
-              onChange={(e) => setUserTrack(e.target.value)}
-            >
-              <option value="심컴">심컴</option>
-              <option value="다중전공">다중전공</option>
-              <option value="해외복수학위">해외복수학위</option>
-              <option value="학석사연계">학석사연계</option>
-            </select>
-          </div>
-
           <div className="form-group">
             <label className="form-label" htmlFor="password">비밀번호</label>
             <input
@@ -188,6 +149,63 @@ const Signup = () => {
               required
             />
           </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="userYear">입학년도</label>
+            <select
+              className="form-input"
+              id="userYear"
+              value={userYear}
+              onChange={(e) => setUserYear(e.target.value)}
+            >
+              <option value="20학번">20학번</option>
+              <option value="21학번">21학번</option>
+              <option value="22학번">22학번</option>
+              {/* (필요시 다른 학번 추가) */}
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">전공</label>
+            <div className="grid grid-cols-2 gap-2">
+              {['글로벌SW융합전공', '심화컴퓨터공학전공'].map((dep) => (
+                <button
+                  key={dep}
+                  type="button"
+                  onClick={() => {
+                    if (userDepartment === dep) {
+                      // 같은 버튼을 다시 누르면 선택 해제
+                      setUserDepartment('');
+                      setUserTrack('');
+                    } else {
+                      setUserDepartment(dep);
+                      if (dep !== '심화컴퓨터공학전공') setUserTrack('');
+                      else if (!userTrack) setUserTrack('다중전공');
+                    }
+                  }}
+                  className={`w-full py-2 rounded-md border text-sm text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${userDepartment === dep ? 'bg-knu-blue text-white border-knu-blue' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                  {dep}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {userDepartment === '글로벌SW융합전공' && (
+            <div className="form-group">
+              <label className="form-label">트랙</label>
+              <div className="grid grid-cols-2 gap-2">
+                {['다중전공', '해외복수학위', '학석사연계'].map((track) => (
+                  <button
+                    key={track}
+                    type="button"
+                    onClick={() => setUserTrack(track)}
+                    className={`w-full py-2 rounded-md border text-sm text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${userTrack === track ? 'bg-knu-blue text-white border-knu-blue' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                    {track}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && (
             <p className="text-center text-sm text-red-600">

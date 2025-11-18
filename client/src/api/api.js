@@ -18,6 +18,11 @@ export const login = async (loginData) => {
   }
 };
 
+// 아이디 찾기 API (이름으로 요청)
+export const findIdByName = (name) => apiClient.post('/api/users/find-id', { name });
+// [추가] 비밀번호 변경 API
+export const changePassword = (data) => apiClient.post('/api/users/change-password', data);
+
 // POST /api/users/register
 export const signup = async (signupData) => {
   try {
@@ -218,3 +223,41 @@ export const removeMultiMajor = async (lectureId) => {
     throw error;
   }
 };
+
+// --- 4. 게시판(Community) API ---
+
+// 게시글 목록 조회 (GET /api/posts)
+export const getPosts = async (type) => {
+  try {
+    // type: 'notice' 또는 'qna'
+    const response = await apiClient.get('/api/posts', { params: { type } });
+    return response.data;
+  } catch (error) {
+    console.error('Get Posts API error:', error.response || error);
+    throw error;
+  }
+};
+
+// 게시글 작성 (POST /api/posts)
+export const createPost = async (postData) => {
+  try {
+    // postData: { title, content, type }
+    const response = await apiClient.post('/api/posts', postData);
+    return response.data;
+  } catch (error) {
+    console.error('Create Post API error:', error.response || error);
+    throw error;
+  }
+};
+
+// 게시글 삭제 (DELETE /api/posts/:postId)
+export const deletePost = async (postId) => {
+  try {
+    const response = await apiClient.delete(`/api/posts/${postId}`);
+    return response.data;
+  } catch (error) {
+    console.error('Delete Post API error:', error.response || error);
+    throw error;
+  }
+};
+

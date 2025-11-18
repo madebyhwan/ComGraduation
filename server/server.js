@@ -10,6 +10,7 @@ const connectDB = require('./config/dbConnect');
 // Routes
 const userRoutes = require('./routes/userRoutes');
 const lectureRoutes = require('./routes/lectureRoutes');
+const postRoutes = require('./routes/postRoutes');
 
 const app = express();
 // DB 연결
@@ -24,6 +25,7 @@ app.use(express.urlencoded({ extended: true }));
 // 프론트 쪽에서 오는 /api/xxx -> 형태는 여기서 정의하면 될 듯
 app.use('/api/users', userRoutes);
 app.use('/api/lectures', lectureRoutes);
+app.use('/api/posts', postRoutes);
 
 app.use(express.static(path.join(__dirname, '..', 'client', 'build')));
 app.get(/^(?!\/api).*/, (req, res) => {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'; // (isSidebarOpen을 위해 useState는 여전히 필요)
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, User, Menu, X, LogOut } from 'lucide-react';
+import { LayoutDashboard, BookOpen, User, Menu, X, LogOut, MessageSquare } from 'lucide-react';
 import { decodeJWT } from '../api/utils.js';
 
 // (토큰에서 사용자 이름을 가져오는 헬퍼 함수 - 동일)
@@ -20,8 +20,17 @@ const MainLayout = () => {
 
     // --- (수정!) ---
     // "setUsername"을 제거하고 [username]만 받도록 수정
-    // 이렇게 하면 "사용하지 않는 변수" 경고가 사라집니다.
-    const [username] = useState(() => getUsernameFromToken());
+    const [username, setUsername] = useState(() => getUsernameFromToken());
+
+    // [추가] 토큰 변경 감지 (로그인/로그아웃 시 동기화) 또는 직접 호출용 함수
+    const updateUsername = (newName) => {
+        if (newName) {
+             setUsername(newName);
+        } else {
+             // 인자가 없으면 토큰에서 다시 읽어옴
+             setUsername(getUsernameFromToken());
+        }
+    };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -49,10 +58,11 @@ const MainLayout = () => {
                     </button>
                 </div>
 
-                <nav className="flex-1 flex flex-col gap-2 px-4">
-                    <SidebarLink label="대시보드" to="/app" icon={<LayoutDashboard size={20} />} />
-                    <SidebarLink label="과목 관리" to="/app/courses" icon={<BookOpen size={20} />} />
-                    <SidebarLink label="내 정보" to="/app/profile" icon={<User size={20} />} />
+                <nav className="flex-1 flex flex-col gap-2 px-4">                           
+                    <SidebarLink label="나의 정보" to="/app/profile" icon={<User size={20} />} />
+                    <SidebarLink label="나의 수강과목" to="/app/courses" icon={<BookOpen size={20} />} />
+                    <SidebarLink label="자가진단" to="/app" icon={<LayoutDashboard size={20} />} />
+                    <SidebarLink label="커뮤니티" to="/app/community" icon={<MessageSquare size={20} />} />
                 </nav>
 
                 <div className="p-4 border-t border-gray-200">
@@ -88,7 +98,7 @@ const MainLayout = () => {
                 </header>
 
                 <main className="flex-1 p-6 md:p-8 overflow-y-auto">
-                    <Outlet />
+                    <Outlet context={{ updateUsername }} />
                 </main>
             </div>
         </div>

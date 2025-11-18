@@ -7,6 +7,7 @@ import Signup from './pages/Signup.jsx';
 import Main from './pages/Main.jsx';
 import CoursesPage from './pages/Courses.jsx';
 import ProfilePage from './pages/Profile.jsx';
+import Community from './pages/Community.jsx';
 
 // 2. 레이아웃 및 보호 라우트
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -32,6 +33,8 @@ function AppRouter() {
           <Route index element={<Main />} />
           <Route path="courses" element={<CoursesPage />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="community" element={<Community />} />
+          
           <Route path="*" element={<Navigate to="/app" replace />} />
         </Route>
 
