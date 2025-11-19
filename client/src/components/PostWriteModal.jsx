@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { createPost } from '../api/api.js';
 
 const PostWriteModal = ({ onClose, onPostAdded }) => {
@@ -8,15 +9,24 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !content) return alert('제목과 내용을 입력해주세요.');
+    if (!title || !content) return toast.warning('제목과 내용을 입력해주세요.', {
+      position: "top-right",
+      autoClose: 3000
+    });
 
     try {
       await createPost({ title, content, type });
-      alert('게시글이 등록되었습니다.');
+      toast.success('게시글이 등록되었습니다.', {
+        position: "top-right",
+        autoClose: 3000
+      });
       onPostAdded(); // 목록 새로고침
       onClose();
     } catch (error) {
-      alert('게시글 등록 실패');
+      toast.error('게시글 등록 실패', {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
