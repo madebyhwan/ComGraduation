@@ -41,8 +41,11 @@ async function lectureList(userId) {
       lectCredit: l?.lectCredit ?? null,
       lectYear: l?.lectYear ?? null,
       lectSemester: l?.lectSemester ?? null,
+      lectDepartment: l?.lectDepartment ?? null, //강의학과 추가
+      lectGeneral: l?.lectGeneral ?? null, //교양구분 추가
       lectProfessor: l?.lectProfessor ?? null,
-      lectTime: l?.lectTime ?? null   //강의시간 추가
+      lectTime: l?.lectTime ?? null,   //강의시간 추가
+
     })).sort((a, b) => {
       // 1순위: lectYear (오름차순)
       if (a.lectYear !== b.lectYear) {
@@ -75,6 +78,8 @@ async function lectureList(userId) {
       lectCredit: l?.lectCredit ?? null,
       lectYear: l?.lectYear ?? null,
       lectSemester: l?.lectSemester ?? null,
+      lectDepartment: l?.lectDepartment ?? null, //강의학과 추가
+      lectGeneral: l?.lectGeneral ?? null, //교양구분 추가
       lectProfessor: l?.lectProfessor ?? null,
       lectTime: l?.lectTime ?? null   //강의시간 추가
     })).sort((a, b) => {

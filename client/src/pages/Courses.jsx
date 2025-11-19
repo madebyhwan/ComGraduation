@@ -169,7 +169,25 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                             {lectures.map(lec => (
                                 <li key={lec._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                                     <div>
-                                        <p className="font-semibold text-gray-800">{lec.lectName}</p>
+                                        {/* [수정 포인트] 강의명 옆에 학과/교양 정보 표시 */}
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <p className="font-semibold text-gray-800">{lec.lectName}</p>
+                                            
+                                            {/* 교양구분 (예: 첨성인, 균형교양 등) */}
+                                            {lec.lectGeneral && (
+                                                <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full border border-purple-200">
+                                                    {lec.lectGeneral}
+                                                </span>
+                                            )}
+                                            
+                                            {/* 개설학과 (예: 컴퓨터학부) */}
+                                            {lec.lectDepartment && (
+                                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
+                                                    {lec.lectDepartment}
+                                                </span>
+                                            )}
+                                        </div>
+                                        
                                         {type === 'custom' ? (
                                             <p className="text-sm text-gray-600 mt-1">
                                                 <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-xs mr-2">{lec.lectType}</span>

@@ -116,7 +116,25 @@ const LecSearch = ({ onLectureAdded }) => {
           {results.map((lec) => (
             <li key={lec._id} className="flex items-center justify-between p-3 hover:bg-gray-50">
               <div>
-                <p className="font-semibold text-gray-800">{lec.lectName} <span className="text-gray-500 text-sm font-normal">({lec.lectCode})</span></p>
+                {/* [수정 포인트] 강의명 옆에 뱃지 추가 */}
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="font-semibold text-gray-800">{lec.lectName}</span>
+                    <span className="text-gray-400 text-sm font-normal">({lec.lectCode})</span>
+                    
+                    {/* 교양구분 */}
+                    {lec.lectGeneral && (
+                        <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">
+                            {lec.lectGeneral}
+                        </span>
+                    )}
+                    
+                    {/* 학과 */}
+                    {lec.lectDepartment && (
+                        <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
+                            {lec.lectDepartment}
+                        </span>
+                    )}
+                </div>
                 <p className="text-sm text-gray-600 mt-1">
                   {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                 </p>
