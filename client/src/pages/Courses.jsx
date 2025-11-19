@@ -1,5 +1,6 @@
 // client/src/pages/Courses.jsx (수정본)
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
 import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor } from '../api/api.js';
@@ -34,10 +35,16 @@ const CoursesPage = () => {
     const handleApiCall = async (apiFunc, lectureId, successMsg) => {
         try {
             await apiFunc(lectureId);
-            alert(successMsg);
+            toast.success(successMsg, {
+                position: "top-right",
+                autoClose: 3000
+            });
             fetchMyLectures(); // 목록 새로고침
         } catch (error) {
-            alert(error.response?.data?.message || "작업에 실패했습니다.");
+            toast.error(error.response?.data?.message || "작업에 실패했습니다.", {
+                position: "top-right",
+                autoClose: 3000
+            });
         }
     };
 

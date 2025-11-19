@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // 1. 페이지 컴포넌트들
 import Login from './pages/Login.jsx';
@@ -16,6 +18,7 @@ import MainLayout from './components/MainLayout.jsx';
 function AppRouter() {
   return (
     <BrowserRouter>
+      <ToastContainer />
       <Routes>
         {/* === 1. 로그인 전 공개 라우트 === */}
         <Route path="/" element={<Login />} />
