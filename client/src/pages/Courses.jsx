@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
-import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor } from '../api/api.js';
+import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor, univToCustom } from '../api/api.js';
 // (수정!) 'Pencil' (수정 아이콘) 추가
-import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp, ArrowDownToLine } from 'lucide-react';
 
 const CoursesPage = () => {
     const [showModal, setShowModal] = useState(false);
@@ -52,6 +52,18 @@ const CoursesPage = () => {
     const handleDelete = (lectureId) => {
         if (window.confirm("정말로 이 항목을 삭제하시겠습니까?")) {
             handleApiCall(deleteLecture, lectureId, "삭제되었습니다.");
+        }
+    };
+    // [추가] 수강 내역 -> 기타 활동 이동 핸들러
+    const handleUnivToCustom = async (lectureId) => {
+        if (window.confirm("이 과목을 '커스텀 과목'으로 이동하시겠습니까?")) {
+            try {
+                await univToCustom(lectureId);
+                alert("커스텀 과목으로 이동되었습니다.");
+                fetchMyLectures(); // 목록 새로고침
+            } catch (error) {
+                alert(error.response?.data?.message || "이동에 실패했습니다.");
+            }
         }
     };
     const handleToss = (lectureId) => {
@@ -107,6 +119,8 @@ const CoursesPage = () => {
                         lectures={lectures.univ}
                         onDelete={handleDelete}
                         onToss={handleToss}
+                        // [추가] 핸들러 전달
+                        onUnivToCustom={handleUnivToCustom}
                         type="univ"
                     />
 
@@ -119,7 +133,7 @@ const CoursesPage = () => {
                     />
 
                     <LectureList
-                        title="기타 활동 내역"
+                        title="커스텀 과목 & 기타 활동 내역"
                         lectures={lectures.custom}
                         onDelete={handleDelete}
                         onEdit={handleShowEditModal} // (추가!) 수정 핸들러 전달
@@ -133,7 +147,7 @@ const CoursesPage = () => {
 };
 
 // [수정] 접기/펼치기 기능이 추가된 LectureList 컴포넌트
-const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type, onAdd }) => {
+const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit,onUnivToCustom, type, onAdd }) => {
     // 기본적으로 펼쳐진 상태(true)로 시작
     const [isExpanded, setIsExpanded] = useState(true);
 
@@ -176,21 +190,58 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                             {lectures.map(lec => (
                                 <li key={lec._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                                     <div>
-                                        <p className="font-semibold text-gray-800">{lec.lectName}</p>
+                                    {/* [디자인 통일] LecSearch와 동일한 구조 적용 */}
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <p className="font-semibold text-gray-800">{lec.lectName}</p>
+                                            
+                                            {/* 학수번호 (custom 제외) */}
+                                            {type !== 'custom' && (
+                                                 <span className="text-gray-400 text-sm font-normal">({lec.lectCode})</span>
+                                            )}
+                                            <span className="text-xs text-gray-400">({lec.lectDiv})</span>
+
+                                            {/* 교양구분 뱃지 */}
+                                            {lec.lectGeneral && (
+                                                <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full border border-purple-200">
+                                                    {lec.lectGeneral}
+                                                </span>
+                                            )}
+                                        </div>
+
                                         {type === 'custom' ? (
                                             <p className="text-sm text-gray-600 mt-1">
                                                 <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-xs mr-2">{lec.lectType}</span>
                                                 총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
                                             </p>
                                         ) : (
-                                            <p className="text-sm text-gray-600 mt-1">
-                                                <span className="text-gray-400 mr-2">{lec.lectCode}</span>
-                                                {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
+                                            /* LecSearch와 동일한 하단 정보 표시 */
+                                            <p className="text-sm text-gray-600 mt-1 flex flex-wrap gap-2 items-center">
+                                                <span>{lec.lectProfessor || '교수미정'}</span>
+                                                <span>|</span>
+                                                <span>{lec.lectYear}년 {lec.lectSemester}</span>
+                                                <span>|</span>
+                                                {lec.lectTime && (
+                                                    <>
+                                                        <span>{lec.lectTime}</span>
+                                                        <span>|</span>
+                                                    </>
+                                                )}
+                                                <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>                                                
                                             </p>
                                         )}
                                     </div>
 
                                     <div className="flex gap-2">
+                                      {/* [추가] 기타 활동으로 이동 버튼 (수강 내역일 때만 표시) */}
+                                        {type === 'univ' && onUnivToCustom && (
+                                            <button 
+                                                onClick={() => onUnivToCustom(lec._id)} 
+                                                title="커스텀으로 이동" 
+                                                className="p-2 text-purple-600 hover:bg-purple-50 rounded-full transition-colors"
+                                            >
+                                                <ArrowDownToLine className="w-5 h-5" />
+                                            </button>
+                                        )}
                                         {type === 'univ' && onToss && (
                                             <button
                                                 onClick={() => onToss(lec._id)}
@@ -200,6 +251,7 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                                                 <ArrowRightSquare className="w-5 h-5" />
                                             </button>
                                         )}
+
                                         {type === 'multiMajor' && onRemove && (
                                             <button
                                                 onClick={() => onRemove(lec._id)}
