@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import { addCustomLecture, updateCustomLecture } from '../api/api.js';
 
 const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) => {
@@ -50,10 +51,16 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
     try {
       if (isEditMode) {
         await updateCustomLecture(lectureToEdit._id, lectureData);
-        alert('기타 활동이 수정되었습니다.');
+        toast.success('기타 활동이 수정되었습니다.', {
+          position: "top-right",
+          autoClose: 3000
+        });
       } else {
         await addCustomLecture(lectureData);
-        alert('기타 활동이 추가되었습니다.');
+        toast.success('기타 활동이 추가되었습니다.', {
+          position: "top-right",
+          autoClose: 3000
+        });
       }
 
       if (onLectureAdded) onLectureAdded();
