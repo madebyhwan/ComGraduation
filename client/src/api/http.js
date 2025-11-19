@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // 1. 서버의 전체 주소를 baseURL로 하는 axios 인스턴스를 생성합니다.
 const apiClient = axios.create({
-  baseURL: 'http://localhost:9000', // 님의 package.json에 있던 9000번 포트
+  baseURL: '', // 님의 package.json에 있던 9000번 포트
   headers: {
     'Content-Type': 'application/json',
   },

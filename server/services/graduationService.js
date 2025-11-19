@@ -77,39 +77,85 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, multiMajorLect
 }
 
 /**
- * 영어 성적 요건 충족 여부를 확인합니다.
- * 스키마: user.englishTest = { testType: String, score: String }
+ * 영어 성적 요건 충족 여부를 확인하고, 구조화된 현재/요구 조건 정보를 반환합니다.
  */
 function checkEnglishProficiency(user, rule) {
-  if (!rule || !rule.options || !user.englishTest || !user.englishTest.testType || !user.englishTest.score) {
-    return false; // 규칙이나 사용자 성적 정보가 없으면 미충족
+
+  // 1. 기본 반환 객체 (규칙이 없는 경우)
+  const defaultResult = {
+    pass: false,
+    testType: '미지정',
+    currentScore: '성적 미입력',
+    requiredScore: '요건 확인 불가',
+    allRequirements: '요건 확인 불가' // 전체 요건 나열
+  };
+
+  if (!rule || !rule.options) {
+    return defaultResult;
   }
 
-  const userTestType = user.englishTest.testType;
-  let userScore = user.englishTest.score;
+  // 2. 전체 요구 조건 문자열 미리 생성
+  const allReqText = rule.options.map(o => `${o.test} ${o.minScore || o.minLevel}`).join(' 또는 ');
 
-  // OPIC 레벨 매핑을 위한 배열
+  // 3. 사용자가 성적을 입력하지 않은 경우
+  if (!user.englishTest || !user.englishTest.testType || !user.englishTest.score) {
+    return {
+      pass: false,
+      testType: '미지정',
+      currentScore: '성적 미입력',
+      requiredScore: allReqText, // 요구 점수란에 전체 요건을 표시
+      allRequirements: allReqText
+    };
+  }
+
+  // 4. 사용자가 성적을 입력한 경우
+  const userTestType = user.englishTest.testType;
+  const userScore = user.englishTest.score;
   const opicHierarchy = ['IL', 'IM1', 'IM2', 'IM3', 'IH', 'AL'];
 
-  for (const option of rule.options) {
-    if (option.test === userTestType) {
-      if (option.test === 'OPIC') {
-        // OPIC 레벨 비교
-        const userLevelIndex = opicHierarchy.indexOf(userScore);
-        const requiredLevelIndex = opicHierarchy.indexOf(option.minLevel);
-        if (userLevelIndex !== -1 && requiredLevelIndex !== -1 && userLevelIndex >= requiredLevelIndex) {
-          return true;
-        }
-      } else {
-        // 숫자 점수 비교 (문자열 점수를 숫자로 변환)
-        const scoreNumber = Number(userScore);
-        if (!isNaN(scoreNumber) && scoreNumber >= option.minScore) {
-          return true;
-        }
-      }
+  // 5. 사용자가 선택한 시험에 대한 규칙 찾기
+  const relevantRule = rule.options.find(option => option.test === userTestType);
+
+  // 일치하는 시험 규칙이 없는 경우 (e.g., 요건에 없는 'TEPS' 성적 입력)
+  if (!relevantRule) {
+    return {
+      pass: false,
+      testType: userTestType,
+      currentScore: userScore,
+      requiredScore: '해당 시험은 요건에 없음',
+      allRequirements: allReqText
+    };
+  }
+
+  // 6. 요건 비교 및 최종 결과 반환
+  let isPass = false;
+  let requiredScoreText = '';
+
+  if (relevantRule.test === 'OPIC') {
+    requiredScoreText = relevantRule.minLevel;
+    const userLevelIndex = opicHierarchy.indexOf(userScore);
+    const requiredLevelIndex = opicHierarchy.indexOf(requiredScoreText);
+
+    if (userLevelIndex !== -1 && requiredLevelIndex !== -1 && userLevelIndex >= requiredLevelIndex) {
+      isPass = true;
+    }
+  } else { // 'TOEIC', 'TOEFL' 등 점수제 시험
+    requiredScoreText = String(relevantRule.minScore);
+    const scoreNumber = Number(userScore);
+
+    if (!isNaN(scoreNumber) && scoreNumber >= relevantRule.minScore) {
+      isPass = true;
     }
   }
-  return false;
+
+  // 최종 결과 객체 반환
+  return {
+    pass: isPass,
+    testType: userTestType,        // 예: "TOEIC"
+    currentScore: userScore,     // 예: "820"
+    requiredScore: requiredScoreText, // 예: "700"
+    allRequirements: allReqText  // (참고용) 전체 요건
+  };
 }
 
 // --- 메인 체크 함수 ---
@@ -168,7 +214,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   // 전공 필수
   const takenCourseCodes = takenLectures.map(lec => lec.lectCode);
   const missingCourses = requirements.requiredMajorCourses.courses.filter(reqCode => !takenCourseCodes.includes(reqCode));
-  
+
   // 미이수 과목의 이름을 가져오기
   const missingCourseNames = [];
   for (const courseCode of missingCourses) {
@@ -179,7 +225,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
       missingCourseNames.push(courseCode); // 과목을 찾지 못하면 코드 그대로
     }
   }
-  
+
   results.requiredMajorCourses = {
     pass: missingCourses.length === 0,
     current: requirements.requiredMajorCourses.courses.length - missingCourses.length,
@@ -219,8 +265,10 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   };
 
   // 영어성적
+  const englishResult = checkEnglishProficiency(user, requirements.englishProficiency);
+
   results.englishProficiency = {
-    pass: checkEnglishProficiency(user, requirements.englishProficiency),
+    ...englishResult,
     note: requirements.englishProficiency.note,
   };
 
