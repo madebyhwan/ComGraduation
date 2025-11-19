@@ -56,10 +56,10 @@ const CoursesPage = () => {
     };
     // [추가] 수강 내역 -> 기타 활동 이동 핸들러
     const handleUnivToCustom = async (lectureId) => {
-        if (window.confirm("이 과목을 '기타 활동'으로 이동하시겠습니까?")) {
+        if (window.confirm("이 과목을 '커스텀 과목'으로 이동하시겠습니까?")) {
             try {
                 await univToCustom(lectureId);
-                alert("기타 활동으로 이동되었습니다.");
+                alert("커스텀 과목으로 이동되었습니다.");
                 fetchMyLectures(); // 목록 새로고침
             } catch (error) {
                 alert(error.response?.data?.message || "이동에 실패했습니다.");
@@ -133,7 +133,7 @@ const CoursesPage = () => {
                     />
 
                     <LectureList
-                        title="커스텀 과목 & 활동 내역"
+                        title="커스텀 과목 & 기타 활동 내역"
                         lectures={lectures.custom}
                         onDelete={handleDelete}
                         onEdit={handleShowEditModal} // (추가!) 수정 핸들러 전달
