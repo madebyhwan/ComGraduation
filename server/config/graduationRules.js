@@ -720,5 +720,248 @@ const rules = {
       ]
     }
   },
+
+  "심화컴퓨터공학전공_심컴_20학번": {
+    "trackName": "심화컴퓨터공학전공 (20학번 기준)",
+    "admissionYear": 2020,
+
+    "minTotalCredits": 150,
+
+    "majorCredits": {
+      "credits": 96,
+      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    },
+
+    "generalEducationCredits": {
+      "note": "교양 과목은 min 이상 이수해야하고 max까지만 인정됨.",
+      "min": 24,
+      "max": 42
+    },
+
+    "requiredMajorCourses": {
+      "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
+      "courses": [
+        "CLTR0211", "CLTR0213", "COME0301", "COMP0204", "COMP0205", "COMP0217",
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+      ]
+    },
+
+    "basicGeneralEducationCredits": {
+      "min": 15,
+      "note": "ABEEK 기본소양(전문교양) 최소 15학점 이수"
+    },
+
+    "majorBasisCredits": {
+      "min": 21,
+      "note": "ABEEK 전공기반 최소 18학점 이수"
+    },
+
+    "engineeringMajorCredits": {
+      "min": 75,
+      "note": "ABEEK 공학전공 최소 60학점 이수"
+    },
+
+
+    "capstoneDesignRequirement": {
+      "note": "공학전공 학점 내 설계 학점 14학점 이상 필수",
+      "minDesignCredits": 14
+    },
+
+    "englishProficiency": {
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "options": [
+        { "test": "TOEIC", "minScore": 700 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
+        { "test": "OPIC", "minLevel": "IM1" },
+        { "test": "G-TELP", "minScore": 65 },
+        { "test": "IELTS", "minScore": 6.0 }
+      ]
+    },
+
+    "internshipRequirement": {
+      "note": "현장실습 학점 3학점 이상 이수",
+      "minInternshipCredits": 3
+    },
+
+    "counselingSessions": {
+      "note": "지도교수 상담 8회 이상",
+      "minRequired": 8
+    },
+
+    "exitRequirement": {
+      "note": "TOPCIT 또는 졸업인터뷰 중 하나를 실시해야 함",
+      "options": [
+        { "type": "topcit", "note": "TOPCIT 시험 응시", "required": true },
+        { "type": "graduation_interview", "note": "졸업 인터뷰 통과", "required": true }
+      ]
+    }
+  },
+
+  "심화컴퓨터공학전공_심컴_21학번": {
+    "trackName": "심화컴퓨터공학전공 (21학번 기준)",
+    "admissionYear": 2021,
+
+    "minTotalCredits": 140,
+
+    "majorCredits": {
+      "credits": 78,
+      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    },
+
+    "generalEducationCredits": {
+      "note": "교양 과목은 min 이상 이수해야하고 max까지만 인정됨.",
+      "min": 24,
+      "max": 42
+    },
+
+    "requiredMajorCourses": {
+      "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
+      "courses": [
+        "CLTR0211", "CLTR0213", "COME0301", "COMP0204", "COMP0205", "COMP0217",
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+      ]
+    },
+
+    "basicGeneralEducationCredits": {
+      "min": 15,
+      "note": "ABEEK 기본소양(전문교양) 최소 15학점 이수"
+    },
+
+    "majorBasisCredits": {
+      "min": 18,
+      "note": "ABEEK 전공기반 최소 18학점 이수"
+    },
+
+    "engineeringMajorCredits": {
+      "min": 60,
+      "note": "ABEEK 공학전공 최소 60학점 이수"
+    },
+
+
+    "capstoneDesignRequirement": {
+      "note": "공학전공 학점 내 설계 학점 14학점 이상 필수",
+      "minDesignCredits": 14
+    },
+
+    "englishProficiency": {
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "options": [
+        { "test": "TOEIC", "minScore": 700 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
+        { "test": "OPIC", "minLevel": "IM1" },
+        { "test": "G-TELP", "minScore": 65 },
+        { "test": "IELTS", "minScore": 6.0 }
+      ]
+    },
+
+    "internshipRequirement": {
+      "note": "현장실습 학점 3학점 이상 이수",
+      "minInternshipCredits": 3
+    },
+
+    "counselingSessions": {
+      "note": "지도교수 상담 8회 이상",
+      "minRequired": 8
+    },
+
+    "exitRequirement": {
+      "note": "TOPCIT 또는 졸업인터뷰 중 하나를 실시해야 함",
+      "options": [
+        { "type": "topcit", "note": "TOPCIT 시험 응시", "required": true },
+        { "type": "graduation_interview", "note": "졸업 인터뷰 통과", "required": true }
+      ]
+    }
+  },
+
+  "심화컴퓨터공학전공_심컴_22학번": {
+    "trackName": "심화컴퓨터공학전공 (22학번 기준)",
+    "admissionYear": 2022,
+
+    "minTotalCredits": 140,
+
+    "majorCredits": {
+      "credits": 78,
+      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    },
+
+    "generalEducationCredits": {
+      "note": "교양 과목은 min 이상 이수해야하고 max까지만 인정됨.",
+      "min": 24,
+      "max": 42
+    },
+
+    "requiredMajorCourses": {
+      "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
+      "courses": [
+        "CLTR0211", "CLTR0213", "COME0301", "COMP0204", "COMP0205", "COMP0217",
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+      ]
+    },
+
+    "basicGeneralEducationCredits": {
+      "min": 15,
+      "note": "ABEEK 기본소양(전문교양) 최소 15학점 이수"
+    },
+
+    "majorBasisCredits": {
+      "min": 18,
+      "note": "ABEEK 전공기반 최소 18학점 이수"
+    },
+
+    "engineeringMajorCredits": {
+      "min": 60,
+      "note": "ABEEK 공학전공 최소 60학점 이수"
+    },
+
+
+    "capstoneDesignRequirement": {
+      "note": "공학전공 학점 내 설계 학점 14학점 이상 필수",
+      "minDesignCredits": 14
+    },
+
+    "englishProficiency": {
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "options": [
+        { "test": "TOEIC", "minScore": 700 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
+        { "test": "OPIC", "minLevel": "IM1" },
+        { "test": "G-TELP", "minScore": 65 },
+        { "test": "IELTS", "minScore": 6.0 }
+      ]
+    },
+
+    "internshipRequirement": {
+      "note": "현장실습 학점 3학점 이상 이수",
+      "minInternshipCredits": 3
+    },
+
+    "counselingSessions": {
+      "note": "지도교수 상담 8회 이상",
+      "minRequired": 8
+    },
+
+    "exitRequirement": {
+      "note": "TOPCIT 또는 졸업인터뷰 중 하나를 실시해야 함",
+      "options": [
+        { "type": "topcit", "note": "TOPCIT 시험 응시", "required": true },
+        { "type": "graduation_interview", "note": "졸업 인터뷰 통과", "required": true }
+      ]
+    }
+  },
 }
 module.exports = rules;
