@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
-import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor } from '../api/api.js';
+import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor, univToCustom } from '../api/api.js';
 // (수정!) 'Pencil' (수정 아이콘) 추가
-import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp, ArrowDownToLine } from 'lucide-react';
 
 const CoursesPage = () => {
     const [showModal, setShowModal] = useState(false);
@@ -52,6 +52,18 @@ const CoursesPage = () => {
     const handleDelete = (lectureId) => {
         if (window.confirm("정말로 이 항목을 삭제하시겠습니까?")) {
             handleApiCall(deleteLecture, lectureId, "삭제되었습니다.");
+        }
+    };
+    // [추가] 수강 내역 -> 기타 활동 이동 핸들러
+    const handleUnivToCustom = async (lectureId) => {
+        if (window.confirm("이 과목을 '기타 활동'으로 이동하시겠습니까?")) {
+            try {
+                await univToCustom(lectureId);
+                alert("기타 활동으로 이동되었습니다.");
+                fetchMyLectures(); // 목록 새로고침
+            } catch (error) {
+                alert(error.response?.data?.message || "이동에 실패했습니다.");
+            }
         }
     };
     const handleToss = (lectureId) => {
@@ -107,6 +119,8 @@ const CoursesPage = () => {
                         lectures={lectures.univ}
                         onDelete={handleDelete}
                         onToss={handleToss}
+                        // [추가] 핸들러 전달
+                        onUnivToCustom={handleUnivToCustom}
                         type="univ"
                     />
 
@@ -133,7 +147,7 @@ const CoursesPage = () => {
 };
 
 // [수정] 접기/펼치기 기능이 추가된 LectureList 컴포넌트
-const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type, onAdd }) => {
+const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit,onUnivToCustom, type, onAdd }) => {
     // 기본적으로 펼쳐진 상태(true)로 시작
     const [isExpanded, setIsExpanded] = useState(true);
 
@@ -218,6 +232,16 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                                     </div>
 
                                     <div className="flex gap-2">
+                                      {/* [추가] 기타 활동으로 이동 버튼 (수강 내역일 때만 표시) */}
+                                        {type === 'univ' && onUnivToCustom && (
+                                            <button 
+                                                onClick={() => onUnivToCustom(lec._id)} 
+                                                title="커스텀으로 이동" 
+                                                className="p-2 text-purple-600 hover:bg-purple-50 rounded-full transition-colors"
+                                            >
+                                                <ArrowDownToLine className="w-5 h-5" />
+                                            </button>
+                                        )}
                                         {type === 'univ' && onToss && (
                                             <button
                                                 onClick={() => onToss(lec._id)}
@@ -227,6 +251,7 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                                                 <ArrowRightSquare className="w-5 h-5" />
                                             </button>
                                         )}
+
                                         {type === 'multiMajor' && onRemove && (
                                             <button
                                                 onClick={() => onRemove(lec._id)}

@@ -167,6 +167,7 @@ export const addCustomLecture = async (lectureData) => {
     throw error;
   }
 };
+export const univToCustom = (lectureId) => apiClient.patch('/api/users/univToCustom', { lectureId });
 
 export const updateCustomLecture = async (lectureId, lectureData) => {
   try {
