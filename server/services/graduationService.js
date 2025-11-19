@@ -143,7 +143,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   results.generalEducationCredits = {
     pass: generalEducationCredits >= geRule.min,
     current: generalEducationCredits,
-    required: `${geRule.min} ~ ${geRule.max}`,
+    required: `${geRule.min}이상 ${geRule.max}이하`,
   };
 
   // 총 학점
