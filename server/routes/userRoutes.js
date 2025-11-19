@@ -15,7 +15,8 @@ const {
   removeMultiMajorLectures,
   updateCustomLecture,
   findIdByName,
-  changePassword
+  changePassword,
+  univToCustomLecture
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -64,5 +65,8 @@ router.post('/removeMultiMajorLectures', authenticateToken, removeMultiMajorLect
 
 // [추가] 기타 활동 수정 라우트
 router.patch('/customLecture/:lectureId', authenticateToken, updateCustomLecture);
+
+// univ -> custom
+router.patch('/univToCustom', authenticateToken, univToCustomLecture);
 
 module.exports = router;
