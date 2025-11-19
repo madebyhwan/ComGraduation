@@ -168,7 +168,7 @@ const Main = () => {
         <RequirementItem title="창업 교과" result={status.details.ventureCourseCompetency} />
       </div>
       {/* 3. 참고사항 섹션 (디자인 통일) */}
-      {summary && summary.multiMajorCredits > 0 && (
+      {summary && (
         <>
           <h2 className="text-xl font-semibold mt-8 mb-4">참고 사항</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -181,8 +181,8 @@ const Main = () => {
                   <span className="font-medium text-gray-900">{summary?.multiMajorCredits || 0}</span>
                   <span className="text-gray-500"> 학점</span>
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
-                  * 문구추천~
+                <p className="text-xs text-red-500 mt-1 font-bold">
+                  * 본인의 다중전공 유형 학점 요건을 모두 충족하였는지<br></br>  반드시 확인하시기 바랍니다.
                 </p>
               </div>
             </div>
