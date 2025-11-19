@@ -49,6 +49,7 @@ const ProfilePage = () => {
 
     // 데이터 로딩 (이전과 동일)
     useEffect(() => {
+
         const fetchInfo = async () => {
             try {
                 const data = await getMyInfo();
@@ -76,6 +77,13 @@ const ProfilePage = () => {
         }
         fetchInfo();
     }, []);
+
+    // userTrack이 변경되어 '다중전공'이 아니게 되면 다중전공 유형 초기화
+    useEffect(() => {
+        if (userTrack !== '다중전공' && multiMajorType !== null) {
+            setMultiMajorType(null);
+        }
+    }, [userTrack]);
 
     // 폼 제출
     const handleSubmit = async (e) => {
@@ -174,12 +182,12 @@ const ProfilePage = () => {
                                 <label className="form-label" htmlFor="username">이름</label>
                                 <input className="form-input" id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
                             </div>
-                        {/* [수정] ID 오른쪽에 비밀번호 변경 버튼 추가 */}
+                            {/* [수정] ID 오른쪽에 비밀번호 변경 버튼 추가 */}
                             <div className="form-group">
                                 <label className="form-label" htmlFor="studentId">ID</label>
                                 <div className="flex gap-2">
                                     <input className="form-input flex-1 bg-gray-50 text-gray-500" id="studentId" type="text" value={studentId} disabled />
-                                    <button 
+                                    <button
                                         type="button"
                                         onClick={() => setShowPwModal(true)}
                                         className="px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md border border-gray-300 transition-colors whitespace-nowrap"
@@ -215,7 +223,7 @@ const ProfilePage = () => {
                                         options={trackOptions} // [수정] 필터링된 옵션 사용
                                         currentValue={userTrack}
                                         onChange={setUserTrack}
-                                        // [수정] 'disabled' 속성 제거 (블록 자체가 숨겨지므로 불필요)
+                                    // [수정] 'disabled' 속성 제거 (블록 자체가 숨겨지므로 불필요)
                                     />
                                 </div>
                             )}
@@ -227,14 +235,13 @@ const ProfilePage = () => {
                                 <label className="form-label">다중전공 유형</label>
                                 <RadioToggleGroup
                                     options={[
-                                        { value: 'null', label: '미선택' },
                                         { value: '복수전공', label: '복수전공' },
                                         { value: '연계전공', label: '연계전공' },
                                         { value: '융합전공', label: '융합전공' },
                                         { value: '부전공', label: '부전공' }
                                     ]}
-                                    currentValue={multiMajorType || "null"}
-                                    onChange={(value) => setMultiMajorType(value === "null" ? null : value)}
+                                    currentValue={multiMajorType}
+                                    onChange={(value) => setMultiMajorType(value)}
                                 />
                             </div>
                         )}
@@ -338,7 +345,7 @@ const ProfilePage = () => {
 
             </form>
 
-{/* --- 비밀번호 변경 모달 --- */}
+            {/* --- 비밀번호 변경 모달 --- */}
             {showPwModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
                     <div className="bg-white w-full max-w-md mx-4 rounded-lg shadow-lg overflow-hidden">
@@ -351,7 +358,7 @@ const ProfilePage = () => {
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-                        
+
                         <form onSubmit={handlePasswordChange} className="p-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
@@ -411,7 +418,7 @@ const ProfilePage = () => {
                     </div>
                 </div>
             )}
-            
+
         </div>
     );
 };
@@ -421,26 +428,26 @@ const RadioToggleGroup = ({ options, currentValue, onChange, disabled = false })
     return (
         <div className="flex flex-wrap gap-2">
             {options.map((option) => (
-              (disabled && option.value !== '심컴') ? null : (
-                <button
-                    type="button" // 폼 제출 방지
-                    key={option.value}
-                    onClick={() => !disabled && onChange(option.value)}
-                    className={`
+                (disabled && option.value !== '심컴') ? null : (
+                    <button
+                        type="button" // 폼 제출 방지
+                        key={option.value}
+                        onClick={() => !disabled && onChange(option.value)}
+                        className={`
                         py-2 px-4 rounded-lg border text-sm font-medium transition-colors
                         ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
                         ${!disabled && currentValue === option.value
-                            ? 'bg-knu-blue text-white border-knu-blue' // Active
-                            : ''}
+                                ? 'bg-knu-blue text-white border-knu-blue' // Active
+                                : ''}
                         ${!disabled && currentValue !== option.value
-                            ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' // Inactive
-                            : ''}
+                                ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' // Inactive
+                                : ''}
                     `}
-                    disabled={disabled}
-                >
-                    {option.label}
-                </button>
-               )
+                        disabled={disabled}
+                    >
+                        {option.label}
+                    </button>
+                )
             ))}
         </div>
     );
