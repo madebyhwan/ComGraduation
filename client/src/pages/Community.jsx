@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-toastify';
 import { getPosts, deletePost } from '../api/api.js';
 import { /*MessageSquare,*/ User, Trash2, PenSquare } from 'lucide-react';
 import PostWriteModal from '../components/PostWriteModal';
@@ -44,11 +45,17 @@ const Community = () => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       try {
         await deletePost(postId);
-        alert('삭제되었습니다.');
+        toast.success('삭제되었습니다.', {
+          position: "top-right",
+          autoClose: 3000
+        });
         fetchPosts();
       } catch (error) {
         console.error('삭제 에러:', error);
-        alert('삭제 실패');
+        toast.error('삭제 실패', {
+          position: "top-right",
+          autoClose: 3000
+        });
       }
     }
   };

@@ -1,5 +1,6 @@
 // client/src/pages/Courses.jsx (수정본)
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
 import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor } from '../api/api.js';
@@ -34,10 +35,16 @@ const CoursesPage = () => {
     const handleApiCall = async (apiFunc, lectureId, successMsg) => {
         try {
             await apiFunc(lectureId);
-            alert(successMsg);
+            toast.success(successMsg, {
+                position: "top-right",
+                autoClose: 3000
+            });
             fetchMyLectures(); // 목록 새로고침
         } catch (error) {
-            alert(error.response?.data?.message || "작업에 실패했습니다.");
+            toast.error(error.response?.data?.message || "작업에 실패했습니다.", {
+                position: "top-right",
+                autoClose: 3000
+            });
         }
     };
 
@@ -112,7 +119,7 @@ const CoursesPage = () => {
                     />
 
                     <LectureList
-                        title="기타 활동 내역"
+                        title="커스텀 과목 & 활동 내역"
                         lectures={lectures.custom}
                         onDelete={handleDelete}
                         onEdit={handleShowEditModal} // (추가!) 수정 핸들러 전달
@@ -169,34 +176,43 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type
                             {lectures.map(lec => (
                                 <li key={lec._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
                                     <div>
-                                        {/* [수정 포인트] 강의명 옆에 학과/교양 정보 표시 */}
+                                    {/* [디자인 통일] LecSearch와 동일한 구조 적용 */}
                                         <div className="flex items-center gap-2 mb-1">
                                             <p className="font-semibold text-gray-800">{lec.lectName}</p>
                                             
-                                            {/* 교양구분 (예: 첨성인, 균형교양 등) */}
+                                            {/* 학수번호 (custom 제외) */}
+                                            {type !== 'custom' && (
+                                                 <span className="text-gray-400 text-sm font-normal">({lec.lectCode})</span>
+                                            )}
+                                            <span className="text-xs text-gray-400">({lec.lectDiv})</span>
+
+                                            {/* 교양구분 뱃지 */}
                                             {lec.lectGeneral && (
                                                 <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full border border-purple-200">
                                                     {lec.lectGeneral}
                                                 </span>
                                             )}
-                                            
-                                            {/* 개설학과 (예: 컴퓨터학부) */}
-                                            {lec.lectDepartment && (
-                                                <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded border border-gray-200">
-                                                    {lec.lectDepartment}
-                                                </span>
-                                            )}
                                         </div>
-                                        
+
                                         {type === 'custom' ? (
                                             <p className="text-sm text-gray-600 mt-1">
                                                 <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-xs mr-2">{lec.lectType}</span>
                                                 총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
                                             </p>
                                         ) : (
-                                            <p className="text-sm text-gray-600 mt-1">
-                                                <span className="text-gray-400 mr-2">{lec.lectCode}</span>
-                                                {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
+                                            /* LecSearch와 동일한 하단 정보 표시 */
+                                            <p className="text-sm text-gray-600 mt-1 flex flex-wrap gap-2 items-center">
+                                                <span>{lec.lectProfessor || '교수미정'}</span>
+                                                <span>|</span>
+                                                <span>{lec.lectYear}년 {lec.lectSemester}</span>
+                                                <span>|</span>
+                                                {lec.lectTime && (
+                                                    <>
+                                                        <span>{lec.lectTime}</span>
+                                                        <span>|</span>
+                                                    </>
+                                                )}
+                                                <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>                                                
                                             </p>
                                         )}
                                     </div>
