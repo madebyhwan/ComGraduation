@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useOutletContext } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { getMyInfo, updateMyInfo, changePassword } from '../api/api.js';
 import { User, Award, BookMarked, Check, Lock, X } from 'lucide-react';
 
@@ -108,9 +109,15 @@ const ProfilePage = () => {
             await updateMyInfo(profileData);
             // [핵심 추가] 저장이 성공하면 MainLayout의 username 상태 업데이트
             updateUsername(username);
-            alert("정보가 성공적으로 저장되었습니다.");
+            toast.success("정보가 성공적으로 저장되었습니다.", {
+                position: "top-right",
+                autoClose: 3000
+            });
         } catch (error) {
-            alert("정보 저장에 실패했습니다.");
+            toast.error("정보 저장에 실패했습니다.", {
+                position: "top-right",
+                autoClose: 3000
+            });
             setError(error.response?.data?.message || "저장 중 오류 발생");
         }
     };
@@ -144,7 +151,10 @@ const ProfilePage = () => {
 
         try {
             await changePassword({ currentPassword: currentPw, newPassword: newPw });
-            alert('비밀번호가 변경되었습니다.');
+            toast.success('비밀번호가 변경되었습니다.', {
+                position: "top-right",
+                autoClose: 3000
+            });
             setShowPwModal(false);
             setCurrentPw('');
             setNewPw('');

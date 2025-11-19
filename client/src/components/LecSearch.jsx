@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { searchLectures, addUnivLecture } from '../api/api.js';
 import { PlusCircle } from 'lucide-react';
 
@@ -49,10 +50,16 @@ const LecSearch = ({ onLectureAdded }) => {
   const handleAdd = async (lectureId) => {
     try {
       await addUnivLecture(lectureId);
-      alert('강의가 추가되었습니다.');
+      toast.success('강의가 추가되었습니다.', {
+        position: "top-right",
+        autoClose: 3000
+      });
       if (onLectureAdded) onLectureAdded(); 
     } catch (error) {
-      alert(error.response?.data?.message || '강의 추가에 실패했습니다.');
+      toast.error(error.response?.data?.message || '강의 추가에 실패했습니다.', {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
