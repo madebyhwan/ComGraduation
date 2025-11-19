@@ -158,7 +158,9 @@ const Signup = () => {
               value={userYear}
               onChange={(e) => setUserYear(e.target.value)}
             >
+              <option value="20학번">20학번</option>
               <option value="21학번">21학번</option>
+              <option value="22학번">22학번</option>
               {/* (필요시 다른 학번 추가) */}
             </select>
           </div>

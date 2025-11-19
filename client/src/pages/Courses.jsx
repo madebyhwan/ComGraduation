@@ -4,13 +4,12 @@ import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
 import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor } from '../api/api.js';
 // (수정!) 'Pencil' (수정 아이콘) 추가
-import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil } from 'lucide-react';
+import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp } from 'lucide-react';
 
 const CoursesPage = () => {
     const [showModal, setShowModal] = useState(false);
     const [lectures, setLectures] = useState({ univ: [], custom: [], multiMajor: [] });
     const [loading, setLoading] = useState(true);
-    // (추가!) 현재 수정 중인 강의 정보를 저장할 state
     const [editingLecture, setEditingLecture] = useState(null);
 
     // 내 강의 목록 불러오기
@@ -126,85 +125,109 @@ const CoursesPage = () => {
     );
 };
 
-// (수정!) 'onEdit' prop 추가
-const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type, onAdd }) => (
-    <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-        <div className="p-5 border-b border-gray-200 flex justify-between items-center">
-            <h3 className="text-xl font-semibold">{title}</h3>
-            {onAdd && (
-                <button
-                    onClick={onAdd}
-                    className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80"
-                >
-                    기타 활동 추가
-                </button>
+// [수정] 접기/펼치기 기능이 추가된 LectureList 컴포넌트
+const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit, type, onAdd }) => {
+    // 기본적으로 펼쳐진 상태(true)로 시작
+    const [isExpanded, setIsExpanded] = useState(true);
+
+    return (
+        <div className="bg-white border border-gray-200 rounded-lg shadow-sm transition-all duration-200">
+            {/* 헤더 영역 */}
+            <div 
+                className="p-5 flex justify-between items-center cursor-pointer hover:bg-gray-50 rounded-t-lg"
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <div className="flex items-center gap-2">
+                    {/* 접기/펼치기 아이콘 */}
+                    {isExpanded ? <ChevronUp className="w-5 h-5 text-gray-500" /> : <ChevronDown className="w-5 h-5 text-gray-500" />}
+                    <h3 className="text-xl font-semibold select-none">{title}</h3>
+                    <span className="text-sm text-gray-500 ml-2 bg-gray-100 px-2 py-0.5 rounded-full">
+                        {lectures.length}건
+                    </span>
+                </div>
+
+                {/* 버튼 클릭 시에는 토글되지 않도록 stopPropagation */}
+                <div onClick={(e) => e.stopPropagation()}>
+                    {onAdd && (
+                        <button
+                            onClick={onAdd}
+                            className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80 text-sm"
+                        >
+                            기타 활동 추가
+                        </button>
+                    )}
+                </div>
+            </div>
+
+            {/* 목록 영역 (조건부 렌더링) */}
+            {isExpanded && (
+                <div className="p-6 border-t border-gray-200 animate-fadeIn">
+                    {lectures.length === 0 ? (
+                        <p className="text-gray-500 text-center py-4">항목이 없습니다.</p>
+                    ) : (
+                        <ul className="divide-y divide-gray-200">
+                            {lectures.map(lec => (
+                                <li key={lec._id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors">
+                                    <div>
+                                        <p className="font-semibold text-gray-800">{lec.lectName}</p>
+                                        {type === 'custom' ? (
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-xs mr-2">{lec.lectType}</span>
+                                                총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
+                                            </p>
+                                        ) : (
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                <span className="text-gray-400 mr-2">{lec.lectCode}</span>
+                                                {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        {type === 'univ' && onToss && (
+                                            <button
+                                                onClick={() => onToss(lec._id)}
+                                                title="다중전공으로 이관"
+                                                className="p-2 text-knu-blue hover:bg-blue-50 rounded-full transition-colors"
+                                            >
+                                                <ArrowRightSquare className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                        {type === 'multiMajor' && onRemove && (
+                                            <button
+                                                onClick={() => onRemove(lec._id)}
+                                                title="수강 내역으로 복귀"
+                                                className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                                            >
+                                                <ArrowLeftSquare className="w-5 h-5" />
+                                            </button>
+                                        )}
+                                        {type === 'custom' && onEdit && (
+                                            <button
+                                                onClick={() => onEdit(lec)}
+                                                title="수정"
+                                                className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors"
+                                            >
+                                                <Pencil className="w-5 h-5" />
+                                            </button>
+                                        )}
+
+                                        <button
+                                            onClick={() => onDelete(lec._id)}
+                                            title="삭제"
+                                            className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
             )}
         </div>
-        <div className="p-6">
-            {lectures.length === 0 ? (
-                <p className="text-gray-500">항목이 없습니다.</p>
-            ) : (
-                <ul className="divide-y divide-gray-200">
-                    {lectures.map(lec => (
-                        <li key={lec._id} className="flex items-center justify-between p-3">
-                            <div>
-                                <p className="font-semibold text-gray-800">{lec.lectName} <span className="text-gray-500 text-sm font-normal">({lec.lectCode})</span></p>
-                                {type === 'custom' ? (
-                                    <p className="text-sm text-gray-600">
-                                        {lec.lectType} | 총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
-                                    </p>
-                                ) : (
-                                    <p className="text-sm text-gray-600">
-                                      {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="flex gap-3">
-                                {type === 'univ' && onToss && (
-                                    <button
-                                        onClick={() => onToss(lec._id)}
-                                        title="다중전공으로 이관"
-                                        className="text-knu-blue hover:text-opacity-80"
-                                    >
-                                        <ArrowRightSquare className="w-5 h-5" />
-                                    </button>
-                                )}
-                                {type === 'multiMajor' && onRemove && (
-                                    <button
-                                        onClick={() => onRemove(lec._id)}
-                                        title="수강 내역으로 복귀"
-                                        className="text-green-600 hover:text-green-800"
-                                    >
-                                        <ArrowLeftSquare className="w-5 h-5" />
-                                    </button>
-                                )}
-
-                                {/* (추가!) '기타 활동'일 때만 수정 버튼 표시 */}
-                                {type === 'custom' && onEdit && (
-                                    <button
-                                        onClick={() => onEdit(lec)} // (lec 객체 전체를 전달)
-                                        title="수정"
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
-                                        <Pencil className="w-5 h-5" />
-                                    </button>
-                                )}
-
-                                <button
-                                    onClick={() => onDelete(lec._id)}
-                                    title="삭제"
-                                    className="text-red-500 hover:text-red-700"
-                                >
-                                    <Trash2 className="w-5 h-5" />
-                                </button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            )}
-        </div>
-    </div>
-);
+    );
+};
 
 export default CoursesPage;

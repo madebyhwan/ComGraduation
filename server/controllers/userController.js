@@ -205,6 +205,71 @@ exports.checkIdDuplication = async (req, res) => {
     res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 }
+// [추가] 이름으로 아이디 찾기
+exports.findIdByName = async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    if (!name) {
+      return res.status(400).json({ message: '이름을 입력해주세요.' });
+    }
+
+    // DB에서 이름(username)으로 사용자 검색
+    const user = await User.findOne({ username: name });
+
+    if (!user) {
+      return res.status(404).json({ message: '해당 이름의 사용자가 없습니다.' });
+    }
+
+    // 찾은 경우 아이디(userId) 반환
+    // 프론트엔드에서 response.data.userId 로 받기로 했으므로 키 이름을 userId로 맞춤
+    res.status(200).json({
+      success: true,
+      userId: user.userId, 
+      message: '아이디 찾기 성공'
+    });
+
+  } catch (error) {
+    console.error('아이디 찾기 오류:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// [추가] 비밀번호 변경 함수
+exports.changePassword = async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    // 1. 현재 비밀번호 확인
+    const isMatch = await bcrypt.compare(currentPassword, user.userPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
+    }
+
+    // 2. 새 비밀번호 암호화 및 저장
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    
+    user.userPassword = hashedPassword;
+    await user.save();
+
+    res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+
+  } catch (error) {
+    console.error('비밀번호 변경 오류:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
 
 exports.addUnivLecture = async (req, res) => {
   const { lectureId } = req.body;

@@ -13,7 +13,9 @@ const {
   updateUserProfile,
   tossMultiMajorLectures,
   removeMultiMajorLectures,
-  updateCustomLecture
+  updateCustomLecture,
+  findIdByName,
+  changePassword
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -24,6 +26,9 @@ router.post('/register', registerUser);
 
 // 로그인
 router.post('/login', loginUser);
+
+// [추가] 아이디 찾기 라우트
+router.post('/find-id', findIdByName);
 
 // 유저 강의 삭제
 router.delete('/deleteLecture/:lectureId', authenticateToken, deleteLecture);
@@ -44,6 +49,9 @@ router.get('/getLecture', authenticateToken, getLecture);
 
 // 사용자 정보 조회 (내 정보 페이지 진입 시)
 router.get('/profile', authenticateToken, getUserProfile);
+
+// [추가] 비밀번호 변경 라우트
+router.post('/change-password', authenticateToken, changePassword);
 
 // 사용자 정보 수정 (내 정보 수정 후 저장 버튼 클릭 시)
 router.patch('/profile', authenticateToken, updateUserProfile);
