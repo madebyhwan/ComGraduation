@@ -27,7 +27,7 @@ const RequirementItem = ({ title, result }) => {
                 <span className="text-gray-500"> / {requiredScore}</span>
               </>
             ) : (
-              <span className="font-medium text-gray-500">{requiredScore}</span>
+              <br />
             )}
           </p>
           {note && (
@@ -74,24 +74,24 @@ const RequirementItem = ({ title, result }) => {
       )}
       <div>
         <h4 className="font-semibold">{title}</h4>
-        <p className="text-sm text-gray-600">          
+        <p className="text-sm text-gray-600">
           {result.current !== undefined && (
             <span className="font-medium">{result.current}</span>
-          )}          
+          )}
           {result.required !== undefined && (
             <span className="text-gray-500">
-              {' / '}              
+              {' / '}
               {Array.isArray(result.required)
                 ? result.required.join(', ') // 배열이면 쉼표로 연결
                 : result.required}
             </span>
           )}
-        </p>        
+        </p>
         {result.missing && result.missing.length > 0 && (
           <p className="text-xs text-red-500 mt-1">
             (미이수: {result.missing.join(', ')})
           </p>
-        )}        
+        )}
         {result.note && (
           <p className="text-xs text-gray-500 mt-1">{result.note}</p>
         )}
@@ -170,24 +170,24 @@ const Main = () => {
       {/* 3. 참고사항 섹션 (디자인 통일) */}
       {summary && summary.multiMajorCredits > 0 && (
         <>
-      <h2 className="text-xl font-semibold mt-8 mb-4">참고 사항</h2>
-     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* [수정] RequirementItem과 동일한 클래스(bg-white, shadow-sm 등) 적용 */}
-        <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
-          <Info className="h-5 w-5 text-blue-500 mt-0.5" />
-          <div>
-            <h4 className="font-semibold text-gray-800">다중전공 이수학점</h4>
-            <p className="text-sm text-gray-600">
-              <span className="font-medium text-gray-900">{summary?.multiMajorCredits || 0}</span>
-              <span className="text-gray-500"> 학점</span>
-            </p>
-            <p className="text-xs text-gray-500 mt-1">
-              * 문구추천~
-            </p>
+          <h2 className="text-xl font-semibold mt-8 mb-4">참고 사항</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {/* [수정] RequirementItem과 동일한 클래스(bg-white, shadow-sm 등) 적용 */}
+            <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
+              <Info className="h-5 w-5 text-blue-500 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-gray-800">다중전공 이수학점</h4>
+                <p className="text-sm text-gray-600">
+                  <span className="font-medium text-gray-900">{summary?.multiMajorCredits || 0}</span>
+                  <span className="text-gray-500"> 학점</span>
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  * 문구추천~
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      </>
+        </>
       )}
     </div>
   );

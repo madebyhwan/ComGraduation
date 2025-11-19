@@ -18,16 +18,21 @@ function classifyAndSumCredits(takenLectures, userCustomLectures, multiMajorLect
   const ourMajorCourseList = majorCourses[userDepartment] || [];
   const ventureCourseList = ventureCourses["ventures"];
 
+  // 소프트웨어사고기법
+  console.log("----- 과목리스트 -----");
   takenLectures.forEach(lecture => {
     const credits = Number(lecture.lectCredit) || 0;
     const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부")
 
     // 1. 주 학점 분류 (졸업 총 학점 계산용)
-    if (lecture.lectGeneral === '교양') {
+    if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
+      console.log("교양 ", lecture.lectCode, lecture.lectName)
       generalEducationCredits += credits;
     } else if (isMajor) {
+      console.log("전공 ", lecture.lectCode, lecture.lectName)
       majorCredits += credits;
     } else {
+      console.log("일선 ", lecture.lectCode, lecture.lectName)
       generalElectiveCredits += credits;
     }
 
@@ -164,7 +169,15 @@ function checkEnglishProficiency(user, rule) {
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
 async function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
-  const ruleKey = `${user.userDepartment}_${user.userTrack}_${user.userYear}`;
+  const track = user.userTrack || '';
+  let ruleKey;
+  if (track === '') {
+    // 트랙이 없으면 '학과_학번' 형식으로 키 생성
+    ruleKey = `${user.userDepartment}_${user.userYear}`;
+  } else {
+    // 트랙이 있으면 '학과_트랙_학번' 형식으로 키 생성
+    ruleKey = `${user.userDepartment}_${track}_${user.userYear}`;
+  }
   const requirements = allRules[ruleKey];
 
   if (!requirements) {
@@ -239,7 +252,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     const requiredOptions = capstoneRule.options.map(opt => opt.courseCode);
 
     // 학생이 이수한 과목 중, 요건 옵션에 해당하는 과목이 있는지 찾기
-    const passedCourse = requiredOptions.find(code => takenCourseCodes.has(code));
+    const passedCourse = requiredOptions.find(code => takenCourseCodes.includes(code));
     const isSatisfied = !!passedCourse; // true/false
 
     results.capstoneDesignRequirement = {

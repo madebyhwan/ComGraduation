@@ -19,7 +19,7 @@ const usersSchema = new mongoose.Schema({
   userYear: {
     type: String,
     required: true,
-    enum: ['21학번']
+    enum: ['20학번', '21학번', '22학번']
   },
   userDepartment: {
     type: String,

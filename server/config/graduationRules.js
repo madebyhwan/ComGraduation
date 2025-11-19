@@ -55,7 +55,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 700 },
         { "test": "TOEIC SPEAKING", "minScore": 120 },
@@ -135,7 +135,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 800 },
         { "test": "TOEIC SPEAKING", "minScore": 130 },
@@ -204,7 +204,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 700 },
         { "test": "TOEIC SPEAKING", "minScore": 120 },
@@ -441,7 +441,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 700 },
         { "test": "TOEIC SPEAKING", "minScore": 120 },
@@ -530,7 +530,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 700 },
         { "test": "TOEIC SPEAKING", "minScore": 120 },
@@ -610,7 +610,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 800 },
         { "test": "TOEIC SPEAKING", "minScore": 130 },
@@ -679,7 +679,7 @@ const rules = {
     },
 
     "englishProficiency": {
-      "note": "아래 공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
       "options": [
         { "test": "TOEIC", "minScore": 700 },
         { "test": "TOEIC SPEAKING", "minScore": 120 },
