@@ -210,7 +210,7 @@ const LectureList = ({ title, lectures, onDelete, onToss, onRemove, onEdit,onUni
 
                                         {type === 'custom' ? (
                                             <p className="text-sm text-gray-600 mt-1">
-                                                <span className="inline-block bg-gray-100 px-2 py-0.5 rounded text-xs mr-2">{lec.lectType}</span>
+                                                <span className="inline-block bg-green-100 px-2 py-0.5 rounded text-xs mr-2">{lec.lectType}</span>
                                                 총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
                                             </p>
                                         ) : (
