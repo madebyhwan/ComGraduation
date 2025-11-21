@@ -11,7 +11,7 @@
 [![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
 
-## 🎯 프로젝트 소개<img width="1408" height="768" alt="Gemini_Generated_Image_jcef2kjcef2kjcef" src="https://github.com/user-attachments/assets/c28aef3f-2471-4874-9d1d-f1b80f292637" />
+## 🎯 프로젝트 소개
 
 
 ### 배경 및 목적
