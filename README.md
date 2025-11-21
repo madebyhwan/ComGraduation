@@ -67,11 +67,11 @@
 ## 화면 구성
 | 로그인 페이지  |  회원가입 페이지   |
 | :-------------------------------------------: | :------------: |
-|  <img width="329" src="https://github.com/user-attachments/assets/b22f8552-13bf-49c4-9eea-632685e851ee"/> |  <img width="329" src="https://github.com/user-attachments/assets/4552c0d6-a11a-4afc-a84a-db14dd666a52"/> |  
+|  <img width="329" src="https://github.com/user-attachments/assets/b22f8552-13bf-49c4-9eea-632685e851ee"/> | <img width="329" src="https://github.com/user-attachments/assets/4552c0d6-a11a-4afc-a84a-db14dd666a52"/> |  
 | 내 정보 페이지   |   수강 과목 페이지   |  
-| <img width="329" src=""/>   |  <img width="329" src=""/>     |
+| <img width="329" src="https://github.com/user-attachments/assets/4901c382-68ef-40f9-b1c1-5a06546a63bf" /> | <img width="329" src="https://github.com/user-attachments/assets/001533ea-77fa-49f9-b0f1-2edfe8f2dc5b" /> |
 | 자가진단 페이지   |   커뮤니티 페이지   |  
-| <img width="329" src=""/>   |  <img width="329" src=""/>     |
+| <img width="329" src="https://github.com/user-attachments/assets/e00a06a0-d251-4b41-9fc8-f35fa0391b80" /> | <img width="329" src="https://github.com/user-attachments/assets/683e7e5a-bf28-4d13-9031-c126777d771d" /> |
 
 ---
 ## 주요 기능
