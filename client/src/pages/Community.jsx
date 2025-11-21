@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'react-toastify';
 import { getPosts, deletePost, addComment, deleteComment } from '../api/api.js';
 import { MessageCircle, Lock, User, Trash2, PenSquare, ArrowLeft, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostWriteModal from '../components/PostWriteModal';
@@ -75,7 +76,10 @@ const Community = () => {
       setCommentContent('');
       setPosts(prevPosts => prevPosts.map(p => p._id === updatedPost._id ? updatedPost : p));
     } catch (error) {
-      alert('댓글 등록 실패');
+      toast.error('댓글 등록 실패', {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
@@ -92,10 +96,16 @@ const Community = () => {
               // 뒤에 있는 목록 데이터도 업데이트 (댓글 개수 동기화 등)
               setPosts(prevPosts => prevPosts.map(p => p._id === updatedPost._id ? updatedPost : p));
               
-              alert('댓글이 삭제되었습니다.');
+              toast.success('댓글이 삭제되었습니다.', {
+                position: "top-right",
+                autoClose: 3000
+              });
           } catch (error) {
               console.error("댓글 삭제 실패:", error);
-              alert(error.response?.data?.message || '댓글 삭제에 실패했습니다.');
+              toast.error(error.response?.data?.message || '댓글 삭제에 실패했습니다.', {
+                position: "top-right",
+                autoClose: 3000
+              });
           }
       }
   };
@@ -109,7 +119,10 @@ const Community = () => {
     const authorId = post.author?._id || post.author;
     if (post.isPrivate) {
         if (!currentUserId || (authorId && currentUserId.toString() !== authorId.toString())) {
-             alert("🔒 비공개 게시글입니다.");
+             toast.warning("🔒 비공개 게시글입니다.", {
+               position: "top-right",
+               autoClose: 3000
+             });
              return;
         }
     }
@@ -121,12 +134,18 @@ const Community = () => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       try {
         await deletePost(postId);
-        alert('삭제되었습니다.');
+        toast.success('삭제되었습니다.', {
+          position: "top-right",
+          autoClose: 3000
+        });
         setSelectedPost(null);
         fetchPosts();
       } catch (error) {
         console.error('삭제 에러:', error);
-        alert('삭제 실패');
+        toast.error('삭제 실패', {
+          position: "top-right",
+          autoClose: 3000
+        });
       }
     }
   };
