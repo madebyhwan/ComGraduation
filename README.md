@@ -116,3 +116,15 @@
     │   └── graduationService.js # 졸업 요건 판정
     └── server.js
 ```
+=======
+├── server/               # Express 백엔드
+│   ├── config/          # 졸업 요건 규칙, DB 설정
+│   ├── controllers/     # 비즈니스 로직
+│   ├── middleware/      # JWT 인증
+│   ├── models/          # MongoDB 스키마
+│   ├── routes/          # API 라우트
+│   ├── services/        # 졸업 요건 계산
+│   └── server.js
+│
+└── README.md
+```
