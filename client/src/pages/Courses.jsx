@@ -59,10 +59,16 @@ const CoursesPage = () => {
         if (window.confirm("이 과목을 '커스텀 과목'으로 이동하시겠습니까?")) {
             try {
                 await univToCustom(lectureId);
-                alert("커스텀 과목으로 이동되었습니다.");
+                toast.success("커스텀 과목으로 이동되었습니다.", {
+                    position: "top-right",
+                    autoClose: 3000
+                });
                 fetchMyLectures(); // 목록 새로고침
             } catch (error) {
-                alert(error.response?.data?.message || "이동에 실패했습니다.");
+                toast.error(error.response?.data?.message || "이동에 실패했습니다.", {
+                    position: "top-right",
+                    autoClose: 3000
+                });
             }
         }
     };

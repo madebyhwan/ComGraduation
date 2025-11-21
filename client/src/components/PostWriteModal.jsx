@@ -20,12 +20,18 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
    try {
       // isPrivate 필드도 함께 전송
       await createPost({ title, content, type, isPrivate });
-      alert('게시글이 등록되었습니다.');
+      toast.success('게시글이 등록되었습니다.', {
+        position: "top-right",
+        autoClose: 3000
+      });
       onPostAdded(); // 목록 새로고침
       onClose();
     } catch (error) {
       console.error(error);
-      alert('게시글 등록 실패');
+      toast.error('게시글 등록 실패', {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
