@@ -4,7 +4,11 @@ const ventureCourses = require('../config/ventureCourses.json');
 const abeekCourses = require('../config/abeekCourses.json'); // ABEEK 분류 데이터
 const lectures = require('../models/lectures.js');
 
-// 글로벌SW융합전공
+/**
+ * [글로벌SW융합전공용] 학점 계산 함수
+ * - 기존 로직 유지 (majorCourses.json 사용)
+ * - 창업 교과목, 해외 대학 인정 학점 계산 포함
+ */
 function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorLectures, userDepartment) {
   let majorCredits = 0;             // 전공
   let generalEducationCredits = 0;  // 교양
@@ -78,7 +82,12 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
   };
 }
 
-// 심화컴퓨터공학전공
+/**
+ * [심화컴퓨터공학전공용] 학점 계산 함수 (ABEEK)
+ * - abeekCourses.json 사용
+ * - 기본소양, 전공기반, 공학전공, 설계학점 세부 계산
+ * - 창업, 해외대학 로직 제외
+ */
 function classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorLectures) {
   let majorCredits = 0;             // 전공
   let generalEducationCredits = 0;  // 교양
