@@ -10,7 +10,15 @@ const Community = () => {
   const [posts, setPosts] = useState([]);
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentUserLoginId, setCurrentUserLoginId] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // 관리자 체크 함수 (userId로 체크)
+  const isAdmin = () => {
+    if (!currentUserLoginId) return false;
+    const adminIds = process.env.REACT_APP_ADMIN_IDS?.split(',').map(id => id.trim()) || [];
+    return adminIds.includes(currentUserLoginId);
+  };
   
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentContent, setCommentContent] = useState('');
@@ -29,7 +37,9 @@ const Community = () => {
       if (decoded) {
         // 토큰 구조에 따라 id 필드 확인
         const id = decoded.id || decoded.userId || decoded._id;
+        const userLoginId = decoded.userId; // 로그인 아이디
         if (id) setCurrentUserId(id);
+        if (userLoginId) setCurrentUserLoginId(userLoginId);
       }
     }
   }, []);
@@ -118,7 +128,10 @@ const Community = () => {
   const handlePostClick = (post) => {
     const authorId = post.author?._id || post.author;
     if (post.isPrivate) {
-        if (!currentUserId || (authorId && currentUserId.toString() !== authorId.toString())) {
+        console.log(isAdmin());
+        // 작성자 본인이거나 관리자인 경우만 접근 가능
+        const isAuthor = currentUserId && authorId && currentUserId.toString() === authorId.toString();
+        if (!isAuthor && !isAdmin()) {
              toast.warning("🔒 비공개 게시글입니다.", {
                position: "top-right",
                autoClose: 3000
@@ -307,6 +320,13 @@ const Community = () => {
                 <ul className="divide-y divide-gray-100">
                   {currentPosts.map((post, index) => {
                     const globalIndex = filteredPosts.length - (indexOfFirstPost + index);
+                    const authorId = post.author?._id || post.author;
+                    const isAuthor = currentUserId && authorId && currentUserId.toString() === authorId.toString();
+                    const canViewPrivate = isAuthor || isAdmin();
+                    
+                    // 비공개 게시글이고 권한이 없는 경우 제목 숨김
+                    const displayTitle = (post.isPrivate && !canViewPrivate) ? '비공개 게시글' : post.title;
+                    
                     return (
                       <li 
                         key={post._id}
@@ -316,7 +336,7 @@ const Community = () => {
                         <div className="col-span-1 text-gray-400">{globalIndex}</div>
                         <div className="col-span-7 text-left pl-4 font-medium text-gray-800 truncate pr-2 flex items-center gap-2 group-hover:text-knu-blue transition-colors">
                           {post.isPrivate && <Lock size={14} className="text-gray-400" />}
-                          <span className="truncate">{post.title}</span>
+                          <span className="truncate">{displayTitle}</span>
                           {post.type !== 'notice' && post.comments?.length > 0 && (
                             <span className="text-xs text-knu-blue font-bold bg-blue-50 px-1.5 py-0.5 rounded-full">
                                 {post.comments.length}
