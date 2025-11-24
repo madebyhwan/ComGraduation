@@ -147,11 +147,6 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
                 onChange={(e) => setFieldPracticeCredit(e.target.value)}
               />
             </div>
-<<<<<<< HEAD
-            
-=======
-
->>>>>>> 7a9224fd6f5a2c060bbf502686f258b41b109dbc
             {/* [추가] 창업 학점 입력 필드 */}
             <div className="form-group">
               <label className="form-label" htmlFor="startupCourseCredit">창업 학점</label>
