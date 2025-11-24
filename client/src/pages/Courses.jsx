@@ -63,6 +63,27 @@ const CoursesPage = () => {
             handleApiCall(deleteLecture, lectureId, "삭제되었습니다.");
         }
     };
+<<<<<<< HEAD
+=======
+    // [추가] 수강 내역 -> 기타 활동 이동 핸들러
+    const handleUnivToCustom = async (lectureId) => {
+        if (window.confirm("이 과목을 '커스텀 과목'으로 이동하시겠습니까?")) {
+            try {
+                await univToCustom(lectureId);
+                toast.success("커스텀 과목으로 이동되었습니다.", {
+                    position: "top-right",
+                    autoClose: 3000
+                });
+                fetchMyLectures(); // 목록 새로고침
+            } catch (error) {
+                toast.error(error.response?.data?.message || "이동에 실패했습니다.", {
+                    position: "top-right",
+                    autoClose: 3000
+                });
+            }
+        }
+    };
+>>>>>>> b57eb9f4a7734e756a8708f393f8e4d983a27d73
     const handleToss = (lectureId) => {
         if (window.confirm("이 과목을 다중전공 학점으로 이관하시겠습니까?")) {
             handleApiCall(tossMultiMajor, lectureId, "다중전공 학점으로 이관되었습니다.");

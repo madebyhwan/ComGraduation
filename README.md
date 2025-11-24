@@ -1,19 +1,29 @@
 # 🎓 ComGraduation
 
-> **경북대학교 컴퓨터학부 학생을 위한 졸업 요건 자동 진단 시스템**
-> 
-> 경북대학교 I&T 융합 프로젝트로 진행한 졸업 요건 확인 웹사이트입니다.
-복잡한 트랙별 졸업 요건을 한눈에 확인하고, 부족한 학점을 쉽게 파악할 수 있는 웹 서비스
+<div align="center">
+<img width="329" src="https://github.com/user-attachments/assets/c28aef3f-2471-4874-9d1d-f1b80f292637">
 
-[![Tech Stack](https://img.shields.io/badge/Stack-MERN-green)](https://github.com/madebyhwan/ComGraduation)
-[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=flat&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
-[![Express.js](https://img.shields.io/badge/Express.js-404D59?style=flat)](https://expressjs.com/)
-[![React](https://img.shields.io/badge/React-20232A?style=flat&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-43853D?style=flat&logo=node.js&logoColor=white)](https://nodejs.org/)
+</div>
 
-## 🎯 프로젝트 소개
+# 컴퓨터학부 졸업 요건 관리 웹사이트
+> **경북대학교 컴퓨터학부 I&T 프로젝트** <br/> **개발기간: 2025.09 ~ 2025.11**
 
-### 배경 및 목적
+## 배포 주소
+
+> **개발 버전** : [https://comgraduation.dev/](https://comgraduation.dev/) <br>
+> **프론트 서버** : [~](~)<br>
+> **백엔드 서버** : [~](~)<br>
+
+## 개발 팀 소개
+
+|     김환     |     박찬진     |     송재표     |     장현호     |     홍준기     |
+| :-----------: | :-----------: | :-----------: | :-----------: | :-----------: |
+| [@madebyhwan](https://github.com/madebyhwan) | [@jin2214](https://github.com/jin2214) | [@WOVY](https://github.com/WOVY) | [@chozenka](https://github.com/chozenka) | [@jungi0531](https://github.com/jungi0531) |
+| 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 |
+| BE | FE | BE | FE | BE |
+
+
+## 프로젝트 소개
 
 경북대학교 컴퓨터학부는 각 학번/트랙마다 서로 다른 졸업 요건을 가지고 있습니다.
 
@@ -25,100 +35,84 @@
 **해결 방안:**  
 수강 과목을 입력하면 **자동으로 졸업 요건을 진단**하고, **부족한 항목을 명확히 안내**합니다
 
-<br/>
+## Stacks
 
-## ✨ 주요 기능
+### Environment
+![Visual Studio Code](https://img.shields.io/badge/Visual%20Studio%20Code-007ACC?style=for-the-badge&logo=Visual%20Studio%20Code&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=Git&logoColor=white)
+![Github](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=GitHub&logoColor=white)             
 
-### 1. 회원가입 및 로그인
-- JWT 기반 인증 시스템
-- 학번, 학과, 트랙 정보 등록
+### Config
+![npm](https://img.shields.io/badge/npm-CB3837?style=for-the-badge&logo=npm&logoColor=white)        
 
-### 2. 수강 과목 관리
-- 강의계획서 검색 (과목명, 과목코드, 교수명)
-- 과목 추가/삭제
-- 커스텀 과목 직접 입력
+### Frontend
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=Javascript&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
+
+### Backend
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Mongoose](https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=JSON%20web%20tokens&logoColor=white)
+
+### Communication
+![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)
+![Notion](https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=Notion&logoColor=white)
+
+---
+## 화면 구성
+| 로그인 페이지  |  회원가입 페이지   |
+| :-------------------------------------------: | :------------: |
+|  <img width="329" src="https://github.com/user-attachments/assets/b22f8552-13bf-49c4-9eea-632685e851ee"/> | <img width="329" src="https://github.com/user-attachments/assets/4552c0d6-a11a-4afc-a84a-db14dd666a52"/> |  
+| 내 정보 페이지   |   수강 과목 페이지   |  
+| <img width="329" src="https://github.com/user-attachments/assets/4901c382-68ef-40f9-b1c1-5a06546a63bf" /> | <img width="329" src="https://github.com/user-attachments/assets/001533ea-77fa-49f9-b0f1-2edfe8f2dc5b" /> |
+| 자가진단 페이지   |   커뮤니티 페이지   |  
+| <img width="329" src="https://github.com/user-attachments/assets/e00a06a0-d251-4b41-9fc8-f35fa0391b80" /> | <img width="329" src="https://github.com/user-attachments/assets/683e7e5a-bf28-4d13-9031-c126777d771d" /> |
+
+---
+## 주요 기능
+
+### ⭐️ 수강 과목 관리
+- 강의계획서 검색 및 과목 추가/삭제
+- 커스텀 과목 직접 입력 (학점, 이수구분 설정)
 - 다중전공 과목 구분 관리
 
-### 3. 졸업 요건 자동 진단
+### ⭐️ 졸업 요건 자동 진단
+- 트랙별 학점 요건 체크 (총 학점, 전공, 교양)
+- 전공 필수 과목 이수 여부 확인
+- 영어 성적, 상담 횟수, TOPCIT 등 기타 요건 진단
 
-**공통 요건(21학번 기준):**
-- 총 이수 학점 (130학점)
-- 전공 학점 (51학점)
-- 교양 학점 (24~42학점)
-- 전공 필수 과목 이수
-- 영어 성적 (TOEIC, TOEFL, TEPS, OPIC 등)
-- 지도교수 상담 (8회 이상)
-- TOPCIT 또는 졸업 인터뷰
+### ⭐️ 커뮤니티
+- 공지사항 & Q&A 게시판
+- 댓글 작성 및 비공개 게시글 기능
 
-**다중전공 트랙 추가 요건:**
-- 다중전공 54학점 또는 부전공 21학점
-- 창업 과목 9학점 (창업 미이수 시 15학점)
-- 해외 학점 9학점
-- 현장실습 3학점
-
-### 4. 내 정보 관리
-- 개인정보 조회 및 수정
-- 영어 성적, 상담 횟수, 창업 여부 등 업데이트
-
-### 5. 학점 통계
-- 전공/교양/일반선택 학점 요약
-- 학기별 수강 내역
-- 졸업 요건별 충족 현황 (✅/❌)
-
-<br/>
-
-## 🛠️ 기술 스택
-
-**Frontend:** React, React Router, Axios  
-**Backend:** Node.js, Express, JWT  
-**Database:** MongoDB, Mongoose  
-**인증:** JWT 토큰, bcrypt 암호화
-
-<br/>
-
-## 📖 사용 방법
-
-1. **회원가입**: 학번, 학과, 트랙 정보 입력
-2. **로그인**: 아이디/비밀번호 입력
-3. **수강 과목 추가**: 
-   - "나의 수강 및 활동 내역" 탭 → 강의 검색 → 과목 추가
-   - 커스텀 과목은 직접 입력 가능
-4. **다중전공 설정** (다중전공 트랙): 
-   - 다중전공 과목 선택 → "다중전공으로 이동" 클릭
-5. **내 정보 업데이트**: 
-   - "내 정보" 탭 → 영어 성적, 상담 횟수 등 입력
-6. **졸업 요건 확인**: 
-   - "졸업 자가 진단" 탭 → 자동 계산된 충족 현황 확인
-
-<br/>
-
-## 📂 프로젝트 구조
-
-```
-ComGraduation/
-├── client/                # React 프론트엔드
+---
+## 디렉토리 구조
+```bash
+├── README.md
+├── client/                     # 프론트엔드 (React)
 │   ├── src/
-│   │   ├── api/          # API 통신
-│   │   ├── components/   # 재사용 컴포넌트
-│   │   ├── pages/        # 페이지 (Login, Signup, Main)
-│   │   └── img/          # 이미지
+│   │   ├── api/                # API 통신
+│   │   ├── components/         # 재사용 컴포넌트
+│   │   └── pages/              # 페이지
+│   │       ├── Main.jsx        # 졸업 요건 진단
+│   │       ├── Courses.jsx     # 수강 관리
+│   │       ├── Community.jsx   # 커뮤니티
+│   │       └── Profile.jsx     # 내 정보
 │   └── package.json
 │
-├── server/               # Express 백엔드
-│   ├── config/          # 졸업 요건 규칙, DB 설정
-│   ├── controllers/     # 비즈니스 로직
-│   ├── middleware/      # JWT 인증
-│   ├── models/          # MongoDB 스키마
-│   ├── routes/          # API 라우트
-│   ├── services/        # 졸업 요건 계산
-│   └── server.js
-│
-└── README.md
+└── server/                     # 백엔드 (Express + MongoDB)
+    ├── config/                 # 설정 파일
+    │   ├── graduationRules.js  # 졸업 요건 규칙
+    │   └── dbConnect.js        # MongoDB 연결
+    ├── controllers/            # 컨트롤러
+    ├── models/                 # Mongoose 모델
+    ├── routes/                 # API 라우트
+    ├── services/
+    │   └── graduationService.js # 졸업 요건 판정
+    └── server.js
 ```
-
-<br/>
-
-##  개발
-
-**경북대학교 컴퓨터학부**  
-I&T 융합 프로젝트
