@@ -25,6 +25,12 @@ const Signup = () => {
       setIdCheckMsg('아이디를 입력하세요.');
       return;
     }
+    // 아이디 길이 클라이언트 측 사전 검사 (선택 사항)
+    if (studentId.length < 8) {
+      setIdCheckMsg('아이디는 8자리 이상이어야 합니다.');
+      return;
+    }
+
     try {
       const data = await checkIdDuplication(studentId);
       if (data.isAvailable) {
@@ -76,7 +82,13 @@ const Signup = () => {
         setError(response.message || '회원가입에 실패했습니다.');
       }
     } catch (err) {
-      setError(err.response?.data?.message || '회원가입 중 오류가 발생했습니다.');
+      const data = err.response?.data;
+      if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+        // express-validator가 보낸 첫 번째 에러 메시지를 표시
+        setError(data.errors[0].msg);
+      } else {
+        setError(data?.message || '회원가입 중 오류가 발생했습니다.');
+      }
     }
   };
 
@@ -111,10 +123,11 @@ const Signup = () => {
                 value={studentId}
                 onChange={(e) => {
                   setStudentId(e.target.value);
-                  setIsIdChecked(false); // ID 변경 시 중복 확인 리셋
+                  setIsIdChecked(false)
                   setIdCheckMsg('');
                 }}
                 required
+                placeholder="8자리 이상 입력"
               />
               <button
                 type="button"
@@ -139,7 +152,12 @@ const Signup = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              placeholder="영문 대소문자, 숫자, 특수문자 포함 8자 이상"
             />
+            {/* [추가] 비밀번호 규칙 안내 문구 */}
+            <p className="mt-1 text-xs text-gray-500">
+              * 8자 이상, 대문자/소문자/숫자/특수문자(!@#$%^&*) 포함
+            </p>
           </div>
           <div className="form-group">
             <label className="form-label" htmlFor="confirmPassword">비밀번호 확인</label>
@@ -186,7 +204,7 @@ const Signup = () => {
                     } else {
                       setUserDepartment(dep);
                       if (dep !== '심화컴퓨터공학전공') setUserTrack('');
-                      else if (!userTrack) setUserTrack('다중전공');
+                      else if (!userTrack) setUserTrack('다중전공'); // 심컴 기본 트랙? (확인 필요)
                     }
                   }}
                   className={`w-full py-2 rounded-md border text-sm text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${userDepartment === dep ? 'bg-knu-blue text-white border-knu-blue' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
@@ -214,7 +232,8 @@ const Signup = () => {
           )}
 
           {error && (
-            <p className="text-center text-sm text-red-600">
+            <p className="text-center text-sm text-red-600 mb-4 whitespace-pre-wrap">
+              {/* 에러 메시지 줄바꿈 허용 */}
               {error}
             </p>
           )}
