@@ -42,6 +42,7 @@ router.post('/addUnivLect', authenticateToken, addUnivLecture);
 
 // 졸업요건 확인 경로 추가
 router.get('/graduation', authenticateToken, checkGraduation);
+
 // 사용자 정의 강의 추가
 router.post('/addCustomLect', authenticateToken, addCustomLecture);
 
