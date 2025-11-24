@@ -55,14 +55,16 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       generalElectiveCredits += credit;
     }
 
-    if (ventureCourseList.includes(lecture.lectCode)) {
-      startupCourseCredits += credits;
+    const startupCourseCredit = Number(lecture.startupCourseCredit) || 0;
+    if (lecture.startupCourseCredit > 0) {
+      startupCourseCredits += startupCourseCredit;
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
     }
+
     const overseasCredit = Number(lecture.overseasCredit) || 0;
     if (lecture.overseasCredit > 0) {
       overseasCredits += overseasCredit;
