@@ -204,7 +204,7 @@ const Signup = () => {
                     } else {
                       setUserDepartment(dep);
                       if (dep !== '심화컴퓨터공학전공') setUserTrack('');
-                      else if (!userTrack) setUserTrack('다중전공'); // 심컴 기본 트랙? (확인 필요)
+                      else if (!userTrack) setUserTrack('심컴'); // 심컴 기본 트랙? (확인 필요)
                     }
                   }}
                   className={`w-full py-2 rounded-md border text-sm text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${userDepartment === dep ? 'bg-knu-blue text-white border-knu-blue' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>

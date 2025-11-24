@@ -3,9 +3,9 @@ import { toast } from 'react-toastify';
 import { searchLectures, addUnivLecture } from '../api/api.js';
 import { PlusCircle } from 'lucide-react';
 
-const LecSearch = ({ onLectureAdded }) => { 
+const LecSearch = ({ onLectureAdded }) => {
   const [keyword, setKeyword] = useState('');
-  const [year, setYear] = useState(''); 
+  const [year, setYear] = useState('');
   const [semester, setSemester] = useState('');
 
   const [results, setResults] = useState([]);
@@ -23,11 +23,11 @@ const LecSearch = ({ onLectureAdded }) => {
     try {
       const data = await searchLectures({
         keyword,
-        year: year || undefined, 
+        year: year || undefined,
         semester: semester || undefined
       });
 
-      if (data.message) { 
+      if (data.message) {
         setMessage(data.message);
       } else if (data.length > 0) {
         setResults(data);
@@ -54,7 +54,7 @@ const LecSearch = ({ onLectureAdded }) => {
         position: "top-right",
         autoClose: 3000
       });
-      if (onLectureAdded) onLectureAdded(); 
+      if (onLectureAdded) onLectureAdded();
     } catch (error) {
       toast.error(error.response?.data?.message || '강의 추가에 실패했습니다.', {
         position: "top-right",
@@ -69,7 +69,7 @@ const LecSearch = ({ onLectureAdded }) => {
   return (
     <div className="p-6 bg-white rounded-lg border shadow-sm">
       <h3 className="text-xl font-semibold mb-4">강의계획서 검색</h3>
-      
+
       {/* [수정] Flex 레이아웃 사용: 연도/학기는 좁게(w-32), 입력창은 넓게(flex-1) */}
       <div className="flex flex-col md:flex-row gap-2 mb-3">
         <select
@@ -106,7 +106,7 @@ const LecSearch = ({ onLectureAdded }) => {
           className={`${inputBaseClass} flex-1`} // 남은 공간 꽉 채움
         />
       </div>
-      
+
       {/* 검색 버튼 (높이 h-12로 통일) */}
       <button
         onClick={handleSearch}
@@ -125,18 +125,20 @@ const LecSearch = ({ onLectureAdded }) => {
               <div>
                 {/* [수정 포인트] 강의명 옆에 뱃지 추가 */}
                 <div className="flex items-center gap-2 mb-1">
-                    <span className="font-semibold text-gray-800">{lec.lectName}</span>
-                    <span className="text-gray-400 text-sm font-normal">({lec.lectCode})</span>
-                    
-                    {/* 교양구분 */}
-                    {lec.lectGeneral && (
-                        <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">
-                            {lec.lectGeneral}
-                        </span>
-                    )}
-                    
-                    {/* 학과 */}
-                    {/* {lec.lectDepartment && (
+                  <span className="font-semibold text-gray-800">{lec.lectName}</span>
+                  <span className="text-gray-400 text-sm font-normal">
+                    ({lec.lectCode}){lec.lectDiv ? `(${lec.lectDiv})` : ''}
+                  </span>
+
+                  {/* 교양구분 */}
+                  {lec.lectGeneral && (
+                    <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">
+                      {lec.lectGeneral}
+                    </span>
+                  )}
+
+                  {/* 학과 */}
+                  {/* {lec.lectDepartment && (
                         <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
                             {lec.lectDepartment}
                         </span>
