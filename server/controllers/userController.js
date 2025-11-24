@@ -18,11 +18,11 @@ async function lectureList(userId) {
       })
       .populate({
         path: 'userLectures',
-        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime lectGeneral'
       })
       .populate({
         path: 'multiMajorLectures',
-        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime'
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime lectGeneral'
       });
 
     const custom = (user.userCustomLectures || []).map(cl => ({
@@ -42,8 +42,10 @@ async function lectureList(userId) {
       lectCredit: l?.lectCredit ?? null,
       lectYear: l?.lectYear ?? null,
       lectSemester: l?.lectSemester ?? null,
+      //lectDepartment: l?.lectDepartment ?? null, //강의학과 추가
+      lectGeneral: l?.lectGeneral ?? null, //교양구분 추가
       lectProfessor: l?.lectProfessor ?? null,
-      lectTime: l?.lectTime ?? null   //강의시간 추가
+      lectTime: l?.lectTime ?? null,   //강의시간 추가
     })).sort((a, b) => {
       // 1순위: lectYear (오름차순)
       if (a.lectYear !== b.lectYear) {
@@ -76,8 +78,12 @@ async function lectureList(userId) {
       lectCredit: l?.lectCredit ?? null,
       lectYear: l?.lectYear ?? null,
       lectSemester: l?.lectSemester ?? null,
+      //lectDepartment: l?.lectDepartment ?? null, //강의학과 추가
+      lectGeneral: l?.lectGeneral ?? null, //교양구분 추가
       lectProfessor: l?.lectProfessor ?? null,
-      lectTime: l?.lectTime ?? null   //강의시간 추가
+      lectTime: l?.lectTime ?? null,   //강의시간 추가
+      lectDepartment: l?.lectDepartment ?? null, //강의학과 추가
+      lectGeneral: l?.lectGeneral ?? null //교양구분 추가
     })).sort((a, b) => {
       // 1순위: lectYear (오름차순)
       if (a.lectYear !== b.lectYear) {
@@ -797,6 +803,57 @@ exports.updateCustomLecture = async (req, res) => {
     res.status(200).json({
       message: '활동이 성공적으로 수정되었습니다.',
       lectInfo: lecture.toJSON() // 수정된 내용을 다시 보냄
+    });
+
+  } catch (error) {
+    console.error('활동 수정 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// [추가] univ lecture -> custom lecture
+exports.univToCustomLecture = async (req, res) => {
+  const { lectureId } = req.body;
+  const userId = req.user.id;
+
+  try {
+    // 1. 넘길 강의를 찾습니다
+    const user = await User.findById(userId);
+    const lecture = await Lecture.findById(lectureId);
+
+    if (!user) {
+      return res.status(404).json({ message: '해당 사용자를 찾을 수 없습니다.' });
+    }
+    if (!lecture) {
+      return res.status(404).json({ message: '해당 강의를 찾을 수 없습니다.' });
+    }
+
+    // 2. 본인이 추가한 강의가 맞는지 확인합니다 (중요)
+    const lectureObjectId = new mongoose.Types.ObjectId(lectureId);
+    const hasLecture = user.userLectures.some(id => id.equals(lectureObjectId));
+    if (!hasLecture) {
+      return res.status(403).json({ message: '이 강의를 수정할 권한이 없습니다.' });
+    }
+
+    // 3. CustomLecture 인스턴스 생성
+    const customLectureInstance = new CustomLecture({
+      userObjectId: user._id,
+      lectName: lecture.lectName,
+      lectType: '일반선택', // 기본값
+      overseasCredit: 0,
+      fieldPracticeCredit: 0,
+      totalCredit: lecture.lectCredit
+    });
+    await customLectureInstance.save();
+
+    // 4. 유저의 userLectures에서 제거하고 userCustomLectures에 추가
+    user.userLectures = user.userLectures.filter(id => !id.equals(lectureObjectId));
+    user.userCustomLectures.push(customLectureInstance._id);
+    await user.save();
+    
+    res.status(200).json({
+      message: '활동이 성공적으로 수정되었습니다.',
+      lectInfo: customLectureInstance.toJSON() // 수정된 내용을 다시 보냄
     });
 
   } catch (error) {

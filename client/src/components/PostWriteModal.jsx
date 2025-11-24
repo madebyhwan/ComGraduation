@@ -1,22 +1,37 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { createPost } from '../api/api.js';
+import { Lock } from 'lucide-react';
 
 const PostWriteModal = ({ onClose, onPostAdded }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [type, setType] = useState('notice'); // 기본값 공지사항
+  // [추가] 비밀글 상태
+  const [isPrivate, setIsPrivate] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !content) return alert('제목과 내용을 입력해주세요.');
+    if (!title || !content) return toast.warning('제목과 내용을 입력해주세요.', {
+      position: "top-right",
+      autoClose: 3000
+    });
 
-    try {
-      await createPost({ title, content, type });
-      alert('게시글이 등록되었습니다.');
+   try {
+      // isPrivate 필드도 함께 전송
+      await createPost({ title, content, type, isPrivate });
+      toast.success('게시글이 등록되었습니다.', {
+        position: "top-right",
+        autoClose: 3000
+      });
       onPostAdded(); // 목록 새로고침
       onClose();
     } catch (error) {
-      alert('게시글 등록 실패');
+      console.error(error);
+      toast.error('게시글 등록 실패', {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
@@ -69,6 +84,23 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
               required
             />
           </div>
+
+          {/* [수정] 비밀글 체크박스 (Q&A일 때만 표시) */}
+          {type === 'qna' && (
+            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-md border border-gray-100">
+              <input
+                id="isPrivate"
+                type="checkbox"
+                checked={isPrivate}
+                onChange={(e) => setIsPrivate(e.target.checked)}
+                className="w-4 h-4 text-knu-blue rounded border-gray-300 focus:ring-knu-blue"
+              />
+              <label htmlFor="isPrivate" className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer select-none">
+                <Lock size={14} />
+                비공개 글 (작성자와 관리자만 볼 수 있습니다)
+              </label>
+            </div>
+          )}
 
           <div className="flex justify-end gap-2 mt-6">
             <button

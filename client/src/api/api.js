@@ -167,6 +167,7 @@ export const addCustomLecture = async (lectureData) => {
     throw error;
   }
 };
+export const univToCustom = (lectureId) => apiClient.patch('/api/users/univToCustom', { lectureId });
 
 export const updateCustomLecture = async (lectureId, lectureData) => {
   try {
@@ -261,3 +262,7 @@ export const deletePost = async (postId) => {
   }
 };
 
+// [추가] 댓글 작성 API
+export const addComment = (postId, data) => apiClient.post(`/api/posts/${postId}/comments`, data).then(res => res.data);
+export const deleteComment = (postId, commentId) => 
+    apiClient.delete(`/api/posts/${postId}/comments/${commentId}`).then(res => res.data);

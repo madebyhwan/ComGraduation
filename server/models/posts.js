@@ -21,6 +21,16 @@ const postsSchema = new mongoose.Schema({
     default: 'qna',
     required: true
   },
+  // [추가] 비밀글 여부 (기본값 false)
+  isPrivate: { type: Boolean, default: false },
+  
+  // [추가] 댓글(답변) 목록
+  comments: [{
+    content: { type: String, required: true },
+    author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  
   views: {
     type: Number,
     default: 0

@@ -21,8 +21,10 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     const credits = Number(lecture.lectCredit) || 0;
     const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
 
-    // 1. 주 학점 분류
-    if (isMajor) {
+    // 1. 주 학점 분류 (졸업 총 학점 계산용)
+    if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
+      generalEducationCredits += credits;
+    } else if (isMajor) {
       majorCredits += credits;
     } else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
       generalEducationCredits += credits;
@@ -277,7 +279,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   results.generalEducationCredits = {
     pass: generalEducationCredits >= geRule.min,
     current: generalEducationCredits,
-    required: `${geRule.min} ~ ${geRule.max}`,
+    required: `${geRule.min}이상 ${geRule.max}이하`,
   };
 
   // 총 학점
