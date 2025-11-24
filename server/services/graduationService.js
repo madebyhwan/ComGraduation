@@ -6,8 +6,6 @@ const lectures = require('../models/lectures.js');
 
 /**
  * [글로벌SW융합전공용] 학점 계산 함수
- * - 기존 로직 유지 (majorCourses.json 사용)
- * - 창업 교과목, 해외 대학 인정 학점 계산 포함
  */
 function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorLectures, userDepartment) {
   let majorCredits = 0;             // 전공
@@ -26,7 +24,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
 
     // 1. 주 학점 분류 (졸업 총 학점 계산용)
-     if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
+    if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
       generalEducationCredits += credits;
     } else if (isMajor) {
       majorCredits += credits;
@@ -82,9 +80,6 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
 
 /**
  * [심화컴퓨터공학전공용] 학점 계산 함수 (ABEEK)
- * - abeekCourses.json 사용
- * - 기본소양, 전공기반, 공학전공, 설계학점 세부 계산
- * - 창업, 해외대학 로직 제외
  */
 function classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorLectures) {
   // 공통 학점
