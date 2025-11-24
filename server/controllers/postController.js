@@ -27,15 +27,12 @@ exports.createPost = async (req, res) => {
     
     // 공지사항은 관리자만 작성 가능 (userId로 체크)
     if (type === 'notice') {
-      console.log("asdasd");
       const user = await User.findById(req.user.id);
       const adminIds = (process.env.REACT_APP_ADMIN_IDS || '').split(',').map(id => id.trim());
-      console.log("asdasd");
       if (!user || !adminIds.includes(user.userId)) {
         return res.status(403).json({ message: '공지사항은 관리자만 작성할 수 있습니다.' });
       }
     }
-    console.log("asdasd");
     
     const newPost = await Post.create({
       title,
