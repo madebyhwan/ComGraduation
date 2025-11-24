@@ -5,6 +5,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const graduationService = require('../services/graduationService');
+const { body, validationResult } = require('express-validator');
 
 // 유저의 강의 목록을 통합된 형태로 반환하는 함수
 // exports.getLecture의 사실상 본체
@@ -152,40 +153,71 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-exports.registerUser = async (req, res) => {
-  const { userId, userYear, userPassword, username, userDepartment, userTrack } = req.body;
+exports.registerUser = [
+  // 검사 규칙
+  body('userId')
+    .isLength({ min: 8 })
+    .withMessage('아이디는 최소 8자리 이상이어야 합니다.'),
 
-  try {
-    if (!userId || !userYear || !userPassword || !username || !userDepartment || !userTrack) {
-      return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+  body('userPassword')
+    .isLength({ min: 8 })
+    .withMessage('비밀번호는 최소 8자리 이상이어야 합니다.')
+    .matches(/^(?=.*[a-z])/)
+    .withMessage('비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.')
+    .matches(/^(?=.*[A-Z])/)
+    .withMessage('비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.')
+    .matches(/^(?=.*\d)/)
+    .withMessage('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.')
+    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>])/)
+    .withMessage('비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.'),
+
+  // 에러 처리
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: '입력 값이 유효하지 않습니다.',
+        errors: errors.array()
+      });
     }
+    next();
+  },
 
-    // ID 중복검사
-    const userExist = await User.findOne({ userId });
-    if (userExist) {
-      return res.status(400).json({ message: "이미 존재하는 ID입니다." });
+  // 3. 실제 회원가입 로직 (Controller Logic)
+  async (req, res) => {
+    const { userId, userYear, userPassword, username, userDepartment, userTrack } = req.body;
+
+    try {
+      if (!userId || !userYear || !userPassword || !username || !userDepartment || !userTrack) {
+        return res.status(400).json({ message: '필수 입력 항목을 입력해주세요.' });
+      }
+
+      // ID 중복검사
+      const userExist = await User.findOne({ userId });
+      if (userExist) {
+        return res.status(400).json({ message: "이미 존재하는 ID입니다." });
+      }
+
+      // USER_PASSWORD 암호화
+      const hashedPassword = await bcrypt.hash(userPassword, 10);
+
+      // 새로운 USER 객체 만들고 DB에 저장
+      const newUser = await User.create({
+        userId,
+        userYear,
+        userPassword: hashedPassword,
+        username,
+        userDepartment,
+        userTrack
+      });
+
+      res.status(201).json({ message: '회원가입이 완료되었습니다.', user: newUser });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: '회원가입에 실패했습니다.' });
     }
-
-    // USER_PASSWORD 암호화
-    const hashedPassword = await bcrypt.hash(userPassword, 10);
-
-    // 새로운 USER 객체 만들고 DB에 저장
-    const newUser = await User.create({
-      userId,
-      userYear,
-      userPassword: hashedPassword,
-      username,
-      userDepartment,
-      userTrack
-    });
-
-    // 상태메시지
-    res.status(201).json({ message: '회원가입이 완료되었습니다.', user: newUser });
-  } catch (error) {
-    // console.log(error);
-    res.status(500).json({ error: '회원가입에 실패했습니다.' });
   }
-};
+];
 
 exports.checkIdDuplication = async (req, res) => {
   const { userId } = req.query;
@@ -225,7 +257,7 @@ exports.findIdByName = async (req, res) => {
     // 프론트엔드에서 response.data.userId 로 받기로 했으므로 키 이름을 userId로 맞춤
     res.status(200).json({
       success: true,
-      userId: user.userId, 
+      userId: user.userId,
       message: '아이디 찾기 성공'
     });
 
@@ -259,7 +291,7 @@ exports.changePassword = async (req, res) => {
     // 2. 새 비밀번호 암호화 및 저장
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
-    
+
     user.userPassword = hashedPassword;
     await user.save();
 
@@ -734,8 +766,8 @@ exports.updateCustomLecture = async (req, res) => {
     return res.status(400).json({ message: '활동명과 교과 구분은 필수 입력 항목입니다.' });
   }
   if (overseasCredit === undefined || overseasCredit === null ||
-      fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
-      totalCredit === undefined || totalCredit === null) {
+    fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+    totalCredit === undefined || totalCredit === null) {
     return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
   }
 
@@ -761,7 +793,7 @@ exports.updateCustomLecture = async (req, res) => {
 
     // 4. 변경 사항을 저장합니다.
     await lecture.save();
-    
+
     res.status(200).json({
       message: '활동이 성공적으로 수정되었습니다.',
       lectInfo: lecture.toJSON() // 수정된 내용을 다시 보냄
