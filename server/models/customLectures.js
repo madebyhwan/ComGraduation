@@ -26,6 +26,11 @@ const customLecuteresSchema = new mongoose.Schema({
     min: 0,
     required: true
   },
+  startupCourseCredit: {  // 창업교과목학점
+    type: Number,
+    min: 0,
+    required: true
+  },
   totalCredit: {  // 총 이수학점에 포함되는 학점
     type: Number,
     min: 0,

@@ -19,7 +19,7 @@ async function lectureList(userId) {
     const user = await User.findById(userId)
       .populate({
         path: 'userCustomLectures',
-        select: 'lectName lectType overseasCredit fieldPracticeCredit totalCredit'
+        select: 'lectName lectType overseasCredit fieldPracticeCredit startupCourseCredit totalCredit'
       })
       .populate({
         path: 'userLectures',
@@ -64,6 +64,7 @@ async function lectureList(userId) {
       lectType: cl?.lectType ?? null,
       overseasCredit: cl?.overseasCredit ?? 0,
       fieldPracticeCredit: cl?.fieldPracticeCredit ?? 0,
+      startupCourseCredit: cl?.startupCourseCredit ?? 0,
       totalCredit: cl?.totalCredit ?? 0,
     }));
 
@@ -462,7 +463,7 @@ exports.checkGraduation = async (req, res) => {
 };
 
 exports.addCustomLecture = async (req, res) => {
-  const { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit } = req.body;
+  const { lectName, lectType, overseasCredit, fieldPracticeCredit, startupCourseCredit, totalCredit } = req.body;
   const userId = req.user.id;
 
   // 0을 허용하도록 유효성 검사 수정
@@ -471,6 +472,7 @@ exports.addCustomLecture = async (req, res) => {
   }
   if (overseasCredit === undefined || overseasCredit === null ||
     fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+    startupCourseCredit === undefined || startupCourseCredit === null ||
     totalCredit === undefined || totalCredit === null) {
     return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
   }
@@ -487,6 +489,7 @@ exports.addCustomLecture = async (req, res) => {
       lectType,
       overseasCredit,
       fieldPracticeCredit,
+      startupCourseCredit,
       totalCredit
     });
     user.userCustomLectures.push(newCustomLecture._id);
@@ -799,15 +802,16 @@ exports.removeMultiMajorLectures = async (req, res) => {
 exports.updateCustomLecture = async (req, res) => {
   const { lectureId } = req.params; // URL에서 수정할 항목의 ID를 가져옴
   const userId = req.user.id;
-  const { lectName, lectType, overseasCredit, fieldPracticeCredit, totalCredit } = req.body;
+  const { lectName, lectType, overseasCredit, fieldPracticeCredit, startupCourseCredit, totalCredit } = req.body;
 
   // 0을 허용하도록 유효성 검사
   if (!lectName || !lectType) {
     return res.status(400).json({ message: '활동명과 교과 구분은 필수 입력 항목입니다.' });
   }
   if (overseasCredit === undefined || overseasCredit === null ||
-    fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
-    totalCredit === undefined || totalCredit === null) {
+      fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+      startupCourseCredit === undefined || startupCourseCredit === null ||
+      totalCredit === undefined || totalCredit === null) {
     return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
   }
 
@@ -829,6 +833,7 @@ exports.updateCustomLecture = async (req, res) => {
     lecture.lectType = lectType;
     lecture.overseasCredit = Number(overseasCredit);
     lecture.fieldPracticeCredit = Number(fieldPracticeCredit);
+    lecture.startupCourseCredit = Number(startupCourseCredit);
     lecture.totalCredit = Number(totalCredit);
 
     // 4. 변경 사항을 저장합니다.
@@ -876,6 +881,7 @@ exports.univToCustomLecture = async (req, res) => {
       lectType: '일반선택', // 기본값
       overseasCredit: 0,
       fieldPracticeCredit: 0,
+      startupCourseCredit: 0,
       totalCredit: lecture.lectCredit
     });
     await customLectureInstance.save();
