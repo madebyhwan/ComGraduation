@@ -75,10 +75,10 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
         <h2 className="text-2xl font-bold mb-4">
-          {isEditMode ? '기타 활동 수정' : '기타 활동 추가'}
+          {isEditMode ? '커스텀 과목 & 교과목 외 활동 수정' : '교과목 외 활동 추가'}
         </h2>
         <p className="text-sm text-gray-600 mb-4">
-          해외대학, 현장실습 등 강의계획서에 없는 활동을 관리합니다.
+          기존에 수강한 과목의 교과구분을 수정하거나 <br></br>강의계획서에 없는 교과목 외 활동(해외대학, 현장실습 등)을 관리합니다.
         </p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
