@@ -19,7 +19,7 @@
 |     김환     |     박찬진     |     송재표     |     장현호     |     홍준기     |
 | :-----------: | :-----------: | :-----------: | :-----------: | :-----------: |
 | [@madebyhwan](https://github.com/madebyhwan) | [@jin2214](https://github.com/jin2214) | [@WOVY](https://github.com/WOVY) | [@chozenka](https://github.com/chozenka) | [@jungi0531](https://github.com/jungi0531) |
-| 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 | 경북대학교 컴퓨터학부 3학년 |
+| 경북대학교<br>컴퓨터학부 3학년 | 경북대학교<br>컴퓨터학부 3학년 | 경북대학교<br>컴퓨터학부 3학년 | 경북대학교<br>컴퓨터학부 3학년 | 경북대학교<br>컴퓨터학부 3학년 |
 | BE | FE | BE | FE | BE |
 
 
