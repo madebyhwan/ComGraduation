@@ -7,10 +7,12 @@ exports.getPosts = async (req, res) => {
   try {
     const query = type ? { type } : {};
     // 작성자 정보를 populate해서 이름 등을 가져옵니다.
-    const posts = await Post.find(query)
+    let posts = await Post.find(query)
       .populate('author', 'username userDepartment') 
       .sort({ createdAt: -1 }); // 최신순 정렬
 
+    // 서버에서는 모든 게시글 데이터를 그대로 반환
+    // 클라이언트에서 isAdmin() 함수로 필터링 처리
     res.status(200).json(posts);
   } catch (error) {
     console.error('게시글 조회 실패:', error);
@@ -22,6 +24,17 @@ exports.getPosts = async (req, res) => {
 exports.createPost = async (req, res) => {
   try {
     const { title, content, type, isPrivate } = req.body; // isPrivate 추가
+    
+    // 공지사항은 관리자만 작성 가능 (userId로 체크)
+    if (type === 'notice') {
+      const user = await User.findById(req.user.id);
+      const adminIds = (process.env.REACT_APP_ADMIN_IDS || '').split(',').map(id => id.trim());
+      
+      if (!user || !adminIds.includes(user.userId)) {
+        return res.status(403).json({ message: '공지사항은 관리자만 작성할 수 있습니다.' });
+      }
+    }
+    
     const newPost = await Post.create({
       title,
       content,
