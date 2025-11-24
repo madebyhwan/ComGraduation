@@ -10,6 +10,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
   // (수정!) 학점 필드도 빈 문자열("")을 허용하도록 초기값을 0 대신 ""로 설정
   const [overseasCredit, setOverseasCredit] = useState('');
   const [fieldPracticeCredit, setFieldPracticeCredit] = useState('');
+  const [startupCourseCredit, setStartupCourseCredit] = useState('');
   const [totalCredit, setTotalCredit] = useState('');
   const [error, setError] = useState('');
 
@@ -20,6 +21,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
       setLectType(lectureToEdit.lectType);
       setOverseasCredit(lectureToEdit.overseasCredit || '');
       setFieldPracticeCredit(lectureToEdit.fieldPracticeCredit || '');
+      setStartupCourseCredit(lectureToEdit.startupCourseCredit || '');
       setTotalCredit(lectureToEdit.totalCredit || '');
     } else {
       // '추가 모드'일 때, 폼을 리셋합니다.
@@ -27,6 +29,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
       setLectType('전공');
       setOverseasCredit('');
       setFieldPracticeCredit('');
+      setStartupCourseCredit('');
       setTotalCredit('');
     }
   }, [lectureToEdit, show, isEditMode]);
@@ -45,6 +48,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
       lectType,
       overseasCredit,
       fieldPracticeCredit,
+      startupCourseCredit,
       totalCredit
     };
 
@@ -107,7 +111,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="form-group">
               <label className="form-label" htmlFor="totalCredit">총 학점</label>
               <input
@@ -142,6 +146,17 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
                 value={fieldPracticeCredit}
                 // (수정!) Number() 제거
                 onChange={(e) => setFieldPracticeCredit(e.target.value)}
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="startupCourseCredit">창업교과목 학점</label>
+              <input
+                type="number"
+                id="startupCourseCredit"
+                className="form-input"
+                min="0"
+                value={startupCourseCredit}
+                onChange={(e) => setStartupCourseCredit(e.target.value)}
               />
             </div>
           </div>
