@@ -158,6 +158,7 @@ export const addCustomLecture = async (lectureData) => {
       lectType: lectureData.lectType,
       overseasCredit: lectureData.overseasCredit || 0,
       fieldPracticeCredit: lectureData.fieldPracticeCredit || 0,
+      startupCourseCredit: lectureData.startupCourseCredit || 0,
       totalCredit: lectureData.totalCredit || 0
     };
     const response = await apiClient.post('/api/users/addCustomLect', payload);
@@ -177,6 +178,7 @@ export const updateCustomLecture = async (lectureId, lectureData) => {
       lectType: lectureData.lectType,
       overseasCredit: lectureData.overseasCredit || 0,
       fieldPracticeCredit: lectureData.fieldPracticeCredit || 0,
+      startupCourseCredit: lectureData.startupCourseCredit || 0,
       totalCredit: lectureData.totalCredit || 0
     };
     // URL 파라미터로 lectureId를 전달하고, payload를 body로 전송

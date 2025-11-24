@@ -275,7 +275,7 @@ const LectureList = ({
                                                 <span className={`inline-block px-2 py-0.5 rounded-full border text-xs mr-2 ${getBadgeStyle(lec.lectType)}`}>
                                                     {lec.lectType}
                                                 </span>
-                                                총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
+                                                총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit}, 창업 {lec.startupCourseCredit || 0})
                                             </p>
                                         ) : (
                                             <p className="text-sm text-gray-600 mt-1 flex flex-wrap gap-2 items-center">
