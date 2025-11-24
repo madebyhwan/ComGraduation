@@ -11,7 +11,6 @@ const majorCourses = require('../config/majorCourses.json');
 const abeekCourses = require('../config/abeekCourses.json');
 const allRules = require('../config/graduationRules.js');
 
-
 // 유저의 강의 목록을 통합된 형태로 반환하는 함수
 // exports.getLecture의 사실상 본체
 async function lectureList(userId) {
@@ -309,40 +308,69 @@ exports.findIdByName = async (req, res) => {
 };
 
 // [추가] 비밀번호 변경 함수
-exports.changePassword = async (req, res) => {
-  const userId = req.user.id;
-  const { currentPassword, newPassword } = req.body;
+exports.changePassword = [
+  // 1. 유효성 검사 규칙 (새 비밀번호 규칙 적용)
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('새 비밀번호는 최소 8자리 이상이어야 합니다.')
+    .matches(/^(?=.*[a-z])/)
+    .withMessage('새 비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.')
+    .matches(/^(?=.*[A-Z])/)
+    .withMessage('새 비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.')
+    .matches(/^(?=.*\d)/)
+    .withMessage('새 비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.')
+    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>])/)
+    .withMessage('새 비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.'),
 
-  if (!currentPassword || !newPassword) {
-    return res.status(400).json({ message: '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.' });
-  }
+  // 2. 유효성 검사 에러 처리
+  (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: '입력 값이 유효하지 않습니다.',
+        errors: errors.array()
+      });
+    }
+    next();
+  },
 
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+  // 3. 실제 비밀번호 변경 로직
+  async (req, res) => {
+    const userId = req.user.id;
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.' });
     }
 
-    // 1. 현재 비밀번호 확인
-    const isMatch = await bcrypt.compare(currentPassword, user.userPassword);
-    if (!isMatch) {
-      return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
+    try {
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+      }
+
+      // 현재 비밀번호 확인
+      const isMatch = await bcrypt.compare(currentPassword, user.userPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
+      }
+
+      // 새 비밀번호 암호화 및 저장
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+      user.userPassword = hashedPassword;
+      await user.save();
+
+      res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
+
+    } catch (error) {
+      console.error('비밀번호 변경 오류:', error);
+      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
     }
-
-    // 2. 새 비밀번호 암호화 및 저장
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-    user.userPassword = hashedPassword;
-    await user.save();
-
-    res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
-
-  } catch (error) {
-    console.error('비밀번호 변경 오류:', error);
-    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
-};
+];
+
 
 exports.addUnivLecture = async (req, res) => {
   const { lectureId } = req.body;
@@ -809,9 +837,9 @@ exports.updateCustomLecture = async (req, res) => {
     return res.status(400).json({ message: '활동명과 교과 구분은 필수 입력 항목입니다.' });
   }
   if (overseasCredit === undefined || overseasCredit === null ||
-      fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
-      startupCourseCredit === undefined || startupCourseCredit === null ||
-      totalCredit === undefined || totalCredit === null) {
+    fieldPracticeCredit === undefined || fieldPracticeCredit === null ||
+    startupCourseCredit === undefined || startupCourseCredit === null ||
+    totalCredit === undefined || totalCredit === null) {
     return res.status(400).json({ message: '모든 학점 필드는 0 이상의 값으로 입력해야 합니다.' });
   }
 
