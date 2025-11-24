@@ -169,14 +169,16 @@ const Main = () => {
         <RequirementItem title="TOPCIT/졸업인터뷰" result={details.exitRequirement} />
         <RequirementItem title="영어 성적" result={details.englishProficiency} />
 
-        {/* 설계 학점은 minDesignCredits이 있을 때 별도 항목으로 출력 */}
-        {details.capstoneDesignRequirement?.minDesignCredits !== undefined && (
-          <RequirementItem title="설계 학점" result={details.capstoneDesignRequirement} />
-        )}
-
-        {/* Capstone Design이 options 형태일 때만 (글로벌SW융합전공) */}
-        {details.capstoneDesignRequirement?.options && details.capstoneDesignRequirement?.minDesignCredits === undefined && (
-          <RequirementItem title="종합 설계" result={details.capstoneDesignRequirement} />
+        {details.capstoneDesignRequirement && (
+          <RequirementItem
+            title={
+              details.capstoneDesignRequirement.required &&
+                String(details.capstoneDesignRequirement.required).includes('학점')
+                ? "설계 학점"
+                : "종합 설계"
+            }
+            result={details.capstoneDesignRequirement}
+          />
         )}
 
         {/* (서버 응답에 이 항목들이 포함된 경우에만 렌더링됩니다) */}
