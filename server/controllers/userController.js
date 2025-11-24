@@ -322,14 +322,27 @@ exports.changePassword = [
     .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>])/)
     .withMessage('새 비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.'),
 
-  // 2. 유효성 검사 에러 처리
-  (req, res, next) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: '입력 값이 유효하지 않습니다.',
-        errors: errors.array()
-      });
+  // 새 비밀번호 유효성 검사
+  if (newPassword.length < 8) {
+    return res.status(400).json({ message: '비밀번호는 최소 8자리 이상이어야 합니다.' });
+  }
+  if (!/(?=.*[a-z])/.test(newPassword)) {
+    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.' });
+  }
+  if (!/(?=.*[A-Z])/.test(newPassword)) {
+    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.' });
+  }
+  if (!/(?=.*\d)/.test(newPassword)) {
+    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.' });
+  }
+  if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(newPassword)) {
+    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
     next();
   },

@@ -161,8 +161,24 @@ const ProfilePage = () => {
             setPwError('새 비밀번호가 일치하지 않습니다.');
             return;
         }
-        if (newPw.length < 4) {
-            setPwError('비밀번호는 4자 이상이어야 합니다.');
+        if (newPw.length < 8) {
+            setPwError('비밀번호는 8자 이상이어야 합니다.');
+            return;
+        }
+        if (!/(?=.*[a-z])/.test(newPw)) {
+            setPwError('비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.');
+            return;
+        }
+        if (!/(?=.*[A-Z])/.test(newPw)) {
+            setPwError('비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.');
+            return;
+        }
+        if (!/(?=.*\d)/.test(newPw)) {
+            setPwError('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.');
+            return;
+        }
+        if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(newPw)) {
+            setPwError('비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.');
             return;
         }
 
@@ -404,9 +420,12 @@ const ProfilePage = () => {
                                     className="form-input w-full"
                                     value={newPw}
                                     onChange={(e) => setNewPw(e.target.value)}
-                                    placeholder="4자 이상 입력"
+                                    placeholder="영문 대소문자, 숫자, 특수문자 포함 8자 이상"
                                     required
                                 />
+                                <p className="mt-1 text-xs text-gray-500">
+                                    * 8자 이상, 대문자/소문자/숫자/특수문자(!@#$%^&*) 포함
+                                </p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
