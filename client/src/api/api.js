@@ -156,9 +156,10 @@ export const addCustomLecture = async (lectureData) => {
     const payload = {
       lectName: lectureData.lectName,
       lectType: lectureData.lectType,
-      overseasCredit: lectureData.overseasCredit || 0,
-      fieldPracticeCredit: lectureData.fieldPracticeCredit || 0,
-      totalCredit: lectureData.totalCredit || 0
+      overseasCredit: Number(lectureData.overseasCredit) || 0,
+      fieldPracticeCredit: Number(lectureData.fieldPracticeCredit) || 0,
+      startupCourseCredit: Number(lectureData.startupCourseCredit) || 0,
+      totalCredit: Number(lectureData.totalCredit) || 0
     };
     const response = await apiClient.post('/api/users/addCustomLect', payload);
     return response.data;
@@ -175,9 +176,10 @@ export const updateCustomLecture = async (lectureId, lectureData) => {
     const payload = {
       lectName: lectureData.lectName,
       lectType: lectureData.lectType,
-      overseasCredit: lectureData.overseasCredit || 0,
-      fieldPracticeCredit: lectureData.fieldPracticeCredit || 0,
-      totalCredit: lectureData.totalCredit || 0
+      overseasCredit: Number(lectureData.overseasCredit) || 0,
+      fieldPracticeCredit: Number(lectureData.fieldPracticeCredit) || 0,
+      startupCourseCredit: Number(lectureData.startupCourseCredit) || 0,
+      totalCredit: Number(lectureData.totalCredit) || 0
     };
     // URL 파라미터로 lectureId를 전달하고, payload를 body로 전송
     const response = await apiClient.patch(`/api/users/customLecture/${lectureId}`, payload);
@@ -264,5 +266,5 @@ export const deletePost = async (postId) => {
 
 // [추가] 댓글 작성 API
 export const addComment = (postId, data) => apiClient.post(`/api/posts/${postId}/comments`, data).then(res => res.data);
-export const deleteComment = (postId, commentId) => 
-    apiClient.delete(`/api/posts/${postId}/comments/${commentId}`).then(res => res.data);
+export const deleteComment = (postId, commentId) =>
+  apiClient.delete(`/api/posts/${postId}/comments/${commentId}`).then(res => res.data);
