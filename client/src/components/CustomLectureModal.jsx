@@ -82,10 +82,11 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
           {isEditMode ? '커스텀 과목 & 교과목 외 활동 수정' : '교과목 외 활동 추가'}
         </h2>
         <p className="text-sm text-gray-600 mb-4">
-          기존에 수강한 과목의 교과구분을 수정하거나 <br></br>강의계획서에 없는 교과목 외 활동(해외대학, 현장실습 등)을 관리합니다.
+          기존에 수강한 과목의 교과구분을 수정하거나 <br />강의계획서에 없는 교과목 외 활동(해외대학, 현장실습 등)을 관리합니다.
         </p>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
+          {/* ... 활동명, 교과구분 필드는 기존 유지 ... */}
           <div className="form-group">
             <label className="form-label" htmlFor="lectName">활동명</label>
             <input
@@ -111,7 +112,8 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {/* 학점 입력 필드들 (2열 그리드로 변경하여 공간 확보) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="form-group">
               <label className="form-label" htmlFor="totalCredit">총 학점</label>
               <input
@@ -120,7 +122,6 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
                 className="form-input"
                 min="0"
                 value={totalCredit}
-                // (수정!) Number() 제거
                 onChange={(e) => setTotalCredit(e.target.value)}
               />
             </div>
@@ -132,7 +133,6 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
                 className="form-input"
                 min="0"
                 value={overseasCredit}
-                // (수정!) Number() 제거
                 onChange={(e) => setOverseasCredit(e.target.value)}
               />
             </div>
@@ -144,12 +144,13 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
                 className="form-input"
                 min="0"
                 value={fieldPracticeCredit}
-                // (수정!) Number() 제거
                 onChange={(e) => setFieldPracticeCredit(e.target.value)}
               />
             </div>
+
+            {/* [추가] 창업 학점 입력 필드 */}
             <div className="form-group">
-              <label className="form-label" htmlFor="startupCourseCredit">창업교과목 학점</label>
+              <label className="form-label" htmlFor="startupCourseCredit">창업 학점</label>
               <input
                 type="number"
                 id="startupCourseCredit"
