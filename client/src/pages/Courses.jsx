@@ -117,7 +117,7 @@ const CoursesPage = () => {
                 <div className="text-center p-10">강의 목록을 불러오는 중...</div>
             ) : (
                 <div className="mt-8 space-y-8">
-                    
+
                     <LectureList
                         title="수강 내역"
                         lectures={filteredUnivLectures}
@@ -158,8 +158,8 @@ const CoursesPage = () => {
 // [수정] 뱃지 색상 로직 (전공필수 분홍색 변경)
 const getBadgeStyle = (category) => {
     if (!category) return 'bg-gray-100 text-gray-600 border-gray-200';
-    
-    const cat = category.trim(); 
+
+    const cat = category.trim();
 
     // 1. 전공필수 -> 분홍색 (pink)
     if (cat === '전공필수' || cat === '전필' || cat.includes('전공필수')) {
@@ -177,12 +177,12 @@ const getBadgeStyle = (category) => {
     if (cat.includes('교양') || cat.includes('기본소양') || cat.includes('교필') || cat.includes('교선')) {
         return 'bg-green-50 text-green-600 border-green-200';
     }
-    
+
     // 5. 나머지 -> 회색
     return 'bg-gray-100 text-gray-600 border-gray-200';
 };
 
-const LectureList = ({ 
+const LectureList = ({
     title, lectures, onDelete, onToss, onRemove, onEdit, onUnivToCustom, type, onAdd,
     isFilterable, years, selectedYear, onYearChange, selectedSemester, onSemesterChange
 }) => {
@@ -191,7 +191,7 @@ const LectureList = ({
 
     return (
         <div className="bg-white border border-gray-200 rounded-lg shadow-sm transition-all duration-200">
-            <div 
+            <div
                 className="p-5 flex justify-between items-center cursor-pointer hover:bg-gray-50 rounded-t-lg"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
@@ -205,10 +205,10 @@ const LectureList = ({
 
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {isFilterable && (
-                        <div className="flex gap-2 mr-2">
-                            <Filter className="w-4 h-4 text-gray-400" />
-                            <select 
-                                value={selectedYear} 
+                        <div className="flex gap-2 mr-2 items-start pt-1">
+                            <Filter className="w-5 h-5 text-gray-400 mt-1.5" />
+                            <select
+                                value={selectedYear}
                                 onChange={(e) => onYearChange(e.target.value)}
                                 className={selectStyle}
                             >
@@ -217,8 +217,8 @@ const LectureList = ({
                                     <option key={year} value={year}>{year}년</option>
                                 ))}
                             </select>
-                            <select 
-                                value={selectedSemester} 
+                            <select
+                                value={selectedSemester}
                                 onChange={(e) => onSemesterChange(e.target.value)}
                                 className={selectStyle}
                             >
@@ -253,7 +253,7 @@ const LectureList = ({
                                     <div>
                                         <div className="flex items-center gap-2 mb-1">
                                             <p className="font-semibold text-gray-800">{lec.lectName}</p>
-                                            
+
                                             {/* [수정] 과목코드 포맷: (코드)(분반) */}
                                             {type !== 'custom' && (
                                                 <span className="text-gray-400 text-sm font-normal">
@@ -275,7 +275,7 @@ const LectureList = ({
                                                 <span className={`inline-block px-2 py-0.5 rounded-full border text-xs mr-2 ${getBadgeStyle(lec.lectType)}`}>
                                                     {lec.lectType}
                                                 </span>
-                                                총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit}, 창업 {lec.startupCourseCredit || 0})
+                                                총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit}, 창업 {lec.startupCourseCredit ?? 0})
                                             </p>
                                         ) : (
                                             <p className="text-sm text-gray-600 mt-1 flex flex-wrap gap-2 items-center">

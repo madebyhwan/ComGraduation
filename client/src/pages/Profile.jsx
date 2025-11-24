@@ -106,9 +106,26 @@ const ProfilePage = () => {
                 counselingCount: Number(counselingCount || 0)
             };
 
-            await updateMyInfo(profileData);
-            // [핵심 추가] 저장이 성공하면 MainLayout의 username 상태 업데이트
-            updateUsername(username);
+            // [핵심] 서버에서 업데이트된 사용자 정보 받기
+            const responseData = await updateMyInfo(profileData);
+            if (responseData && responseData.user && responseData.user.username) {
+                // 토큰 업데이트 (updateMyInfo API가 새 토큰 반환하면)
+                if (responseData.token) {
+                    localStorage.setItem('token', responseData.token);
+                }
+                // MainLayout의 username 상태 업데이트
+                updateUsername(responseData.user.username);
+                // 클라이언트에서 새로고침 시에도 반영되도록 별도 저장
+                try {
+                    localStorage.setItem('username', responseData.user.username);
+                } catch (e) {
+                    // ignore
+                }
+            } else {
+                // 응답에 username이 없으면 현재 state로 업데이트
+                updateUsername(username);
+            }
+
             toast.success("정보가 성공적으로 저장되었습니다.", {
                 position: "top-right",
                 autoClose: 3000

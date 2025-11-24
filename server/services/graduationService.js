@@ -26,9 +26,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
 
     // 1. 주 학점 분류 (졸업 총 학점 계산용)
-    if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
-      generalEducationCredits += credits;
-    } else if (isMajor) {
+    if (isMajor) {
       majorCredits += credits;
     } else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
       generalEducationCredits += credits;
@@ -48,12 +46,17 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
 
   userCustomLectures.forEach(lecture => {
     const credit = Number(lecture.totalCredit) || 0;
+
     if (lecture.lectType === '교양') {
       generalEducationCredits += credit;
     } else if (lecture.lectType === '전공') {
       majorCredits += credit;
     } else {
       generalElectiveCredits += credit;
+    }
+
+    if (ventureCourseList.includes(lecture.lectCode)) {
+      startupCourseCredits += credits;
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
@@ -68,7 +71,19 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
 
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
+    const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
+
     multiMajorCredits += credit;
+
+    // 창업 교과목
+    if (ventureCourseList.includes(lecture.lectCode)) {
+      startupCourseCredits += credits;
+    }
+
+    // 해외 대학 (영어 강의 + 전공)
+    if (isMajor && lecture.isEnglishLecture) {
+      overseasCredits += 1;
+    }
   });
 
   return {

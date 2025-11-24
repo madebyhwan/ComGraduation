@@ -3,8 +3,10 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, BookOpen, User, Menu, X, LogOut, MessageSquare } from 'lucide-react';
 import { decodeJWT } from '../api/utils.js';
 
-// (토큰에서 사용자 이름을 가져오는 헬퍼 함수 - 동일)
+// (로컬스토리지에서 우선적으로 username을 읽고, 없으면 토큰에서 파싱)
 const getUsernameFromToken = () => {
+    const stored = localStorage.getItem('username');
+    if (stored) return stored;
     const token = localStorage.getItem('token');
     if (token) {
         const decoded = decodeJWT(token);
@@ -25,15 +27,19 @@ const MainLayout = () => {
     // [추가] 토큰 변경 감지 (로그인/로그아웃 시 동기화) 또는 직접 호출용 함수
     const updateUsername = (newName) => {
         if (newName) {
-             setUsername(newName);
+            setUsername(newName);
+            try { localStorage.setItem('username', newName); } catch (e) { }
         } else {
-             // 인자가 없으면 토큰에서 다시 읽어옴
-             setUsername(getUsernameFromToken());
+            // 인자가 없으면 토큰에서 다시 읽어옴
+            const name = getUsernameFromToken();
+            setUsername(name);
+            try { if (name) localStorage.setItem('username', name); } catch (e) { }
         }
     };
 
     const handleLogout = () => {
         localStorage.removeItem('token');
+        try { localStorage.removeItem('username'); } catch (e) { }
         navigate('/');
     };
 
@@ -58,7 +64,7 @@ const MainLayout = () => {
                     </button>
                 </div>
 
-                <nav className="flex-1 flex flex-col gap-2 px-4">                           
+                <nav className="flex-1 flex flex-col gap-2 px-4">
                     <SidebarLink label="나의 정보" to="/app/profile" icon={<User size={20} />} />
                     <SidebarLink label="나의 수강과목" to="/app/courses" icon={<BookOpen size={20} />} />
                     <SidebarLink label="자가진단" to="/app" icon={<LayoutDashboard size={20} />} />

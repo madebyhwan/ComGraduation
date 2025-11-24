@@ -1,14 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import { createPost } from '../api/api.js';
 import { Lock } from 'lucide-react';
+import { decodeJWT } from '../api/utils';
 
 const PostWriteModal = ({ onClose, onPostAdded }) => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [type, setType] = useState('notice'); // 기본값 공지사항
+  const [type, setType] = useState('qna'); // 기본값 Q&A로 변경
   // [추가] 비밀글 상태
   const [isPrivate, setIsPrivate] = useState(false);
+  const [currentUserLoginId, setCurrentUserLoginId] = useState(null);
+
+  // 관리자 체크 함수 (userId로 체크)
+  const isAdmin = () => {
+    if (!currentUserLoginId) return false;
+    const adminIds = process.env.REACT_APP_ADMIN_IDS?.split(',').map(id => id.trim()) || [];
+    return adminIds.includes(currentUserLoginId);
+  };
+
+  // 토큰에서 사용자 정보 추출
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decoded = decodeJWT(token);
+      if (decoded) {
+        const userLoginId = decoded.userId; // 로그인 아이디
+        if (userLoginId) setCurrentUserLoginId(userLoginId);
+        // 관리자가 아닌 경우 기본값을 qna로 설정
+        const adminIds = process.env.REACT_APP_ADMIN_IDS?.split(',').map(id => id.trim()) || [];
+        if (!adminIds.includes(userLoginId)) {
+          setType('qna');
+        }
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,10 +54,7 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
       onClose();
     } catch (error) {
       console.error(error);
-      toast.error('게시글 등록 실패', {
-        position: "top-right",
-        autoClose: 3000
-      });
+      alert('게시글 등록 실패');
     }
   };
 
@@ -47,9 +70,12 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
                 <input 
                   type="radio" name="type" value="notice" 
                   checked={type === 'notice'} 
-                  onChange={(e) => setType(e.target.value)} 
+                  onChange={(e) => setType(e.target.value)}
+                  disabled={!isAdmin()}
                 />
-                공지사항
+                <span className={!isAdmin() ? 'text-gray-400' : ''}>
+                  공지사항 {!isAdmin() && '(관리자 전용)'}
+                </span>
               </label>
              <label className="flex items-center gap-2 cursor-pointer">
                 <input 
