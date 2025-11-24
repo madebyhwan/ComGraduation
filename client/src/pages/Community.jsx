@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom'; // URL 파라미터 훅
 import { toast } from 'react-toastify';
 import { getPosts, deletePost, addComment, deleteComment } from '../api/api.js';
 import { MessageCircle, Lock, User, Trash2, PenSquare, ArrowLeft, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -6,45 +7,50 @@ import PostWriteModal from '../components/PostWriteModal';
 import { decodeJWT } from '../api/utils';
 
 const Community = () => {
-  const [activeTab, setActiveTab] = useState('notice');
+  // [핵심 수정 1] URL 파라미터로 모든 상태 관리 (탭, 게시글ID)
+  const [searchParams, setSearchParams] = useSearchParams();
+  
+  // URL에서 값 가져오기 (없으면 기본값 'notice')
+  // 이제 activeTab은 state가 아니라 URL에 종속된 변수입니다.
+  const activeTab = searchParams.get('tab') || 'notice';
+  const postIdParam = searchParams.get('postId');
+
   const [posts, setPosts] = useState([]);
   const [showWriteModal, setShowWriteModal] = useState(false);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserLoginId, setCurrentUserLoginId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 관리자 체크 함수 (userId로 체크)
-  const isAdmin = () => {
-    if (!currentUserLoginId) return false;
-    const adminIds = process.env.REACT_APP_ADMIN_IDS?.split(',').map(id => id.trim()) || [];
-    return adminIds.includes(currentUserLoginId);
-  };
-  
   const [selectedPost, setSelectedPost] = useState(null);
   const [commentContent, setCommentContent] = useState('');
 
-  // 페이지네이션 및 검색
   const [currentPage, setCurrentPage] = useState(1);
   const [postsPerPage] = useState(10);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searchInput, setSearchInput] = useState('');
 
-  // 토큰 확인
+  // 관리자 체크
+  const isAdmin = () => {
+    if (!currentUserLoginId) return false;
+    const adminIds = process.env.REACT_APP_ADMIN_IDS?.split(',').map(id => id.trim()) || [];
+    return adminIds.includes(currentUserLoginId);
+  };
+
+  // 1. 토큰 확인
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
       const decoded = decodeJWT(token);
       if (decoded) {
-        // 토큰 구조에 따라 id 필드 확인
         const id = decoded.id || decoded.userId || decoded._id;
-        const userLoginId = decoded.userId; // 로그인 아이디
+        const userLoginId = decoded.userId; 
         if (id) setCurrentUserId(id);
         if (userLoginId) setCurrentUserLoginId(userLoginId);
       }
     }
   }, []);
 
-  // 게시글 로딩
+  // 2. 게시글 로딩 (URL의 activeTab이 바뀔 때마다 실행됨)
   const fetchPosts = useCallback(async () => {
     try {
       setLoading(true);
@@ -57,22 +63,51 @@ const Community = () => {
     }
   }, [activeTab]);
 
-  // 탭 변경 시 상태 초기화
+  // activeTab 변경 시 검색어 초기화 및 데이터 로딩
   useEffect(() => {
-    setSelectedPost(null);
     setSearchKeyword('');
     setSearchInput('');
     setCurrentPage(1);
     fetchPosts();
-  }, [fetchPosts]);
+  }, [fetchPosts]); // activeTab은 fetchPosts의 의존성이므로 포함됨
 
-  // 탭 변경 핸들러
-  const handleTabChange = (tab) => {
-    if (activeTab !== tab) {
-        setActiveTab(tab);
+  // 3. URL에 postId가 있거나 없어질 때 selectedPost 동기화
+  useEffect(() => {
+    if (postIdParam && posts.length > 0) {
+      // URL에 ID가 있으면 해당 글을 찾아서 보여줌
+      const post = posts.find(p => p._id === postIdParam);
+      if (post) {
+        setSelectedPost(post);
+      }
     } else {
-        setSelectedPost(null);
+      // URL에 ID가 없으면(뒤로가기 등) 목록으로 복귀
+      setSelectedPost(null);
     }
+  }, [postIdParam, posts]);
+
+  // [핵심 수정 2] 탭 변경 핸들러 -> URL만 변경
+  const handleTabChange = (newTab) => {
+    // 탭을 누르면 해당 탭의 목록으로 이동 (postId 제거)
+    setSearchParams({ tab: newTab });
+  };
+
+  // [핵심 수정 3] 게시글 클릭 -> URL에 postId 추가
+  const handlePostClick = (post) => {
+    const authorId = post.author?._id || post.author;
+    if (post.isPrivate) {
+        const isAuthor = currentUserId && authorId && currentUserId.toString() === authorId.toString();
+        if (!isAuthor && !isAdmin()) {
+             toast.warning("🔒 비공개 게시글입니다.");
+             return;
+        }
+    }
+    // URL 변경 (히스토리에 쌓임 -> 뒤로가기 가능)
+    setSearchParams({ tab: activeTab, postId: post._id });
+  };
+
+  // 목록으로 돌아가기 버튼
+  const handleGoBack = () => {
+    setSearchParams({ tab: activeTab }); // postId 제거하여 목록으로
   };
 
   // 댓글 등록
@@ -86,60 +121,23 @@ const Community = () => {
       setCommentContent('');
       setPosts(prevPosts => prevPosts.map(p => p._id === updatedPost._id ? updatedPost : p));
     } catch (error) {
-      toast.error('댓글 등록 실패', {
-        position: "top-right",
-        autoClose: 3000
-      });
+      toast.error('댓글 등록 실패');
     }
   };
 
-  // 댓글 삭제 핸들러
+  // 댓글 삭제
   const handleDeleteComment = async (commentId) => {
       if (window.confirm("정말로 이 댓글을 삭제하시겠습니까?")) {
           try {
-              // API 호출
               const updatedPost = await deleteComment(selectedPost._id, commentId);
-              
-              // 현재 보고 있는 상세글 상태 업데이트
               setSelectedPost(updatedPost);
-              
-              // 뒤에 있는 목록 데이터도 업데이트 (댓글 개수 동기화 등)
               setPosts(prevPosts => prevPosts.map(p => p._id === updatedPost._id ? updatedPost : p));
-              
-              toast.success('댓글이 삭제되었습니다.', {
-                position: "top-right",
-                autoClose: 3000
-              });
+              toast.success('댓글이 삭제되었습니다.');
           } catch (error) {
               console.error("댓글 삭제 실패:", error);
-              toast.error(error.response?.data?.message || '댓글 삭제에 실패했습니다.', {
-                position: "top-right",
-                autoClose: 3000
-              });
+              toast.error(error.response?.data?.message || '댓글 삭제에 실패했습니다.');
           }
       }
-  };
-
-  // ... render ...
-  // (댓글 렌더링 부분에서 handleDeleteComment(comment._id) 연결 확인)
-
-
-  // 게시글 클릭 (비밀글 권한 체크)
-  const handlePostClick = (post) => {
-    const authorId = post.author?._id || post.author;
-    if (post.isPrivate) {
-        console.log(isAdmin());
-        // 작성자 본인이거나 관리자인 경우만 접근 가능
-        const isAuthor = currentUserId && authorId && currentUserId.toString() === authorId.toString();
-        if (!isAuthor && !isAdmin()) {
-             toast.warning("🔒 비공개 게시글입니다.", {
-               position: "top-right",
-               autoClose: 3000
-             });
-             return;
-        }
-    }
-    setSelectedPost(post);
   };
 
   // 게시글 삭제
@@ -147,18 +145,12 @@ const Community = () => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
       try {
         await deletePost(postId);
-        toast.success('삭제되었습니다.', {
-          position: "top-right",
-          autoClose: 3000
-        });
-        setSelectedPost(null);
+        toast.success('삭제되었습니다.');
+        handleGoBack(); // 목록으로 이동
         fetchPosts();
       } catch (error) {
         console.error('삭제 에러:', error);
-        toast.error('삭제 실패', {
-          position: "top-right",
-          autoClose: 3000
-        });
+        toast.error('삭제 실패');
       }
     }
   };
@@ -190,6 +182,7 @@ const Community = () => {
     <div>
       <div className="flex justify-between items-end mb-6">
         <h1 className="text-3xl font-bold">커뮤니티</h1>
+        {/* 목록 화면일 때만 글쓰기 버튼 표시 */}
         {!selectedPost && (
           <button onClick={() => setShowWriteModal(true)} className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80 text-sm flex items-center gap-2">
             <PenSquare size={16} />
@@ -214,12 +207,11 @@ const Community = () => {
       </div>
 
       <div className="bg-white border border-gray-200 rounded-lg shadow-sm min-h-[500px] flex flex-col">
-        
         {selectedPost ? (
           <div className="animate-fadeIn flex-1 flex flex-col">
             {/* 상세 보기 헤더 */}
             <div className="p-6 border-b border-gray-100">
-              <button onClick={() => setSelectedPost(null)} className="mb-4 flex items-center text-gray-500 hover:text-knu-blue transition-colors text-sm font-medium">
+              <button onClick={handleGoBack} className="mb-4 flex items-center text-gray-500 hover:text-knu-blue transition-colors text-sm font-medium">
                 <ArrowLeft size={16} className="mr-1" /> 목록으로
               </button>
 
@@ -230,10 +222,13 @@ const Community = () => {
 
               <div className="flex justify-between items-center text-sm text-gray-500">
                 <div className="flex items-center gap-4">
-                  <span className="flex items-center gap-1"><User size={14} /> {selectedPost.author?.username || '익명'}</span>
+                  <span className="flex items-center gap-1"><User size={14} /> {selectedPost.author?.username || '알 수 없음'}</span>
                   <span className="flex items-center gap-1"><Clock size={14} /> {formatDate(selectedPost.createdAt)}</span>
                 </div>
-                {(currentUserId && (selectedPost.author?._id || selectedPost.author) && currentUserId.toString() === (selectedPost.author._id || selectedPost.author).toString()) && (
+                
+                {/* 삭제 버튼 */}
+                {((currentUserId && (selectedPost.author?._id || selectedPost.author) && 
+                  currentUserId.toString() === (selectedPost.author._id || selectedPost.author).toString()) || isAdmin()) && (
                   <button onClick={() => handleDelete(selectedPost._id)} className="text-red-500 hover:text-red-700 flex items-center gap-1 text-sm">
                     <Trash2 size={14} /> 삭제
                   </button>
@@ -245,7 +240,7 @@ const Community = () => {
               <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedPost.content}</p>
             </div>
 
-            {/* 댓글 영역 (공지사항 제외) */}
+            {/* 댓글 영역 */}
             {selectedPost.type !== 'notice' && (
                 <div className="p-8 bg-gray-50 flex-1">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
@@ -263,12 +258,11 @@ const Community = () => {
                                     <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm group">
                                         <div className="flex justify-between items-start mb-2">
                                             <div className="flex items-center gap-2">
-                                                <span className="font-bold text-sm text-gray-800">{comment.author?.username || '익명'}</span>
+                                                <span className="font-bold text-sm text-gray-800">{comment.author?.username || '알 수 없음'}</span>
                                                 <span className="text-xs text-gray-400">{formatDate(comment.createdAt)}</span>
                                             </div>
                                             
-                                            {/* 댓글 삭제 버튼 (본인 작성글일 때) */}
-                                            {isMyComment && (
+                                            {(isMyComment || isAdmin()) && (
                                                 <button 
                                                     onClick={() => handleDeleteComment(comment._id)}
                                                     className="text-gray-400 hover:text-red-500 transition-colors p-1 rounded-full hover:bg-red-50"
@@ -324,7 +318,6 @@ const Community = () => {
                     const isAuthor = currentUserId && authorId && currentUserId.toString() === authorId.toString();
                     const canViewPrivate = isAuthor || isAdmin();
                     
-                    // 비공개 게시글이고 권한이 없는 경우 제목 숨김
                     const displayTitle = (post.isPrivate && !canViewPrivate) ? '비공개 게시글' : post.title;
                     
                     return (
@@ -343,7 +336,7 @@ const Community = () => {
                             </span>
                           )}
                         </div>
-                        <div className="col-span-2 text-gray-600 truncate">{post.author?.username || '익명'}</div>
+                        <div className="col-span-2 text-gray-600 truncate">{post.author?.username || '알 수 없음'}</div>
                         <div className="col-span-2 text-gray-400 text-xs">{new Date(post.createdAt).toLocaleDateString()}</div>
                       </li>
                     );

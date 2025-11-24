@@ -11,7 +11,6 @@ const majorCourses = require('../config/majorCourses.json');
 const abeekCourses = require('../config/abeekCourses.json');
 const allRules = require('../config/graduationRules.js');
 
-
 // 유저의 강의 목록을 통합된 형태로 반환하는 함수
 // exports.getLecture의 사실상 본체
 async function lectureList(userId) {
@@ -308,16 +307,17 @@ exports.findIdByName = async (req, res) => {
   }
 };
 
-// [추가] 비밀번호 변경 함수
+// [수정] 비밀번호 변경 함수 (사용자 요청 검증 로직 적용)
 exports.changePassword = async (req, res) => {
   const userId = req.user.id;
   const { currentPassword, newPassword } = req.body;
 
+  // 1. 필수 입력값 확인
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.' });
   }
 
-  // 새 비밀번호 유효성 검사
+  // 2. 새 비밀번호 유효성 검사 (요청하신 로직 그대로 적용)
   if (newPassword.length < 8) {
     return res.status(400).json({ message: '비밀번호는 최소 8자리 이상이어야 합니다.' });
   }
@@ -335,18 +335,19 @@ exports.changePassword = async (req, res) => {
   }
 
   try {
+    // 3. 사용자 확인
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
 
-    // 1. 현재 비밀번호 확인
+    // 4. 현재 비밀번호 일치 여부 확인
     const isMatch = await bcrypt.compare(currentPassword, user.userPassword);
     if (!isMatch) {
       return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
     }
 
-    // 2. 새 비밀번호 암호화 및 저장
+    // 5. 새 비밀번호 암호화 및 저장
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
 
@@ -360,6 +361,7 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
+
 
 exports.addUnivLecture = async (req, res) => {
   const { lectureId } = req.body;
@@ -915,6 +917,30 @@ exports.univToCustomLecture = async (req, res) => {
 
   } catch (error) {
     console.error('활동 수정 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// [추가] 회원 탈퇴
+exports.deleteUser = async (req, res) => {
+  const userId = req.user.id; // 미들웨어에서 추출한 _id
+
+  try {
+    // 1. 사용자 존재 확인
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    // 2. 연관된 커스텀 강의 데이터 삭제
+    await CustomLecture.deleteMany({ userObjectId: userId });
+
+    // 3. 사용자 삭제 (게시글/댓글은 남기거나, 필요 시 추가 삭제 로직 구현)
+    await User.deleteOne({ _id: userId });
+
+    res.status(200).json({ message: '회원 탈퇴가 완료되었습니다.' });
+  } catch (error) {
+    console.error('회원 탈퇴 오류:', error);
     res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };

@@ -268,3 +268,6 @@ export const deletePost = async (postId) => {
 export const addComment = (postId, data) => apiClient.post(`/api/posts/${postId}/comments`, data).then(res => res.data);
 export const deleteComment = (postId, commentId) =>
   apiClient.delete(`/api/posts/${postId}/comments/${commentId}`).then(res => res.data);
+
+// [추가] 회원 탈퇴 API
+export const withdrawUser = () => apiClient.delete('/api/users/withdraw').then(res => res.data);

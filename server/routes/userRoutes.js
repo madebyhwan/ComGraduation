@@ -16,7 +16,8 @@ const {
   updateCustomLecture,
   findIdByName,
   changePassword,
-  univToCustomLecture
+  univToCustomLecture,
+  deleteUser
 } = require('../controllers/userController');
 const authenticateToken = require('../middleware/auth');
 
@@ -69,5 +70,9 @@ router.patch('/customLecture/:lectureId', authenticateToken, updateCustomLecture
 
 // univ -> custom
 router.patch('/univToCustom', authenticateToken, univToCustomLecture);
+
+// [추가] 회원 탈퇴 라우트
+router.delete('/withdraw', authenticateToken, deleteUser);
+
 
 module.exports = router;

@@ -1,22 +1,26 @@
 const Post = require('../models/posts');
 const User = require('../models/users');
 
-// 게시글 목록 조회
+// [수정] 게시글 목록 조회 (댓글 작성자 populate 강화)
 exports.getPosts = async (req, res) => {
-  const { type } = req.query; // 'notice' 또는 'qna' 필터링
+  const { type } = req.query; // 'notice' or 'qna'
   try {
-    const query = type ? { type } : {};
-    // 작성자 정보를 populate해서 이름 등을 가져옵니다.
-    let posts = await Post.find(query)
-      .populate('author', 'username userDepartment') 
-      .sort({ createdAt: -1 }); // 최신순 정렬
-
-    // 서버에서는 모든 게시글 데이터를 그대로 반환
-    // 클라이언트에서 isAdmin() 함수로 필터링 처리
+    // type이 있으면 필터링, 없으면 전체
+    const filter = type ? { type } : {};
+    
+    const posts = await Post.find(filter)
+      .sort({ createdAt: -1 })
+      .populate('author', 'username userDepartment') // 게시글 작성자 정보
+      .populate({
+        path: 'comments.author',      // 댓글 배열 안의 author 필드
+        select: 'username userDepartment', // 가져올 필드 (이름, 학과)
+        model: 'User'                 // User 모델 참조 명시
+      });
+      
     res.status(200).json(posts);
   } catch (error) {
-    console.error('게시글 조회 실패:', error);
-    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+    console.error(error);
+    res.status(500).json({ message: '게시글 목록 로딩 실패' });
   }
 };
 
@@ -80,6 +84,7 @@ exports.addComment = async (req, res) => {
 exports.deletePost = async (req, res) => {
   const { postId } = req.params;
   const userId = req.user.id;
+  const userStudentId = req.user.userId; 
 
   try {
     const post = await Post.findById(postId);
@@ -87,8 +92,12 @@ exports.deletePost = async (req, res) => {
       return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
     }
 
-    // 작성자 본인인지 확인
-    if (post.author.toString() !== userId) {
+    // 관리자 ID 확인 (.env 파일 참조)
+    const adminId = process.env.REACT_APP_ADMIN_IDS; 
+    const isAdmin = userStudentId === adminId;
+
+    // 작성자 본인이거나 관리자면 삭제 가능
+    if (post.author.toString() !== userId && !isAdmin) {
       return res.status(403).json({ message: '삭제 권한이 없습니다.' });
     }
 
@@ -100,34 +109,31 @@ exports.deletePost = async (req, res) => {
   }
 };
 
-// [추가] 댓글 삭제 함수
+// [수정] 댓글 삭제 (관리자 권한 추가)
 exports.deleteComment = async (req, res) => {
   const { postId, commentId } = req.params;
-  const userId = req.user.id; // auth 미들웨어에서 설정된 user id
+  const userId = req.user.id;
+  const userStudentId = req.user.userId;
 
   try {
-    // 1. 게시글 찾기
     const post = await Post.findById(postId);
-    if (!post) {
-        return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
-    }
+    if (!post) return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
 
-    // 2. 댓글 찾기 (Mongoose의 id() 메서드 활용)
     const comment = post.comments.id(commentId);
-    if (!comment) {
-        return res.status(404).json({ message: '댓글을 찾을 수 없습니다.' });
-    }
+    if (!comment) return res.status(404).json({ message: '댓글을 찾을 수 없습니다.' });
 
-    // 3. 권한 확인 (댓글 작성자 본인인지)
-    if (comment.author.toString() !== userId) {
+    // 관리자 ID 확인
+    const adminId = process.env.REACT_APP_ADMIN_IDS;
+    const isAdmin = userStudentId === adminId;
+
+    // 작성자 본인이거나 관리자면 삭제 가능
+    if (comment.author.toString() !== userId && !isAdmin) {
         return res.status(403).json({ message: '댓글 삭제 권한이 없습니다.' });
     }
 
-    // 4. 댓글 삭제 (Mongoose의 pull() 메서드 활용)
     post.comments.pull(commentId);
     await post.save();
 
-    // 5. 업데이트된 게시글 정보 반환 (작성자 정보 포함 populate)
     const updatedPost = await Post.findById(postId)
         .populate('author', 'username userDepartment')
         .populate('comments.author', 'username userDepartment');
