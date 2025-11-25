@@ -3,6 +3,26 @@ import { toast } from 'react-toastify';
 import { searchLectures, addUnivLecture } from '../api/api.js';
 import { PlusCircle } from 'lucide-react';
 
+const getBadgeStyle = (category) => {
+  if (!category) return 'bg-gray-100 text-gray-600 border-gray-200';
+
+  const cat = category.trim();
+
+  if (cat === '전공필수' || cat === '전필' || cat.includes('전공필수')) {
+    return 'bg-pink-50 text-pink-600 border-pink-200';
+  }
+  if (cat.includes('전공') || cat.includes('공학')) {
+    return 'bg-blue-50 text-blue-600 border-blue-200';
+  }
+  if (cat.includes('일반선택')) {
+    return 'bg-purple-50 text-purple-600 border-purple-200';
+  }
+  if (cat.includes('교양') || cat.includes('기본소양') || cat.includes('교필') || cat.includes('교선')) {
+    return 'bg-green-50 text-green-600 border-green-200';
+  }
+  return 'bg-gray-100 text-gray-600 border-gray-200';
+};
+
 const LecSearch = ({ onLectureAdded }) => {
   const [keyword, setKeyword] = useState('');
   const [year, setYear] = useState('');
@@ -63,95 +83,98 @@ const LecSearch = ({ onLectureAdded }) => {
     }
   };
 
-  // 공통 input 스타일 (높이 h-12로 통일)
-  const inputBaseClass = "rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent h-12";
+  // [복구] 기존 입력창 높이(h-12) 유지
+  const inputBaseClass = "rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-knu-blue focus:border-transparent h-12";
 
   return (
-    <div className="p-6 bg-white rounded-lg border shadow-sm">
+    // 내부 패딩 p-4 유지 (너무 좁지 않게)
+    <div className="p-4 bg-white rounded-lg border shadow-sm">
       <h3 className="text-xl font-semibold mb-4">강의계획서 검색</h3>
 
-      {/* [수정] Flex 레이아웃 사용: 연도/학기는 좁게(w-32), 입력창은 넓게(flex-1) */}
       <div className="flex flex-col md:flex-row gap-2 mb-3">
-        <select
-          value={year}
-          onChange={(e) => setYear(e.target.value)}
-          className={`${inputBaseClass} w-full md:w-32`} // 가로 길이 줄임 (약 128px)
-        >
-          <option value="">전체 연도</option>
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-          <option value="2021">2021</option>
-        </select>
+        {/* 연도/학기 한 줄 배치 로직은 유지 */}
+        <div className="flex gap-2 w-full md:w-auto">
+          <select
+            value={year}
+            onChange={(e) => setYear(e.target.value)}
+            className={`${inputBaseClass} flex-1 md:w-32`}
+          >
+            <option value="">전체 연도</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+          </select>
 
-        <select
-          value={semester}
-          onChange={(e) => setSemester(e.target.value)}
-          className={`${inputBaseClass} w-full md:w-32`} // 가로 길이 줄임 (약 128px)
-        >
-          <option value="">전체 학기</option>
-          <option value="1학기">1학기</option>
-          <option value="2학기">2학기</option>
-          <option value="계절학기(하계)">계절학기(하계)</option>
-          <option value="계절학기(동계)">계절학기(동계)</option>
-        </select>
+          <select
+            value={semester}
+            onChange={(e) => setSemester(e.target.value)}
+            className={`${inputBaseClass} flex-1 md:w-32`}
+          >
+            <option value="">전체 학기</option>
+            <option value="1학기">1학기</option>
+            <option value="2학기">2학기</option>
+            <option value="계절학기(하계)">하계</option>
+            <option value="계절학기(동계)">동계</option>
+          </select>
+        </div>
 
         <input
           type="text"
-          placeholder="강의명 또는 교수명 또는 과목코드로 검색"
+          placeholder="강의명, 교수명, 학수번호"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyPress}
-          className={`${inputBaseClass} flex-1`} // 남은 공간 꽉 채움
+          className={`${inputBaseClass} w-full md:flex-1`}
         />
       </div>
 
-      {/* 검색 버튼 (높이 h-12로 통일) */}
       <button
         onClick={handleSearch}
         disabled={loading}
+        // [복구] 버튼 높이(h-12) 유지
         className="w-full h-12 rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80 disabled:bg-gray-400 transition-colors"
       >
         {loading ? '검색 중...' : '검색'}
       </button>
 
-      {/* 검색 결과 */}
-      <div className="mt-6 max-h-60 overflow-y-auto border-t border-gray-100 pt-2">
-        {message && <p className="text-center text-gray-500 py-4">{message}</p>}
+      <div className="mt-6 max-h-60 overflow-y-auto border-t border-gray-100 pt-2 scrollbar-hide">
+        {message && <p className="text-center text-gray-500 py-4 text-sm">{message}</p>}
         <ul className="divide-y divide-gray-200">
           {results.map((lec) => (
             <li key={lec._id} className="flex items-center justify-between p-3 hover:bg-gray-50">
-              <div>
-                {/* [수정 포인트] 강의명 옆에 뱃지 추가 */}
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="font-semibold text-gray-800">{lec.lectName}</span>
-                  <span className="text-gray-400 text-sm font-normal">
-                    ({lec.lectCode}){lec.lectDiv ? `(${lec.lectDiv})` : ''}
+              <div className="flex-1 min-w-0 mr-3">
+                <div className="flex flex-wrap items-center gap-1.5 mb-1">
+                  <span className="font-semibold text-gray-800 break-keep leading-tight">
+                    {lec.lectName}
                   </span>
 
-                  {/* 교양구분 */}
+                  <span className="text-gray-400 text-xs sm:text-sm font-normal whitespace-nowrap">
+                    ({lec.lectCode})
+                    {lec.lectDiv ? ` (${lec.lectDiv})` : ''}
+                  </span>
+
                   {lec.lectGeneral && (
-                    <span className="text-xs bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded border border-purple-200">
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded border shrink-0 whitespace-nowrap ${getBadgeStyle(lec.lectGeneral)}`}>
                       {lec.lectGeneral}
                     </span>
                   )}
-
-                  {/* 학과 */}
-                  {/* {lec.lectDepartment && (
-                        <span className="text-xs text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">
-                            {lec.lectDepartment}
-                        </span>
-                    )} */}
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
-                  {lec.lectProfessor} | {lec.lectYear}년 {lec.lectSemester} | {lec.lectTime} | <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
+
+                <p className="text-xs sm:text-sm text-gray-600 mt-1 truncate">
+                  <span className="mr-1">{lec.lectProfessor || '교수미정'}</span>
+                  <span className="text-gray-300 mx-1">|</span>
+                  <span className="mx-1">{lec.lectYear}-{lec.lectSemester}</span>
+                  <span className="text-gray-300 mx-1">|</span>
+                  <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                 </p>
               </div>
+
               <button
                 onClick={() => handleAdd(lec._id)}
                 title="추가하기"
-                className="text-knu-blue hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors"
+                className="shrink-0 text-knu-blue hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 transition-colors"
               >
                 <PlusCircle className="w-6 h-6" />
               </button>
