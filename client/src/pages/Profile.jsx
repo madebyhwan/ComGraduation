@@ -1,9 +1,9 @@
 // client/src/pages/Profile.jsx
 
 import React, { useState, useEffect } from 'react';
-import { useOutletContext } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getMyInfo, updateMyInfo, changePassword } from '../api/api.js';
+import { getMyInfo, updateMyInfo, changePassword,withdrawUser } from '../api/api.js';
 import { User, Award, BookMarked, Check, Lock, X } from 'lucide-react';
 
 // [추가] 트랙 옵션을 상수로 정의
@@ -17,6 +17,7 @@ const allTrackOptions = [
 const ProfilePage = () => {
     // [추가] MainLayout에서 전달한 updateUsername 함수 가져오기
     const { updateUsername } = useOutletContext();
+    const navigate = useNavigate(); // 네비게이션 훅
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -205,6 +206,21 @@ const ProfilePage = () => {
         ? allTrackOptions.filter(option => option.value !== '심컴')
         : allTrackOptions;
 
+
+    // [추가] 회원 탈퇴 핸들러
+    const handleWithdraw = async () => {
+        if (window.confirm("정말로 탈퇴하시겠습니까?\n탈퇴 시 수강 내역 등 모든 데이터가 삭제되며 복구할 수 없습니다.")) {
+            try {
+                await withdrawUser();
+                alert("회원 탈퇴가 완료되었습니다.");
+                localStorage.removeItem('token'); // 토큰 삭제
+                navigate('/'); // 로그인 페이지로 이동
+            } catch (error) {
+                alert(error.response?.data?.message || "탈퇴 처리에 실패했습니다.");
+            }
+        }
+    };
+
     return (
         <div>
             <h1 className="text-3xl font-bold mb-6">내 정보</h1>
@@ -369,23 +385,28 @@ const ProfilePage = () => {
                             />
                         </div>
                     </div>
-                </div>
+                </div>                
 
-                {/* --- 저장 버튼 --- */}
-                <div className="flex justify-end items-center">
-                    {error && (
-                        <p className="mr-4 text-sm text-red-600">
-                            {error}
-                        </p>
-                    )}
+                {/* [수정] 버튼 영역: 저장 버튼 왼쪽에 '회원 탈퇴' 버튼 추가 */}
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                     <button
-                        type="submit"
-                        className="w-full md:w-auto justify-center rounded-md bg-knu-blue py-2 px-6 font-medium text-white shadow-sm hover:bg-opacity-80"
+                        type="button"
+                        onClick={handleWithdraw}
+                        className="text-sm text-red-500 hover:text-red-700 hover:underline px-2"
                     >
-                        저장하기
+                        회원 탈퇴
                     </button>
-                </div>
 
+                    <div className="flex items-center">
+                        {error && <p className="mr-4 text-sm text-red-600">{error}</p>}
+                        <button
+                            type="submit"
+                            className="w-full md:w-auto justify-center rounded-md bg-knu-blue py-2 px-6 font-medium text-white shadow-sm hover:bg-opacity-80"
+                        >
+                            저장하기
+                        </button>
+                    </div>
+                </div>
             </form>
 
             {/* --- 비밀번호 변경 모달 --- */}

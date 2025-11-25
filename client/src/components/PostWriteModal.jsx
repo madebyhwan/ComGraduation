@@ -44,7 +44,7 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
     });
 
    try {
-      // isPrivate 필드도 함께 전송
+    console.log("asdas");
       await createPost({ title, content, type, isPrivate });
       toast.success('게시글이 등록되었습니다.', {
         position: "top-right",

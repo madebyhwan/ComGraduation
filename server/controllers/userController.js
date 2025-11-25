@@ -307,22 +307,17 @@ exports.findIdByName = async (req, res) => {
   }
 };
 
-// [추가] 비밀번호 변경 함수
-exports.changePassword = [
-  // 1. 유효성 검사 규칙 (새 비밀번호 규칙 적용)
-  body('newPassword')
-    .isLength({ min: 8 })
-    .withMessage('새 비밀번호는 최소 8자리 이상이어야 합니다.')
-    .matches(/^(?=.*[a-z])/)
-    .withMessage('새 비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.')
-    .matches(/^(?=.*[A-Z])/)
-    .withMessage('새 비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.')
-    .matches(/^(?=.*\d)/)
-    .withMessage('새 비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.')
-    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>])/)
-    .withMessage('새 비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.'),
+// [수정] 비밀번호 변경 함수 (사용자 요청 검증 로직 적용)
+exports.changePassword = async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword } = req.body;
 
-  // 새 비밀번호 유효성 검사
+  // 1. 필수 입력값 확인
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.' });
+  }
+
+  // 2. 새 비밀번호 유효성 검사 (요청하신 로직 그대로 적용)
   if (newPassword.length < 8) {
     return res.status(400).json({ message: '비밀번호는 최소 8자리 이상이어야 합니다.' });
   }
@@ -340,49 +335,32 @@ exports.changePassword = [
   }
 
   try {
+    // 3. 사용자 확인
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
     }
-    next();
-  },
 
-  // 3. 실제 비밀번호 변경 로직
-  async (req, res) => {
-    const userId = req.user.id;
-    const { currentPassword, newPassword } = req.body;
-
-    if (!currentPassword || !newPassword) {
-      return res.status(400).json({ message: '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.' });
+    // 4. 현재 비밀번호 일치 여부 확인
+    const isMatch = await bcrypt.compare(currentPassword, user.userPassword);
+    if (!isMatch) {
+      return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
     }
 
-    try {
-      const user = await User.findById(userId);
-      if (!user) {
-        return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
-      }
+    // 5. 새 비밀번호 암호화 및 저장
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-      // 현재 비밀번호 확인
-      const isMatch = await bcrypt.compare(currentPassword, user.userPassword);
-      if (!isMatch) {
-        return res.status(400).json({ message: '현재 비밀번호가 일치하지 않습니다.' });
-      }
+    user.userPassword = hashedPassword;
+    await user.save();
 
-      // 새 비밀번호 암호화 및 저장
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(newPassword, salt);
+    res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
 
-      user.userPassword = hashedPassword;
-      await user.save();
-
-      res.status(200).json({ message: '비밀번호가 성공적으로 변경되었습니다.' });
-
-    } catch (error) {
-      console.error('비밀번호 변경 오류:', error);
-      res.status(500).json({ message: '서버 오류가 발생했습니다.' });
-    }
+  } catch (error) {
+    console.error('비밀번호 변경 오류:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
-];
+};
 
 
 exports.addUnivLecture = async (req, res) => {
@@ -939,6 +917,30 @@ exports.univToCustomLecture = async (req, res) => {
 
   } catch (error) {
     console.error('활동 수정 중 오류 발생:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
+// [추가] 회원 탈퇴
+exports.deleteUser = async (req, res) => {
+  const userId = req.user.id; // 미들웨어에서 추출한 _id
+
+  try {
+    // 1. 사용자 존재 확인
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
+    }
+
+    // 2. 연관된 커스텀 강의 데이터 삭제
+    await CustomLecture.deleteMany({ userObjectId: userId });
+
+    // 3. 사용자 삭제 (게시글/댓글은 남기거나, 필요 시 추가 삭제 로직 구현)
+    await User.deleteOne({ _id: userId });
+
+    res.status(200).json({ message: '회원 탈퇴가 완료되었습니다.' });
+  } catch (error) {
+    console.error('회원 탈퇴 오류:', error);
     res.status(500).json({ message: '서버 오류가 발생했습니다.' });
   }
 };
