@@ -92,33 +92,31 @@ const LecSearch = ({ onLectureAdded }) => {
       <h3 className="text-xl font-semibold mb-4">강의계획서 검색</h3>
 
       <div className="flex flex-col md:flex-row gap-2 mb-3">
-        {/* 연도/학기 한 줄 배치 로직은 유지 */}
-        <div className="flex gap-2 w-full md:w-auto">
-          <select
-            value={year}
-            onChange={(e) => setYear(e.target.value)}
-            className={`${inputBaseClass} flex-1 md:w-32`}
-          >
-            <option value="">전체 연도</option>
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-            <option value="2022">2022</option>
-            <option value="2021">2021</option>
-          </select>
+        <select
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          className={`${inputBaseClass} w-full md:w-32`} // 가로 길이 줄임 (약 128px)
+        >
+          <option value="">전체 연도</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+        </select>
 
-          <select
-            value={semester}
-            onChange={(e) => setSemester(e.target.value)}
-            className={`${inputBaseClass} flex-1 md:w-32`}
-          >
-            <option value="">전체 학기</option>
-            <option value="1학기">1학기</option>
-            <option value="2학기">2학기</option>
-            <option value="계절학기(하계)">하계</option>
-            <option value="계절학기(동계)">동계</option>
-          </select>
-        </div>
+        <select
+          value={semester}
+          onChange={(e) => setSemester(e.target.value)}
+          className={`${inputBaseClass} w-full md:w-32`} // 가로 길이 줄임 (약 128px)
+        >
+          <option value="">전체 학기</option>
+          <option value="1학기">1학기</option>
+          <option value="2학기">2학기</option>
+          <option value="계절학기(하계)">계절학기(하계)</option>
+          <option value="계절학기(동계)">계절학기(동계)</option>
+        </select>
 
         <input
           type="text"

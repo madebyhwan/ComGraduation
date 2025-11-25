@@ -33,6 +33,19 @@ async function lectureList(userId) {
 
     // 분류 기준 리스트 준비
     const userDepartment = user.userDepartment || '';
+    // [핵심 수정] 두 전공을 같은 '심화컴퓨터' 계열로 취급하기 위한 플래그 변수 생성
+    const isDeepComputer = userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공';
+
+    // ---------------------------------------------------------
+    // 졸업 요건 키 생성 (두 전공이 동일한 룰 파일/설정을 공유한다고 가정)
+    // 만약 졸업요건 JSON 파일(allRules) 키가 '심화컴퓨터공학전공_...' 으로만 되어 있다면
+    // 플랫폼SW인 경우에도 키를 '심화컴퓨터공학전공'으로 바꿔서 조회해야 함.
+    // ---------------------------------------------------------
+    let deptKeyForRule = userDepartment;
+    if (isDeepComputer) {
+        deptKeyForRule = '심화컴퓨터공학전공'; // 룰북 키를 심컴으로 통일
+    }
+    
     const userTrack = user.userTrack || '';
     const userYear = user.userYear || '';
 
@@ -76,10 +89,9 @@ async function lectureList(userId) {
 
       const isRequired = requiredCoursesList.includes(code);
 
-      // 학과에 따라 분류 방식 분기
-      if (userDepartment.includes('심화컴퓨터공학전공')) {
-        // --- 심컴 (ABEEK) 분류 로직 ---
-        // 우선순위: 전공필수 > 공학전공 > 전공기반 > 기본소양 > DB상 교양 > 일반선택
+// [핵심 수정] 학과 분기 처리를 isDeepComputer 플래그로 통합
+      if (isDeepComputer) {
+        // --- 심컴 & 플랫폼SW (ABEEK) 공통 분류 로직 ---
         if (isRequired) {
           calculatedType = '전공필수';
         } else if (engineeringMajorList.includes(code)) {
@@ -94,10 +106,8 @@ async function lectureList(userId) {
           calculatedType = '일반선택';
         }
       } else {
-        // --- 글솝 등 타과 분류 로직 ---
-        // 우선순위: 전공필수 > 전공 인정 과목 > DB상 교양 > 일반선택
+        // --- 글로벌SW융합전공 등 타과 ---
         const isMajor = ourMajorCourseList.includes(code) && (l?.lectDepartment || '').includes('컴퓨터학부');
-
         if (isRequired) {
           calculatedType = '전공필수';
         } else if (isMajor) {
@@ -594,7 +604,7 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (userDepartment !== undefined) {
-      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공'];
+      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공'];
       if (!validDepartments.includes(userDepartment)) {
         return res.status(400).json({ message: '유효하지 않은 전공입니다.' });
       }
