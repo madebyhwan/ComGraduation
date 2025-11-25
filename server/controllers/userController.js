@@ -212,14 +212,10 @@ exports.registerUser = [
   body('userPassword')
     .isLength({ min: 8 })
     .withMessage('비밀번호는 최소 8자리 이상이어야 합니다.')
-    .matches(/^(?=.*[a-z])/)
-    .withMessage('비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.')
-    .matches(/^(?=.*[A-Z])/)
-    .withMessage('비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.')
+    .matches(/^(?=.*[a-zA-Z])/)
+    .withMessage('비밀번호는 영문을 최소 1개 이상 포함해야 합니다.')
     .matches(/^(?=.*\d)/)
-    .withMessage('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.')
-    .matches(/^(?=.*[!@#$%^&*(),.?":{}|<>])/)
-    .withMessage('비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.'),
+    .withMessage('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.'),
 
   // 에러 처리
   (req, res, next) => {
@@ -331,17 +327,11 @@ exports.changePassword = async (req, res) => {
   if (newPassword.length < 8) {
     return res.status(400).json({ message: '비밀번호는 최소 8자리 이상이어야 합니다.' });
   }
-  if (!/(?=.*[a-z])/.test(newPassword)) {
-    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.' });
-  }
-  if (!/(?=.*[A-Z])/.test(newPassword)) {
-    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.' });
+  if (!/[a-zA-Z]/.test(newPassword)) {
+    return res.status(400).json({ message: '비밀번호는 영문을 최소 1개 이상 포함해야 합니다.' });
   }
   if (!/(?=.*\d)/.test(newPassword)) {
     return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.' });
-  }
-  if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(newPassword)) {
-    return res.status(400).json({ message: '비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.' });
   }
 
   try {

@@ -170,11 +170,11 @@ const Signup = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              placeholder="영문 대소문자, 숫자, 특수문자 포함 8자 이상"
+            // placeholder="영문 대소문자, 숫자, 포함 8자 이상"
             />
             {/* [추가] 비밀번호 규칙 안내 문구 */}
             <p className="mt-1 text-xs text-gray-500">
-              * 8자 이상, 대문자/소문자/숫자/특수문자(!@#$%^&*) 포함
+              * 영문 대소문자, 숫자, 포함 8자 이상
             </p>
           </div>
           <div className="form-group">
