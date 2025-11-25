@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom'; // URL 파라미터 훅
 import { toast } from 'react-toastify';
-import { getPosts, updatePost, deletePost, addComment, deleteComment } from '../api/api.js';
+import { getPosts, deletePost, addComment, deleteComment } from '../api/api.js';
 import { MessageCircle, Lock, User, Trash2, PenSquare, ArrowLeft, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostWriteModal from '../components/PostWriteModal';
 import { decodeJWT } from '../api/utils';
@@ -37,6 +37,8 @@ const Community = () => {
     const adminIds = process.env.REACT_APP_ADMIN_IDS?.split(',').map(id => id.trim()) || [];
     return adminIds.includes(currentUserLoginId);
   };
+
+  const isUserAdmin = isAdmin();
 
   // 1. 토큰 확인
   useEffect(() => {
@@ -188,15 +190,9 @@ const Community = () => {
 
   return (
     <div>
+      {/* 헤더 영역 (글쓰기 버튼 제거됨) */}
       <div className="flex justify-between items-end mb-6">
         <h1 className="text-3xl font-bold">커뮤니티</h1>
-        {/* 목록 화면일 때만 글쓰기 버튼 표시 */}
-        {!selectedPost && (
-          <button onClick={() => setShowWriteModal(true)} className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80 text-sm flex items-center gap-2">
-            <PenSquare size={16} />
-            글쓰기
-          </button>
-        )}
       </div>
 
       <div className="flex gap-4 mb-6 border-b border-gray-200">
@@ -364,21 +360,42 @@ const Community = () => {
               )}
             </div>
             
+            {/* [수정] 하단 바: 검색창, 페이지네이션, 글쓰기 버튼 배치 */}
             <div className="p-6 border-t border-gray-100 bg-gray-50 rounded-b-lg">
-              <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                <form onSubmit={handleSearch} className="flex w-full md:w-auto gap-2">
+              <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+                
+                {/* 1. 검색창 (좌측) */}
+                <form onSubmit={handleSearch} className="flex w-full lg:w-auto gap-2">
                   <div className="relative flex-1 md:w-64">
                     <input type="text" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} placeholder="제목 또는 내용으로 검색" className="w-full pl-3 pr-10 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-knu-blue" />
                     <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-knu-blue"><Search size={18} /></button>
                   </div>
                 </form>
-                {totalPages > 0 && (
-                  <div className="flex items-center gap-1">
-                    <button onClick={() => paginate(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={16} /></button>
-                    <span className="text-sm px-2 font-medium text-gray-600">{currentPage} / {totalPages}</span>
-                    <button onClick={() => paginate(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={16} /></button>
-                  </div>
-                )}
+
+                {/* 2. 페이지네이션 (중앙) */}
+                <div className="flex items-center gap-1 justify-center flex-1">
+                    {totalPages > 0 && (
+                    <>
+                        <button onClick={() => paginate(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-2 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50"><ChevronLeft size={16} /></button>
+                        <span className="text-sm px-2 font-medium text-gray-600">{currentPage} / {totalPages}</span>
+                        <button onClick={() => paginate(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2 rounded-md border border-gray-300 bg-white text-gray-600 hover:bg-gray-50 disabled:opacity-50"><ChevronRight size={16} /></button>
+                    </>
+                    )}
+                </div>
+
+                {/* 3. 글쓰기 버튼 (우측) */}
+                <div className="w-full lg:w-auto flex justify-end">
+                    {(isUserAdmin || activeTab === 'qna') && (
+                        <button 
+                            onClick={() => setShowWriteModal(true)} 
+                            className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80 text-sm flex items-center gap-2 whitespace-nowrap"
+                        >
+                            <PenSquare size={16} />
+                            글쓰기
+                        </button>
+                    )}
+                </div>
+
               </div>
             </div>
           </div>
@@ -390,6 +407,7 @@ const Community = () => {
           onClose={() => setShowWriteModal(false)}
           onPostAdded={fetchPosts}
           initialTab={activeTab}
+          isAdmin={isAdmin()}
         />
       )}
 
