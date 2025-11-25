@@ -260,12 +260,20 @@ function checkEnglishProficiency(user, rule) {
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
 async function check(user, takenLectures, userCustomLectures, multiMajorLectures) {
+  // [수정] 전공 매핑 로직 추가 (플랫폼SW -> 심화컴퓨터공학전공으로 취급)
+  let departmentToCheck = user.userDepartment;
+  const isDeepComputer = departmentToCheck === '심화컴퓨터공학전공' || departmentToCheck === '플랫폼SW&데이터과학전공';
+
+  if (isDeepComputer) {
+      departmentToCheck = '심화컴퓨터공학전공';
+  }
+
   const track = user.userTrack || '';
   let ruleKey;
   if (track === '') {
-    ruleKey = `${user.userDepartment}_${user.userYear}`;
+    ruleKey = `${departmentToCheck}_${user.userYear}`;
   } else {
-    ruleKey = `${user.userDepartment}_${track}_${user.userYear}`;
+    ruleKey = `${departmentToCheck}_${track}_${user.userYear}`;
   }
 
   const requirements = allRules[ruleKey];
@@ -274,11 +282,11 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   }
 
   let classifiedCredits;
-  if (user.userDepartment.includes("심화컴퓨터공학전공")) {
-    // 심화컴퓨터공학전공
+  if (isDeepComputer) {
+    // 심화컴퓨터공학전공 (플랫폼SW 포함) -> ABEEK 로직
     classifiedCredits = classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorLectures);
   } else {
-    // 글로벌SW융합전공
+    // 글로벌SW융합전공 등 -> 일반 로직
     classifiedCredits = classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
   }
 
