@@ -80,6 +80,39 @@ exports.addComment = async (req, res) => {
   }
 };
 
+// 게시글 수정
+exports.updatePost = async (req, res) => {
+  const { postId } = req.params;
+  const { title, content } = req.body;
+  const userId = req.user.id;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ message: '게시글을 찾을 수 없습니다.' });
+    }
+
+    // 작성자 본인인지 확인
+    if (post.author.toString() !== userId) {
+      return res.status(403).json({ message: '수정 권한이 없습니다.' });
+    }
+
+    // 제목과 내용 수정
+    post.title = title;
+    post.content = content;
+    await post.save();
+
+    const updatedPost = await Post.findById(postId)
+      .populate('author', 'username userDepartment')
+      .populate('comments.author', 'username userDepartment');
+
+    res.status(200).json(updatedPost);
+  } catch (error) {
+    console.error('게시글 수정 실패:', error);
+    res.status(500).json({ message: '서버 오류가 발생했습니다.' });
+  }
+};
+
 // 게시글 삭제
 exports.deletePost = async (req, res) => {
   const { postId } = req.params;

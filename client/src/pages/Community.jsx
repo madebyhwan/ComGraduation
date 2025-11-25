@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom'; // URL 파라미터 훅
 import { toast } from 'react-toastify';
-import { getPosts, deletePost, addComment, deleteComment } from '../api/api.js';
+import { getPosts, updatePost, deletePost, addComment, deleteComment } from '../api/api.js';
 import { MessageCircle, Lock, User, Trash2, PenSquare, ArrowLeft, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostWriteModal from '../components/PostWriteModal';
 import { decodeJWT } from '../api/utils';
@@ -17,6 +17,8 @@ const Community = () => {
 
   const [posts, setPosts] = useState([]);
   const [showWriteModal, setShowWriteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingPost, setEditingPost] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
   const [currentUserLoginId, setCurrentUserLoginId] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -140,6 +142,12 @@ const Community = () => {
       }
   };
 
+  // 게시글 수정 (공지사항만)
+  const handleEdit = (post) => {
+    setEditingPost(post);
+    setShowEditModal(true);
+  };
+
   // 게시글 삭제
   const handleDelete = async (postId) => {
     if (window.confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
@@ -226,13 +234,24 @@ const Community = () => {
                   <span className="flex items-center gap-1"><Clock size={14} /> {formatDate(selectedPost.createdAt)}</span>
                 </div>
                 
-                {/* 삭제 버튼 */}
-                {((currentUserId && (selectedPost.author?._id || selectedPost.author) && 
-                  currentUserId.toString() === (selectedPost.author._id || selectedPost.author).toString()) || isAdmin()) && (
-                  <button onClick={() => handleDelete(selectedPost._id)} className="text-red-500 hover:text-red-700 flex items-center gap-1 text-sm">
-                    <Trash2 size={14} /> 삭제
-                  </button>
-                )}
+                {/* 수정/삭제 버튼 */}
+                <div className="flex items-center gap-2">
+                  {/* 공지사항이고 작성자 본인인 경우 수정 버튼 표시 */}
+                  {selectedPost.type === 'notice' && currentUserId && (selectedPost.author?._id || selectedPost.author) && 
+                    currentUserId.toString() === (selectedPost.author._id || selectedPost.author).toString() && (
+                    <button onClick={() => handleEdit(selectedPost)} className="text-blue-500 hover:text-blue-700 flex items-center gap-1 text-sm">
+                      <PenSquare size={14} /> 수정
+                    </button>
+                  )}
+                  
+                  {/* 작성자 본인이거나 관리자면 삭제 버튼 표시 */}
+                  {((currentUserId && (selectedPost.author?._id || selectedPost.author) && 
+                    currentUserId.toString() === (selectedPost.author._id || selectedPost.author).toString()) || isAdmin()) && (
+                    <button onClick={() => handleDelete(selectedPost._id)} className="text-red-500 hover:text-red-700 flex items-center gap-1 text-sm">
+                      <Trash2 size={14} /> 삭제
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -371,6 +390,25 @@ const Community = () => {
           onClose={() => setShowWriteModal(false)}
           onPostAdded={fetchPosts}
           initialTab={activeTab}
+        />
+      )}
+
+      {showEditModal && editingPost && (
+        <PostWriteModal
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingPost(null);
+          }}
+          onPostAdded={() => {
+            fetchPosts();
+            // 수정 후 상세 페이지 새로고침
+            if (selectedPost && selectedPost._id === editingPost._id) {
+              const updated = posts.find(p => p._id === editingPost._id);
+              if (updated) setSelectedPost(updated);
+            }
+          }}
+          editMode={true}
+          initialPost={editingPost}
         />
       )}
     </div>

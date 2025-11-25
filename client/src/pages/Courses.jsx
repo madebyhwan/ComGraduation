@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { toast } from 'react-toastify';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
 import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor, univToCustom } from '../api/api.js';
@@ -51,7 +52,10 @@ const CoursesPage = () => {
     const handleApiCall = async (apiFunc, lectureId, successMsg) => {
         try {
             await apiFunc(lectureId);
-            alert(successMsg);
+            toast.success(successMsg, {
+                position: "top-right",
+                autoClose: 3000
+            });
             fetchMyLectures();
         } catch (error) {
             alert(error.response?.data?.message || "작업에 실패했습니다.");

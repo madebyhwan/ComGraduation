@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { getPosts, createPost, deletePost,addComment,deleteComment } = require('../controllers/postController');
+const { getPosts, createPost, updatePost, deletePost,addComment,deleteComment } = require('../controllers/postController');
 const authenticateToken = require('../middleware/auth');
 
 // 게시글 목록 조회 (로그인 필요)
@@ -7,6 +7,9 @@ router.get('/', authenticateToken, getPosts);
 
 // 게시글 작성
 router.post('/', authenticateToken, createPost);
+
+// 게시글 수정
+router.put('/:postId', authenticateToken, updatePost);
 
 // 게시글 삭제
 router.delete('/:postId', authenticateToken, deletePost);
