@@ -254,6 +254,17 @@ export const createPost = async (postData) => {
 };
 
 // 게시글 삭제 (DELETE /api/posts/:postId)
+// 게시글 수정
+export const updatePost = async (postId, postData) => {
+  try {
+    const response = await apiClient.put(`/api/posts/${postId}`, postData);
+    return response.data;
+  } catch (error) {
+    console.error('게시글 수정 실패:', error);
+    throw error;
+  }
+};
+
 export const deletePost = async (postId) => {
   try {
     const response = await apiClient.delete(`/api/posts/${postId}`);

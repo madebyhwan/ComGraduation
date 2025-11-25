@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { createPost } from '../api/api.js';
+import { createPost, updatePost } from '../api/api.js';
 import { Lock } from 'lucide-react';
 import { decodeJWT } from '../api/utils';
 
-const PostWriteModal = ({ onClose, onPostAdded }) => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
-  const [type, setType] = useState('qna'); // 기본값 Q&A로 변경
+const PostWriteModal = ({ onClose, onPostAdded, editMode = false, initialPost = null }) => {
+  const [title, setTitle] = useState(editMode ? initialPost?.title || '' : '');
+  const [content, setContent] = useState(editMode ? initialPost?.content || '' : '');
+  const [type, setType] = useState(editMode ? initialPost?.type || 'qna' : 'qna');
   // [추가] 비밀글 상태
-  const [isPrivate, setIsPrivate] = useState(false);
+  const [isPrivate, setIsPrivate] = useState(editMode ? initialPost?.isPrivate || false : false);
   const [currentUserLoginId, setCurrentUserLoginId] = useState(null);
 
   // 관리자 체크 함수 (userId로 체크)
@@ -44,25 +44,38 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
     });
 
    try {
-    console.log("asdas");
-      await createPost({ title, content, type, isPrivate });
-      toast.success('게시글이 등록되었습니다.', {
-        position: "top-right",
-        autoClose: 3000
-      });
+      if (editMode && initialPost) {
+        // 수정 모드
+        await updatePost(initialPost._id, { title, content });
+        toast.success('게시글이 수정되었습니다.', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      } else {
+        // 작성 모드
+        await createPost({ title, content, type, isPrivate });
+        toast.success('게시글이 등록되었습니다.', {
+          position: "top-right",
+          autoClose: 3000
+        });
+      }
       onPostAdded(); // 목록 새로고침
       onClose();
     } catch (error) {
       console.error(error);
-      alert('게시글 등록 실패');
+      toast.error(editMode ? '게시글 수정 실패' : '게시글 등록 실패', {
+        position: "top-right",
+        autoClose: 3000
+      });
     }
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">게시글 작성</h2>
+        <h2 className="text-2xl font-bold mb-4">{editMode ? '게시글 수정' : '게시글 작성'}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {!editMode && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">게시판 선택</label>
             <div className="flex gap-4">
@@ -87,6 +100,7 @@ const PostWriteModal = ({ onClose, onPostAdded }) => {
               </label>
             </div>
           </div>
+          )}
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
