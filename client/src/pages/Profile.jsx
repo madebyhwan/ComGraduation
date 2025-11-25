@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { getMyInfo, updateMyInfo, changePassword,withdrawUser } from '../api/api.js';
+import { getMyInfo, updateMyInfo, changePassword, withdrawUser } from '../api/api.js';
 import { User, Award, BookMarked, Check, Lock, X } from 'lucide-react';
 
 // [추가] 트랙 옵션을 상수로 정의
@@ -385,7 +385,7 @@ const ProfilePage = () => {
                             />
                         </div>
                     </div>
-                </div>                
+                </div>
 
                 {/* [수정] 버튼 영역: 저장 버튼 왼쪽에 '회원 탈퇴' 버튼 추가 */}
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
@@ -441,11 +441,11 @@ const ProfilePage = () => {
                                     className="form-input w-full"
                                     value={newPw}
                                     onChange={(e) => setNewPw(e.target.value)}
-                                    placeholder="영문 대소문자, 숫자, 특수문자 포함 8자 이상"
+                                    // placeholder="영문 대소문자, 숫자 포함 8자 이상"
                                     required
                                 />
                                 <p className="mt-1 text-xs text-gray-500">
-                                    * 8자 이상, 대문자/소문자/숫자/특수문자(!@#$%^&*) 포함
+                                    * 영문 대소문자, 숫자, 포함 8자 이상
                                 </p>
                             </div>
                             <div>
