@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, findIdByName } from '../api/api.js'; // 4단계에서 수정한 api.js
+import { Monitor } from 'lucide-react';
 
 const Login = () => {
   const [studentId, setStudentId] = useState('');
@@ -90,6 +91,14 @@ const Login = () => {
         <h1 className="text-center text-3xl font-bold text-knu-blue">
           ComGraduation
         </h1>
+
+        {/* [추가] PC 환경 권장 알림 박스 */}
+        <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg text-blue-800">
+            <Monitor size={20} className="flex-shrink-0" />
+            <span className="text-xs sm:text-sm font-medium break-keep text-center">
+              원활한 서비스 이용을 위해 <br className="block sm:hidden"/> <br></br><b>PC 환경 접속</b>을 권장합니다.
+            </span>
+        </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="form-group">

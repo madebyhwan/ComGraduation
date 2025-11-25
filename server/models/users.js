@@ -19,12 +19,12 @@ const usersSchema = new mongoose.Schema({
   userYear: {
     type: String,
     required: true,
-    enum: ['20학번', '21학번', '22학번']
+    enum: ['20학번', '21학번', '22학번', '23학번', '24학번', '25학번']
   },
   userDepartment: {
     type: String,
     required: true,
-    enum: ['글로벌SW융합전공', '심화컴퓨터공학전공']
+    enum: ['글로벌SW융합전공', '심화컴퓨터공학전공','플랫폼SW&데이터과학전공']
   },
   userTrack: {
     type: String,

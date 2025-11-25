@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getGraduationStatus } from '../api/api.js'; // (api.js에 만든 함수)
-import { CheckCircle2, AlertCircle, Info } from 'lucide-react'; // 아이콘
+import { CheckCircle2, AlertCircle, Info, AlertTriangle } from 'lucide-react'; // 아이콘
 
 // --- 요건 아이템 컴포넌트 (서버 결과 표시용) ---
 const RequirementItem = ({ title, result }) => {
@@ -141,6 +141,16 @@ const Main = () => {
         >
           {status.eligible ? '졸업 가능' : '졸업 불가능'}
         </div>
+      </div>
+
+      {/* [추가] 면책 조항 (Disclaimer) 박스 */}
+      <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-3 text-amber-900 shadow-sm">
+        <AlertTriangle className="w-4 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <p className="text-xs leading-relaxed break-keep">
+          <span className="font-bold"></span> 본 자가 진단 서비스는 참고용이며, 실제 졸업 사정과 상이할 수 있습니다. 
+          시스템 오류나 데이터 누락으로 인한 불이익에 대해 책임지지 않으므로, 
+          <span className="font-semibold underline underline-offset-2 ml-1">반드시 학과 사무실이나 학교 포털을 통해 최종 확인하시기 바랍니다.</span>
+        </p>
       </div>
 
       <h2 className="text-xl font-semibold mb-4">학점 요건</h2>

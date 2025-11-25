@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signup, checkIdDuplication } from '../api/api.js';
 
@@ -18,6 +18,24 @@ const Signup = () => {
   const [isIdChecked, setIsIdChecked] = useState(false);
 
   const navigate = useNavigate();
+  // [추가] 심컴 vs 플랫폼SW 이름 결정 로직
+  // 23, 24, 25학번 등은 '플랫폼SW&데이터과학전공', 그 외는 '심화컴퓨터공학전공'
+  const getDeepMajorName = (year) => {
+      const newMajorYears = ['23학번', '24학번', '25학번'];
+      return newMajorYears.includes(year) ? '플랫폼SW&데이터과학전공' : '심화컴퓨터공학전공';
+  };
+
+  // 현재 선택된 학번에 따른 심컴계열 전공명
+  const currentDeepMajorName = getDeepMajorName(userYear);
+
+  // 학번이 바뀔 때, 기존에 심컴계열을 선택했다면 새로운 이름으로 업데이트
+  useEffect(() => {
+      // 만약 현재 선택된 전공이 '심화컴퓨터' 혹은 '플랫폼SW' 계열이라면
+      if (userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공') {
+          setUserDepartment(currentDeepMajorName);
+      }
+  }, [userYear, currentDeepMajorName, userDepartment]);
+
 
   // 아이디 중복 확인 핸들러
   const handleCheckId = async () => {
@@ -185,29 +203,42 @@ const Signup = () => {
               <option value="20학번">20학번</option>
               <option value="21학번">21학번</option>
               <option value="22학번">22학번</option>
+              <option value="23학번">23학번</option>
+              <option value="24학번">24학번</option>
+              <option value="25학번">25학번</option>
               {/* (필요시 다른 학번 추가) */}
             </select>
           </div>
 
+          {/* 전공 선택 부분 수정 */}
           <div className="form-group">
             <label className="form-label">전공</label>
-            <div className="grid grid-cols-2 gap-2">
-              {['글로벌SW융합전공', '심화컴퓨터공학전공'].map((dep) => (
+            <div className="grid grid-cols-1 gap-3">
+              {['글로벌SW융합전공', currentDeepMajorName].map((dep) => (
                 <button
                   key={dep}
                   type="button"
                   onClick={() => {
+                    // 이미 선택된 것을 다시 누르면 해제
                     if (userDepartment === dep) {
-                      // 같은 버튼을 다시 누르면 선택 해제
                       setUserDepartment('');
                       setUserTrack('');
                     } else {
+                      // 다른 전공 선택 시
                       setUserDepartment(dep);
-                      if (dep !== '심화컴퓨터공학전공') setUserTrack('');
-                      else if (!userTrack) setUserTrack('심컴'); // 심컴 기본 트랙? (확인 필요)
+                      if (dep === '글로벌SW융합전공') {
+                        setUserTrack(''); // 글솝은 트랙 선택 필요
+                      } else {
+                        setUserTrack('심컴'); // 심화/플랫폼은 기본 트랙 자동 설정
+                      }
                     }
                   }}
-                  className={`w-full py-2 rounded-md border text-sm text-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 ${userDepartment === dep ? 'bg-knu-blue text-white border-knu-blue' : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'}`}>
+                  className={`w-full py-3 px-2 rounded-md border text-sm font-medium transition-all focus:outline-none ${
+                    userDepartment === dep 
+                    ? 'bg-knu-blue text-white border-knu-blue ring-2 ring-knu-blue ring-offset-1' 
+                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
                   {dep}
                 </button>
               ))}

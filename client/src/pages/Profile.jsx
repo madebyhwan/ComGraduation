@@ -49,6 +49,11 @@ const ProfilePage = () => {
     // 1-3. Number (숫자)
     const [counselingCount, setCounselingCount] = useState(0);
 
+    const getDeepMajorName = (year) => {
+        const newMajorYears = ['23학번', '24학번', '25학번'];
+        return newMajorYears.includes(year) ? '플랫폼SW&데이터과학전공' : '심화컴퓨터공학전공';
+    };
+
     // 데이터 로딩 (이전과 동일)
     useEffect(() => {
 
@@ -143,13 +148,13 @@ const ProfilePage = () => {
     // --- (추가!) 전공 변경 시 트랙을 강제하는 핸들러 ---
     const handleDepartmentChange = (newDepartment) => {
         setUserDepartment(newDepartment);
-        // '심화컴퓨터공학전공'을 선택하면
-        if (newDepartment === '심화컴퓨터공학전공') {
-            setUserTrack('심컴'); // 트랙을 '심컴'으로 강제 변경
-        }
-        // '글로벌SW융합전공'으로 돌아갈 때, 현재 트랙이 '심컴'이면
+        // [수정] '글로벌SW융합전공'이 아니면 (즉, 심컴 or 플랫폼SW) -> 트랙을 '심컴'으로 고정
+        if (newDepartment !== '글로벌SW융합전공') {
+            setUserTrack('심컴'); 
+        } 
+        // '글로벌SW융합전공'으로 바꿨는데 기존 트랙이 '심컴'이었다면 -> 트랙 초기화 (선택 유도)
         else if (newDepartment === '글로벌SW융합전공' && userTrack === '심컴') {
-            setUserTrack(''); // '다중전공'으로 리셋 (혹은 원하는 기본값)
+            setUserTrack('');
         }
     };
 
@@ -221,6 +226,8 @@ const ProfilePage = () => {
         }
     };
 
+    const deepMajorName = getDeepMajorName(userYear);
+
     return (
         <div>
             <h1 className="text-3xl font-bold mb-6">내 정보</h1>
@@ -268,14 +275,14 @@ const ProfilePage = () => {
                                 <RadioToggleGroup
                                     options={[
                                         { value: '글로벌SW융합전공', label: '글로벌SW융합전공' },
-                                        { value: '심화컴퓨터공학전공', label: '심화컴퓨터공학전공' }
-                                    ]}
+                                        { value: deepMajorName, label: deepMajorName } 
+                                    ]}          
                                     currentValue={userDepartment}
                                     onChange={handleDepartmentChange} // (수정!) 핸들러 연결
                                 />
                             </div>
                             {/* [수정] '심화컴퓨터공학전공'이 아닐 때만 트랙 UI 표시 */}
-                            {userDepartment !== '심화컴퓨터공학전공' && (
+                            {userDepartment === '글로벌SW융합전공' && (
                                 <div className="form-group">
                                     <label className="form-label">트랙</label>
                                     <RadioToggleGroup
