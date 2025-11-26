@@ -1,7 +1,7 @@
 const rules = {
   "글로벌SW융합전공_다중전공_25학번": {
     "trackName": "다중전공트랙 (25학번 기준)",
-    "admissionYear": 2023,
+    "admissionYear": 2025,
 
     "minTotalCredits": 130,
 
@@ -2231,7 +2231,6 @@ const rules = {
       "minRequired": 8
     },
   },
-
   "인공지능컴퓨팅전공_인컴_24학번": {
     "trackName": "인공지능컴퓨팅전공 (24학번 기준)",
     "admissionYear": 2024,

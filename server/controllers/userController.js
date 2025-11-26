@@ -32,6 +32,7 @@ async function lectureList(userId) {
 
     // 분류 기준 리스트 준비
     const userDepartment = user.userDepartment || '';
+
     // [핵심] 두 전공을 같은 '심화컴퓨터' 계열(ABEEK)로 취급하기 위한 플래그
     const isDeepComputer = userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공';
 
@@ -57,7 +58,7 @@ async function lectureList(userId) {
     const requirements = allRules[ruleKey] || {};
     const requiredCoursesList = requirements.requiredMajorCourses?.courses || [];
 
-    // [수정] courseConfig에서 데이터 구조 분해 할당
+    // courseConfig에서 데이터 구조 분해 할당
     const { majorCourses, ventureCourses, generalEducation } = courseConfig;
 
     // ABEEK 관련 리스트 (심화/플랫폼용)
@@ -66,8 +67,9 @@ async function lectureList(userId) {
     const majorBasisList = abeekData.majorBasis || [];
     const basicGenEdList = abeekData.basicGeneralEducation || [];
 
-    // 글로벌SW 등 타 전공 리스트
-    const globalSWMajorList = majorCourses["글로벌SW융합전공"] || [];
+    // [수정] 특정 전공 리스트 (글로벌SW융합전공, 인공지능컴퓨팅전공 등)
+    // 기존에는 "글로벌SW융합전공"만 하드코딩했으나, 이제 userDepartment에 맞는 리스트를 동적으로 가져옵니다.
+    const targetMajorList = majorCourses[userDepartment] || [];
 
     // 첨성인 기초/핵심 리스트
     const knuBasic = generalEducation.knuBasic || {};
@@ -101,7 +103,7 @@ async function lectureList(userId) {
 
       // [핵심 수정] courseConfig 기반 분류 로직
       if (isDeepComputer) {
-        // --- 심컴 & 플랫폼SW (ABEEK) ---
+        // --- 심화컴퓨터 & 플랫폼SW (ABEEK 로직) ---
         if (isRequired) {
           calculatedType = '전공필수';
         } else if (inList(engineeringMajorList, code)) {
@@ -118,9 +120,11 @@ async function lectureList(userId) {
           calculatedType = '일반선택';
         }
       } else {
-        // --- 글로벌SW융합전공 등 타과 ---
-        // 글로벌SW 리스트에 있고 + 개설학과가 컴퓨터학부인 경우
-        const isMajor = inList(globalSWMajorList, code) && lectDepartment.includes('컴퓨터학부');
+        // --- 글로벌SW융합전공 / 인공지능컴퓨팅전공 / 기타 ---
+
+        // [수정] 위에서 가져온 targetMajorList를 사용하여 전공 여부 확인
+        // (인공지능컴퓨팅전공일 경우 해당 전공 과목 리스트를 참조하게 됨)
+        const isMajor = inList(targetMajorList, code) && lectDepartment.includes('컴퓨터학부');
 
         if (isRequired) {
           calculatedType = '전공필수';
@@ -620,7 +624,7 @@ exports.updateUserProfile = async (req, res) => {
 
     // [추가] 입학년도 업데이트 로직
     if (userYear !== undefined) {
-        user.userYear = userYear;
+      user.userYear = userYear;
     }
 
     if (userDepartment !== undefined) {
