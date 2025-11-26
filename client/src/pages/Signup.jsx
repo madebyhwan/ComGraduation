@@ -191,8 +191,7 @@ const Signup = () => {
 
           <div className="form-group">
             <div className="flex items-center gap-2">
-              <label className="form-label" htmlFor="userYear">입학년도</label>
-              <span className="text-xs text-gray-400 ml-1">(회원가입 후 변경 불가)</span>
+              <label className="form-label" htmlFor="userYear">입학년도</label>              
             </div>
             <select
               className="form-input"
