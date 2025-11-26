@@ -126,10 +126,10 @@ const Main = () => {
   const { details, creditSummary } = status;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto">
       {/* 헤더 */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">졸업 자가 진단</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+        <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">졸업 자가 진단</h1>
         <div
           className={`px-4 py-2 rounded-lg font-semibold text-sm md:text-base whitespace-nowrap
             ${status.eligible ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}

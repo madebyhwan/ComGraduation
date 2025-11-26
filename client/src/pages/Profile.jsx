@@ -92,6 +92,19 @@ const ProfilePage = () => {
         }
     }, [userTrack]);
 
+    // [추가] 학번 변경 핸들러
+    const handleYearChange = (e) => {
+        const newYear = e.target.value;
+        setUserYear(newYear);
+
+        // 학번을 바꿨을 때, 현재 전공이 심컴 계열이라면 이름도 자동으로 맞춰준다.
+        // (예: 21학번(심화) -> 23학번 선택 시 -> 전공을 '플랫폼SW'로 자동 변경)
+        if (userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공') {
+            const newMajorName = getDeepMajorName(newYear);
+            setUserDepartment(newMajorName);
+        }
+    };
+
     // 폼 제출
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -99,6 +112,7 @@ const ProfilePage = () => {
         try {
             const profileData = {
                 username,
+                userYear,
                 userDepartment,
                 userTrack,
                 multiMajorType: multiMajorType === "null" ? null : multiMajorType,
@@ -229,8 +243,8 @@ const ProfilePage = () => {
     const deepMajorName = getDeepMajorName(userYear);
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">내 정보</h1>
+        <div className="max-w-7xl mx-auto">
+            <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">내 정보</h1>
 
             <form className="space-y-8" onSubmit={handleSubmit}>
 
@@ -262,12 +276,24 @@ const ProfilePage = () => {
                                     </button>
                                 </div>
                             </div>
+                            {/* [수정] 입학년도 select에 handleYearChange 연결 */}
                             <div className="form-group">
                                 <label className="form-label" htmlFor="userYear">입학년도</label>
-                                <input className="form-input" id="userYear" type="text" value={userYear} disabled />
+                                <select
+                                    className="form-input"
+                                    id="userYear"
+                                    value={userYear}
+                                    onChange={handleYearChange} // [수정] 여기서 핸들러 호출
+                                >
+                                    <option value="20학번">20학번</option>
+                                    <option value="21학번">21학번</option>
+                                    <option value="22학번">22학번</option>
+                                    <option value="23학번">23학번</option>
+                                    <option value="24학번">24학번</option>
+                                    <option value="25학번">25학번</option>
+                                </select>
                             </div>
                         </div>
-
                         {/* (수정!) 전공과 트랙을 2열 그리드로 묶음 */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="form-group">
