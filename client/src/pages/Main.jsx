@@ -249,25 +249,41 @@ const Main = () => {
         <RequirementItem title="창업 교과" result={details.ventureCourseCompetency} />
       </div>
 
-      {creditSummary?.multiMajorCredits !== undefined && (
+      {creditSummary && (
         <>
           <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">참고 사항</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
-              <div className="shrink-0 mt-0.5">
-                <Info className="h-5 w-5 text-blue-500" />
+            {creditSummary.generalElectiveCredits !== undefined && (
+              <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
+                <div className="shrink-0 mt-0.5">
+                  <Info className="h-5 w-5 text-blue-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-semibold text-gray-800 break-keep">일반선택 학점</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-medium text-gray-900">{creditSummary.generalElectiveCredits}</span>
+                    <span className="text-gray-500"> 학점</span>
+                  </p>
+                </div>
               </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="font-semibold text-gray-800 break-keep">다중전공 이수학점</h4>
-                <p className="text-sm text-gray-600 mt-1">
-                  <span className="font-medium text-gray-900">{creditSummary.multiMajorCredits}</span>
-                  <span className="text-gray-500"> 학점</span>
-                </p>
-                <p className="text-xs text-red-500 mt-2 font-bold break-keep">
-                  * 본인의 다중전공 유형 학점 요건을 모두 충족하였는지 반드시 확인하시기 바랍니다.
-                </p>
+            )}
+            {creditSummary.multiMajorCredits !== undefined && (
+              <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
+                <div className="shrink-0 mt-0.5">
+                  <Info className="h-5 w-5 text-blue-500" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-semibold text-gray-800 break-keep">다중전공 이수학점</h4>
+                  <p className="text-sm text-gray-600 mt-1">
+                    <span className="font-medium text-gray-900">{creditSummary.multiMajorCredits}</span>
+                    <span className="text-gray-500"> 학점</span>
+                  </p>
+                  <p className="text-xs text-red-500 mt-2 font-bold break-keep">
+                    * 본인의 다중전공 유형 학점 요건을 모두 충족하였는지 반드시 확인하시기 바랍니다.
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </>
       )}

@@ -628,7 +628,7 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (userDepartment !== undefined) {
-      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공','인공지능컴퓨팅전공'];
+      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공', '인공지능컴퓨팅전공'];
       if (!validDepartments.includes(userDepartment)) {
         return res.status(400).json({ message: '유효하지 않은 전공입니다.' });
       }
