@@ -270,7 +270,6 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
 
   // 데이터 로드: "글로벌SW융합전공" 같은 단순 배열 형태
   const ourMajorCourseList = majorCourses[userDepartment] || [];
-  const ventureCourseList = ventureCourses["ventures"];
 
   takenLectures.forEach(lecture => {
     const credits = Number(lecture.lectCredit) || 0;
@@ -314,27 +313,15 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
       generalElectiveCredits += credit;
     }
 
-    if (ventureCourseList.includes(lecture.lectCode)) {
-      startupCourseCredits += credit;
-    }
-
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
-    }
-    const overseasCredit = Number(lecture.overseasCredit) || 0;
-    if (lecture.overseasCredit > 0) {
-      overseasCredits += overseasCredit;
     }
   });
 
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
-
-    if (ventureCourseList.includes(lecture.lectCode)) {
-      startupCourseCredits += credit;
-    }
 
     const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
     if (isMajor && lecture.isEnglishLecture) {
