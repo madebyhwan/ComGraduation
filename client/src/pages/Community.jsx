@@ -5,6 +5,9 @@ import { getPosts, deletePost, addComment, deleteComment } from '../api/api.js';
 import { MessageCircle, Lock, User, Trash2, PenSquare, ArrowLeft, Clock, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import PostWriteModal from '../components/PostWriteModal';
 import { decodeJWT } from '../api/utils';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 const Community = () => {
   // [핵심 수정 1] URL 파라미터로 모든 상태 관리 (탭, 게시글ID)
@@ -252,7 +255,27 @@ const Community = () => {
             </div>
             
             <div className="p-8 border-b border-gray-100 min-h-[200px]">
-              <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedPost.content}</p>
+              {selectedPost.type === 'notice' ? (
+                <div className="text-gray-800 leading-relaxed prose prose-slate max-w-none">
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]} 
+                    rehypePlugins={[rehypeRaw]}
+                    components={{
+                      iframe: ({node, ...props}) => (
+                        <iframe 
+                          {...props} 
+                          className="w-full h-[600px] border-0 rounded-lg shadow-sm my-4"
+                          allowFullScreen
+                        />
+                      )
+                    }}
+                  >
+                    {selectedPost.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{selectedPost.content}</p>
+              )}
             </div>
 
             {/* 댓글 영역 */}
