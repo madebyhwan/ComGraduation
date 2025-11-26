@@ -189,10 +189,10 @@ const Community = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   return (
-    <div>
+    <div className="max-w-7xl mx-auto">
       {/* 헤더 영역 (글쓰기 버튼 제거됨) */}
-      <div className="flex justify-between items-end mb-6">
-        <h1 className="text-3xl font-bold">커뮤니티</h1>
+      <div>
+        <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">커뮤니티</h1>
       </div>
 
       <div className="flex gap-4 mb-6 border-b border-gray-200">
@@ -210,7 +210,7 @@ const Community = () => {
         </button>
       </div>
 
-      <div className="bg-white border border-gray-200 rounded-lg shadow-sm min-h-[500px] flex flex-col">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col">
         {selectedPost ? (
           <div className="animate-fadeIn flex-1 flex flex-col">
             {/* 상세 보기 헤더 */}
@@ -315,7 +315,7 @@ const Community = () => {
           <div className="flex flex-col h-full justify-between">
             <div>
               <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-200 bg-gray-50 text-sm font-semibold text-gray-600 text-center">
-                <div className="col-span-1">번호</div>
+                <div className="col-span-1 whitespace-nowrap">번호</div>
                 <div className="col-span-7 text-left pl-4">제목</div>
                 <div className="col-span-2">작성자</div>
                 <div className="col-span-2">작성일</div>

@@ -229,8 +229,8 @@ const ProfilePage = () => {
     const deepMajorName = getDeepMajorName(userYear);
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">내 정보</h1>
+        <div className="max-w-7xl mx-auto">
+            <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">내 정보</h1>
 
             <form className="space-y-8" onSubmit={handleSubmit}>
 
