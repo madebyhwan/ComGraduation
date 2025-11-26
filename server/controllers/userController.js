@@ -7,8 +7,7 @@ const mongoose = require('mongoose');
 const graduationService = require('../services/graduationService');
 const { body, validationResult } = require('express-validator');
 
-const majorCourses = require('../config/majorCourses.json');
-const abeekCourses = require('../config/abeekCourses.json');
+const courseConfig = require('../config/courseConfig.json');
 const allRules = require('../config/graduationRules.js');
 
 // 유저의 강의 목록을 통합된 형태로 반환하는 함수
@@ -33,41 +32,51 @@ async function lectureList(userId) {
 
     // 분류 기준 리스트 준비
     const userDepartment = user.userDepartment || '';
-    // [핵심 수정] 두 전공을 같은 '심화컴퓨터' 계열로 취급하기 위한 플래그 변수 생성
+    // [핵심] 두 전공을 같은 '심화컴퓨터' 계열(ABEEK)로 취급하기 위한 플래그
     const isDeepComputer = userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공';
 
     // ---------------------------------------------------------
-    // 졸업 요건 키 생성 (두 전공이 동일한 룰 파일/설정을 공유한다고 가정)
-    // 만약 졸업요건 JSON 파일(allRules) 키가 '심화컴퓨터공학전공_...' 으로만 되어 있다면
-    // 플랫폼SW인 경우에도 키를 '심화컴퓨터공학전공'으로 바꿔서 조회해야 함.
+    // 졸업 요건 키 생성
     // ---------------------------------------------------------
     let deptKeyForRule = userDepartment;
     if (isDeepComputer) {
-        deptKeyForRule = '심화컴퓨터공학전공'; // 룰북 키를 심컴으로 통일
+      deptKeyForRule = '심화컴퓨터공학전공'; // 룰북 키를 심컴으로 통일 (필요 시)
     }
-    
+
     const userTrack = user.userTrack || '';
     const userYear = user.userYear || '';
 
-    // 졸업 요건 키 생성 및 필수 과목 리스트 추출
     let ruleKey;
     if (userTrack === '') {
       ruleKey = `${userDepartment}_${userYear}`;
     } else {
       ruleKey = `${userDepartment}_${userTrack}_${userYear}`;
     }
+
+    // 졸업 요건 룰에서 '전공 필수' 과목 리스트 가져오기
     const requirements = allRules[ruleKey] || {};
-    // 전공 필수 과목 코드 배열 추출 (없으면 빈 배열)
-    // 이 변수가 mapLecture에서 접근 가능해야 함
     const requiredCoursesList = requirements.requiredMajorCourses?.courses || [];
 
-    // 심화컴퓨터공학전공용 ABEEK 리스트
-    const basicGenEdList = abeekCourses.basicGeneralEducation || [];
-    const majorBasisList = abeekCourses.majorBasis || [];
-    const engineeringMajorList = abeekCourses.engineeringMajor || [];
+    // [수정] courseConfig에서 데이터 구조 분해 할당
+    const { majorCourses, ventureCourses, generalEducation } = courseConfig;
 
-    // 글로벌SW융합전공용 전공 리스트
-    const ourMajorCourseList = majorCourses[userDepartment] || [];
+    // ABEEK 관련 리스트 (심화/플랫폼용)
+    const abeekData = majorCourses["심컴"] || {};
+    const engineeringMajorList = abeekData.engineeringMajor || [];
+    const majorBasisList = abeekData.majorBasis || [];
+    const basicGenEdList = abeekData.basicGeneralEducation || [];
+
+    // 글로벌SW 등 타 전공 리스트
+    const globalSWMajorList = majorCourses["글로벌SW융합전공"] || [];
+
+    // 첨성인 기초/핵심 리스트
+    const knuBasic = generalEducation.knuBasic || {};
+    const knuCore = generalEducation.knuCore || {};
+
+    // 리스트 포함 여부 확인용 헬퍼 함수
+    const inList = (list, code) => Array.isArray(list) && list.includes(code);
+    const inObj = (obj, code) => Object.values(obj).some(arr => inList(arr, code));
+
 
     // 2. 커스텀 강의 매핑
     const custom = (user.userCustomLectures || []).map(cl => ({
@@ -84,22 +93,25 @@ async function lectureList(userId) {
     const mapLecture = (l) => {
       const code = l?.lectCode;
       const dbGeneral = l?.lectGeneral; // DB에 저장된 기본 구분
+      const lectDepartment = l?.lectDepartment || '';
 
       let calculatedType = '일반선택'; // 기본값
 
       const isRequired = requiredCoursesList.includes(code);
 
-// [핵심 수정] 학과 분기 처리를 isDeepComputer 플래그로 통합
+      // [핵심 수정] courseConfig 기반 분류 로직
       if (isDeepComputer) {
-        // --- 심컴 & 플랫폼SW (ABEEK) 공통 분류 로직 ---
+        // --- 심컴 & 플랫폼SW (ABEEK) ---
         if (isRequired) {
           calculatedType = '전공필수';
-        } else if (engineeringMajorList.includes(code)) {
+        } else if (inList(engineeringMajorList, code)) {
           calculatedType = '공학전공';
-        } else if (majorBasisList.includes(code)) {
+        } else if (inList(majorBasisList, code)) {
           calculatedType = '전공기반';
-        } else if (basicGenEdList.includes(code)) {
+        } else if (inList(basicGenEdList, code)) {
           calculatedType = '기본소양';
+        } else if (inObj(knuBasic, code) || inObj(knuCore, code)) {
+          calculatedType = '교양'; // 첨성인 기초/핵심
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
         } else {
@@ -107,11 +119,15 @@ async function lectureList(userId) {
         }
       } else {
         // --- 글로벌SW융합전공 등 타과 ---
-        const isMajor = ourMajorCourseList.includes(code) && (l?.lectDepartment || '').includes('컴퓨터학부');
+        // 글로벌SW 리스트에 있고 + 개설학과가 컴퓨터학부인 경우
+        const isMajor = inList(globalSWMajorList, code) && lectDepartment.includes('컴퓨터학부');
+
         if (isRequired) {
           calculatedType = '전공필수';
         } else if (isMajor) {
           calculatedType = '전공';
+        } else if (inObj(knuBasic, code) || inObj(knuCore, code) || inList(ventureCourses.ventures, code)) {
+          calculatedType = '교양';
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
         } else {
@@ -150,8 +166,6 @@ async function lectureList(userId) {
 
     // 매핑 및 정렬 적용
     const univ = (user.userLectures || []).map(mapLecture).sort(sortLectures);
-
-    // 다중전공은 어떻게 할 것??
     const multiMajor = (user.multiMajorLectures || []).map(mapLecture).sort(sortLectures);
 
     return {
@@ -610,7 +624,7 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (userDepartment !== undefined) {
-      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공'];
+      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공','인공지능컴퓨팅전공'];
       if (!validDepartments.includes(userDepartment)) {
         return res.status(400).json({ message: '유효하지 않은 전공입니다.' });
       }
@@ -618,7 +632,7 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (userTrack !== undefined) {
-      const validTracks = ['심컴', '다중전공', '해외복수학위', '학석사연계'];
+      const validTracks = ['심컴', '인컴', '다중전공', '해외복수학위', '학석사연계'];
       if (!validTracks.includes(userTrack)) {
         return res.status(400).json({ message: '유효하지 않은 졸업 트랙입니다.' });
       }

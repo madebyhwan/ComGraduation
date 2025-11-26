@@ -20,21 +20,27 @@ const Signup = () => {
   const navigate = useNavigate();
   // [추가] 심컴 vs 플랫폼SW 이름 결정 로직
   // 23, 24, 25학번 등은 '플랫폼SW&데이터과학전공', 그 외는 '심화컴퓨터공학전공'
-  const getDeepMajorName = (year) => {
-      const newMajorYears = ['23학번', '24학번', '25학번'];
-      return newMajorYears.includes(year) ? '플랫폼SW&데이터과학전공' : '심화컴퓨터공학전공';
+// [수정] 학번별 전공 목록 로직
+  // 23학번 이상: 글로벌SW, 플랫폼SW, 인공지능
+  // 20~22학번: 글로벌SW, 심화컴퓨터
+  const getAvailableMajors = (year) => {
+    const newMajorYears = ['23학번', '24학번', '25학번'];
+    if (newMajorYears.includes(year)) {
+      return ['글로벌SW융합전공', '플랫폼SW&데이터과학전공', '인공지능컴퓨팅전공'];
+    }
+    return ['글로벌SW융합전공', '심화컴퓨터공학전공'];
   };
 
-  // 현재 선택된 학번에 따른 심컴계열 전공명
-  const currentDeepMajorName = getDeepMajorName(userYear);
+// 현재 학번에서 선택 가능한 전공 리스트
+  const availableMajors = getAvailableMajors(userYear);
 
-  // 학번이 바뀔 때, 기존에 심컴계열을 선택했다면 새로운 이름으로 업데이트
+// [수정] 학번 변경 시 전공 초기화 로직
   useEffect(() => {
-      // 만약 현재 선택된 전공이 '심화컴퓨터' 혹은 '플랫폼SW' 계열이라면
-      if (userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공') {
-          setUserDepartment(currentDeepMajorName);
+      if (!availableMajors.includes(userDepartment)) {
+          setUserDepartment('');
+          setUserTrack('');
       }
-  }, [userYear, currentDeepMajorName, userDepartment]);
+  }, [userYear, availableMajors, userDepartment]);
 
 
   // 아이디 중복 확인 핸들러
@@ -209,29 +215,30 @@ const Signup = () => {
             </select>
           </div>
 
-          {/* 전공 선택 부분 수정 */}
+{/* 전공 선택 부분 (동적 렌더링) */}
           <div className="form-group">
             <label className="form-label">전공</label>
             <div className="grid grid-cols-1 gap-3">
-              {['글로벌SW융합전공', currentDeepMajorName].map((dep) => (
+              {availableMajors.map((dep) => (
                 <button
                   key={dep}
                   type="button"
                   onClick={() => {
-                    // 이미 선택된 것을 다시 누르면 해제
                     if (userDepartment === dep) {
                       setUserDepartment('');
                       setUserTrack('');
                     } else {
-                      // 다른 전공 선택 시
                       setUserDepartment(dep);
-                      if (dep === '글로벌SW융합전공') {
-                        setUserTrack(''); // 글솝은 트랙 선택 필요
-                      } else {
-                        setUserTrack('심컴'); // 심화/플랫폼은 기본 트랙 자동 설정
-                      }
-                    }
-                  }}
+                      // 전공 선택 시 트랙 설정
+                            if (dep === '글로벌SW융합전공') {
+                                    setUserTrack(''); // 직접 선택해야 함
+                                } else if (dep === '인공지능컴퓨팅전공') {
+                                    setUserTrack('인컴'); // [중요] 인컴으로 저장
+                                } else {
+                                    setUserTrack('심컴'); // 심화, 플랫폼SW는 심컴
+                                }
+                            }
+                        }}
                   className={`w-full py-3 px-2 rounded-md border text-sm font-medium transition-all focus:outline-none ${
                     userDepartment === dep 
                     ? 'bg-knu-blue text-white border-knu-blue ring-2 ring-knu-blue ring-offset-1' 

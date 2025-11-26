@@ -120,7 +120,7 @@ const LecSearch = ({ onLectureAdded }) => {
 
         <input
           type="text"
-          placeholder="강의명, 교수명, 학수번호"
+          placeholder="강의명 또는 교수명 또는 과목코드"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
           onKeyDown={handleKeyPress}
