@@ -33,6 +33,10 @@ const rules = {
       "min": 30
     },
 
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
     // 첨성인 기초
     "knuBasicRequirement": {
       "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
@@ -128,6 +132,10 @@ const rules = {
       "min": 30
     },
 
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
     // 첨성인 기초
     "knuBasicRequirement": {
       "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
@@ -219,6 +227,10 @@ const rules = {
       "min": 30
     },
 
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
     // 첨성인 기초
     "knuBasicRequirement": {
       "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
@@ -306,6 +318,10 @@ const rules = {
     "generalEducationCredits": {
       "note": "교양 과목은 min 이상 이수해야함",
       "min": 30
+    },
+
+    "sdgRequirement": {
+      "minCredits": 3,
     },
 
     // 첨성인 기초
@@ -403,6 +419,10 @@ const rules = {
       "min": 30
     },
 
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
     // 첨성인 기초
     "knuBasicRequirement": {
       "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
@@ -492,6 +512,10 @@ const rules = {
     "generalEducationCredits": {
       "note": "교양 과목은 min 이상 이수해야함",
       "min": 30
+    },
+
+    "sdgRequirement": {
+      "minCredits": 3,
     },
 
     // 첨성인 기초
@@ -642,11 +666,16 @@ const rules = {
     },
 
     "exitRequirement": {
-      "note": "TOPCIT 필수",
+      "note": "TOPCIT 또는 졸업인터뷰 중 하나를 실시해야 함",
       "options": [
         {
           "type": "topcit",
           "note": "TOPCIT 시험 응시",
+          "required": true
+        },
+        {
+          "type": "graduation_interview",
+          "note": "졸업 인터뷰 통과",
           "required": true
         }
       ]
@@ -733,11 +762,16 @@ const rules = {
     },
 
     "exitRequirement": {
-      "note": "TOPCIT 필수",
+      "note": "TOPCIT 또는 졸업인터뷰 중 하나를 실시해야 함",
       "options": [
         {
           "type": "topcit",
           "note": "TOPCIT 시험 응시",
+          "required": true
+        },
+        {
+          "type": "graduation_interview",
+          "note": "졸업 인터뷰 통과",
           "required": true
         }
       ]
@@ -813,11 +847,16 @@ const rules = {
     },
 
     "exitRequirement": {
-      "note": "TOPCIT 필수",
+      "note": "TOPCIT 또는 졸업인터뷰 중 하나를 실시해야 함",
       "options": [
         {
           "type": "topcit",
           "note": "TOPCIT 시험 응시",
+          "required": true
+        },
+        {
+          "type": "graduation_interview",
+          "note": "졸업 인터뷰 통과",
           "required": true
         }
       ]
@@ -1604,6 +1643,10 @@ const rules = {
       "min": 30
     },
 
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
     // 첨성인 기초
     "knuBasicRequirement": {
       "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
@@ -1696,6 +1739,10 @@ const rules = {
     "generalEducationCredits": {
       "note": "교양 과목은 min 이상 이수해야함",
       "min": 30
+    },
+
+    "sdgRequirement": {
+      "minCredits": 3,
     },
 
     // 첨성인 기초
@@ -2112,6 +2159,217 @@ const rules = {
       ]
     }
   },
+
+  "인공지능컴퓨팅전공_인컴_25학번": {
+    "trackName": "인공지능컴퓨팅전공 (25학번 기준)",
+    "admissionYear": 2025,
+
+    "minTotalCredits": 140,
+
+    "majorCredits": {
+      "credits": 72,
+      "note": "다중전공, 해외대학, 대학원, 타 전공학점 제외"
+    },
+
+    "requiredMajorCourses": {
+      "note": "반드시 이수해야 하는 전공필수과목 목록",
+      "courses": [
+        "COMP0453",
+        "COMP0454",
+        "COME0331",
+        "COMP0324",
+        "COMP0319",
+        "ITEC0417",
+        "ITEC0401"
+      ]
+    },
+
+    "generalEducationCredits": {
+      "note": "교양 과목은 min 이상 이수해야함",
+      "min": 30
+    },
+
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
+    // 첨성인 기초
+    "knuBasicRequirement": {
+      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    },
+
+    // 첨성인 핵심
+    "knuCoreRequirement": {
+      "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+      "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    },
+
+    "englishProficiency": {
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "options": [
+        { "test": "TOEIC", "minScore": 700 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
+        { "test": "OPIC", "minLevel": "IM1" },
+        { "test": "G-TELP", "minScore": 65 },
+        { "test": "IELTS", "minScore": 6.0 }
+      ]
+    },
+
+    "internshipRequirement": {
+      "note": "현장실습 학점",
+      "minInternshipCredits": 3
+    },
+
+    "counselingSessions": {
+      "note": "지도교수 상담 8회 이상",
+      "minRequired": 8
+    },
+  },
+
+  "인공지능컴퓨팅전공_인컴_24학번": {
+    "trackName": "인공지능컴퓨팅전공 (24학번 기준)",
+    "admissionYear": 2024,
+
+    "minTotalCredits": 140,
+
+    "majorCredits": {
+      "credits": 72,
+      "note": "다중전공, 해외대학, 대학원, 타 전공학점 제외"
+    },
+
+    "requiredMajorCourses": {
+      "note": "반드시 이수해야 하는 전공필수과목 목록",
+      "courses": [
+        "COMP0453",
+        "COMP0454",
+        "COME0331",
+        "COMP0324",
+        "COMP0319",
+        "ITEC0417",
+        "ITEC0401"
+      ]
+    },
+
+    "generalEducationCredits": {
+      "note": "교양 과목은 min 이상 이수해야함",
+      "min": 30
+    },
+
+    "sdgRequirement": {
+      "minCredits": 3,
+    },
+
+    // 첨성인 기초
+    "knuBasicRequirement": {
+      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    },
+
+    // 첨성인 핵심
+    "knuCoreRequirement": {
+      "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+      "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    },
+
+    "englishProficiency": {
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "options": [
+        { "test": "TOEIC", "minScore": 700 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
+        { "test": "OPIC", "minLevel": "IM1" },
+        { "test": "G-TELP", "minScore": 65 },
+        { "test": "IELTS", "minScore": 6.0 }
+      ]
+    },
+
+    "internshipRequirement": {
+      "note": "현장실습 학점",
+      "minInternshipCredits": 3
+    },
+
+    "counselingSessions": {
+      "note": "지도교수 상담 8회 이상",
+      "minRequired": 8
+    },
+  },
+  "인공지능컴퓨팅전공_인컴_23학번": {
+    "trackName": "인공지능컴퓨팅전공 (23학번 기준)",
+    "admissionYear": 2023,
+
+    "minTotalCredits": 140,
+
+    "majorCredits": {
+      "credits": 72,
+      "note": "다중전공, 해외대학, 대학원, 타 전공학점 제외"
+    },
+
+    "requiredMajorCourses": {
+      "note": "반드시 이수해야 하는 전공필수과목 목록",
+      "courses": [
+        "COMP0453",
+        "COMP0454",
+        "COME0331",
+        "COMP0324",
+        "COMP0319",
+        "ITEC0417",
+        "ITEC0401"
+      ]
+    },
+
+    "generalEducationCredits": {
+      "note": "교양 과목은 min 이상 이수해야함",
+      "min": 30
+    },
+
+    // 첨성인 기초
+    "knuBasicRequirement": {
+      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    },
+
+    // 첨성인 핵심
+    "knuCoreRequirement": {
+      "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+      "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    },
+
+    "englishProficiency": {
+      "note": "공인영어시험 기준 중 하나 이상을 충족해야 함",
+      "options": [
+        { "test": "TOEIC", "minScore": 700 },
+        { "test": "TOEIC SPEAKING", "minScore": 120 },
+        { "test": "PBT", "minScore": 529 },
+        { "test": "IBT", "minScore": 71 },
+        { "test": "CBT", "minScore": 197 },
+        { "test": "TEPS", "minScore": 600 },
+        { "test": "TEPS SPEAKING", "minScore": 50 },
+        { "test": "OPIC", "minLevel": "IM1" },
+        { "test": "G-TELP", "minScore": 65 },
+        { "test": "IELTS", "minScore": 6.0 }
+      ]
+    },
+
+    "internshipRequirement": {
+      "note": "현장실습 학점",
+      "minInternshipCredits": 3
+    },
+
+    "counselingSessions": {
+      "note": "지도교수 상담 8회 이상",
+      "minRequired": 8
+    },
+  }
 }
 
 

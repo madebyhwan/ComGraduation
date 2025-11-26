@@ -46,6 +46,10 @@ const lecturesSchema = new mongoose.Schema({
   isEnglishLecture: {
     type: Boolean,
     default: false
+  },
+  isSDGLecture: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
