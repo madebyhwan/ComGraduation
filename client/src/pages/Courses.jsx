@@ -56,7 +56,7 @@ const LectureList = ({
 
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {isFilterable && (
-                        <div className="hidden sm:flex gap-2 mr-2">
+                        <div className="hidden sm:flex gap-2 mr-2 items-center">
                             <Filter className="w-4 h-4 text-gray-400" />
                             <select
                                 value={selectedYear}
@@ -87,7 +87,7 @@ const LectureList = ({
                             onClick={onAdd}
                             className="rounded-md bg-knu-blue py-1.5 px-3 font-medium text-white shadow-sm hover:bg-opacity-80 text-xs sm:text-sm whitespace-nowrap"
                         >
-                            활동 추가
+                            교과목 외 활동 추가
                         </button>
                     )}
                 </div>
@@ -179,7 +179,7 @@ const LectureList = ({
 
                                     <div className="flex gap-1 sm:gap-2 shrink-0 self-start mt-0.5">
                                         {type === 'univ' && onUnivToCustom && (
-                                            <button onClick={() => onUnivToCustom(lec._id)} title="커스텀 과목으로 이동" className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-full transition-colors">
+                                            <button onClick={() => onUnivToCustom(lec._id)} title="수강 과목 수정으로 이동" className="p-1.5 text-purple-600 hover:bg-purple-50 rounded-full transition-colors">
                                                 <ArrowDownToLine className="w-4 h-4 sm:w-5 sm:h-5" />
                                             </button>
                                         )}
@@ -279,10 +279,10 @@ const CoursesPage = () => {
         }
     };
     const handleUnivToCustom = async (lectureId) => {
-        if (window.confirm("이 과목을 '커스텀 과목'으로 이동하시겠습니까?")) {
+        if (window.confirm("이 과목을 '수강 과목 수정'으로 이동하시겠습니까?")) {
             try {
                 await univToCustom(lectureId);
-                alert("커스텀 과목으로 이동되었습니다.");
+                alert("수강 과목 수정으로 이동되었습니다.");
                 fetchMyLectures();
             } catch (error) {
                 alert(error.response?.data?.message || "이동에 실패했습니다.");
@@ -354,7 +354,7 @@ const CoursesPage = () => {
                     />
 
                     <LectureList
-                        title="커스텀 과목(강의 수정) 및 교과목 외 활동 내역"
+                        title="수강 과목 수정 및 교과목 외 활동 내역"
                         lectures={lectures.custom}
                         onDelete={handleDelete}
                         onEdit={handleShowEditModal}
