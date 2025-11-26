@@ -170,6 +170,15 @@ const ProfilePage = () => {
             setPwError('비밀번호는 8자 이상이어야 합니다.');
             return;
         }
+        if (!/(?=.*[a-zA-Z])/.test(newPw)) {
+            setPwError('비밀번호는 영문를 포함해야 합니다.');
+            return;
+        }
+        if (!/(?=.*\d)/.test(newPw)) {
+            setPwError('비밀번호는 숫자를 포함해야 합니다.');
+            return;
+        }
+
         try {
             await changePassword({ currentPassword: currentPw, newPassword: newPw });
             toast.success('비밀번호가 변경되었습니다.');
@@ -312,10 +321,10 @@ const ProfilePage = () => {
                         <h3 className="text-xl font-semibold">졸업 심사 및 개인 활동</h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <ActivityToggle label="졸업 인터뷰 통과" checked={passedInterview} onChange={setPassedInterview} />
-                        <ActivityToggle label="TOPCIT 통과" checked={passedTopcit} onChange={setPassedTopcit} />
-                        <ActivityToggle label="창업여부" checked={isStartup} onChange={setIsStartup} />
-                        <ActivityToggle label="해외 교환학생여부(1년 이상)" checked={isExchangeStudent} onChange={setIsExchangeStudent} />
+                        <ActivityToggle label="졸업 인터뷰" checked={passedInterview} onChange={setPassedInterview} />
+                        <ActivityToggle label="TOPCIT 응시" checked={passedTopcit} onChange={setPassedTopcit} />
+                        <ActivityToggle label="창업 여부" checked={isStartup} onChange={setIsStartup} />
+                        <ActivityToggle label="해외 교환학생 여부(1년 이상)" checked={isExchangeStudent} onChange={setIsExchangeStudent} />
                     </div>
                 </div>
 

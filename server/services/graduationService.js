@@ -263,6 +263,8 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
   let knuCoreHumanitySociety = 0;
   let knuCoreNaturalScience = 0;
 
+  let sdgCredits = 0;
+
   const knuBasicList = generalEducation.knuBasic || {};
   const knuCoreList = generalEducation.knuCore || {};
 
@@ -552,19 +554,19 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     required: requirements.counselingSessions.minRequired,
   };
 
-  const exitOptions = requirements.exitRequirement.options || [];
-  const isInterviewAllowed = exitOptions.some(opt => opt.type === 'graduation_interview');
-  let exitPass = false;
-  if (isInterviewAllowed) {
-    exitPass = (user.passedTopcit || false) || (user.passedInterview || false);
-  } else {
-    exitPass = (user.passedTopcit || false);
-  }
+  if (requirements.exitRequirement) {
+    const exitReq = requirements.exitRequirement;
+    const exitOptions = exitReq.options || [];
+    const isInterviewAllowed = exitOptions.some(opt => opt.type === 'graduation_interview');
 
-  results.exitRequirement = {
-    pass: exitPass,
-    note: requirements.exitRequirement.note,
-  };
+    let exitPass = false;
+    if (isInterviewAllowed) {
+      exitPass = (user.passedTopcit || false) || (user.passedInterview || false);
+    } else {
+      exitPass = (user.passedTopcit || false);
+    }
+    results.exitRequirement = { pass: exitPass, note: exitReq.note };
+  }
 
   const englishResult = checkEnglishProficiency(user, requirements.englishProficiency);
   let englishNote = requirements.englishProficiency.note;
