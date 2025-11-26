@@ -164,6 +164,12 @@ const LecSearch = ({ onLectureAdded }) => {
                   <span className="mr-1">{lec.lectProfessor || '교수미정'}</span>
                   <span className="text-gray-300 mx-1">|</span>
                   <span className="mx-1">{lec.lectYear}-{lec.lectSemester}</span>
+                  {lec.lectTime && (
+                    <>
+                      <span className="text-gray-300 mx-1">|</span>
+                      <span className="mx-1">{lec.lectTime}</span>
+                    </>
+                  )}
                   <span className="text-gray-300 mx-1">|</span>
                   <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                 </p>
