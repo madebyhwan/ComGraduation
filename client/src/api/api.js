@@ -77,6 +77,7 @@ export const updateMyInfo = async (profileData) => {
     // userController/updateUserProfile이 받는 모든 필드
     const payload = {
       username: profileData.username,
+      userYear: profileData.userYear,
       userDepartment: profileData.userDepartment,
       userTrack: profileData.userTrack,
       multiMajorType: profileData.multiMajorType,
