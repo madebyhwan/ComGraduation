@@ -452,10 +452,10 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     // ABEEK 공통 로직 사용
     classifiedCredits = classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMajorLectures);
   } else if (user.userDepartment.includes("글로벌SW융합전공")) {
-    // 글로벌SW
+    // 글로벌SW융합전공
     classifiedCredits = classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
-  } else if (user.userDepartment.includes("인공지능컴퓨팅")) {
-    // 인공지능컴퓨팅
+  } else if (user.userDepartment.includes("인공지능컴퓨팅전공")) {
+    // 인공지능컴퓨팅전공
     classifiedCredits = classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
   }
 
