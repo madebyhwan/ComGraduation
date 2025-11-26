@@ -158,7 +158,7 @@ const LectureList = ({
 
                                             {type === 'custom' ? (
                                                 <p>
-                                                    총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit})
+                                                    총 {lec.totalCredit}학점 (해외 {lec.overseasCredit}, 실습 {lec.fieldPracticeCredit}, 창업 {lec.startupCourseCredit})
                                                 </p>
                                             ) : (
                                                 <div className="flex flex-wrap gap-x-2 gap-y-0.5 items-center">
@@ -310,7 +310,7 @@ const CoursesPage = () => {
         // - px-2: 모바일에서 좌우 회색 여백 최소화 (기존 px-4 대비 절반)
         // - py-4: 상하 회색 여백 축소 (기존 py-6/8 대비 축소)
         // - max-w-7xl: PC 화면에서도 넓게 쓰도록 확장
-        <div className="max-w-7xl mx-auto px-2 sm:px-4 py-4">
+        <div className="max-w-7xl mx-auto">
             <CustomLectureModal
                 show={showModal}
                 onClose={handleCloseModal}
@@ -318,8 +318,8 @@ const CoursesPage = () => {
                 lectureToEdit={editingLecture}
             />
 
-            <div className="flex justify-between items-center mb-4 px-1">
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">수강 과목 관리</h1>
+            <div>
+                <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">수강 과목 관리</h1>
             </div>
 
             <LecSearch onLectureAdded={fetchMyLectures} />

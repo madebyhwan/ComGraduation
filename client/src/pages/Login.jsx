@@ -86,9 +86,9 @@ const Login = () => {
 
   return (
     // Tailwind 스타일 적용
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-center text-3xl font-bold text-knu-blue">
+    <div className="auth-layout">
+      <div className="auth-card">
+        <h1 className="auth-title">
           ComGraduation
         </h1>
 
@@ -157,7 +157,7 @@ const Login = () => {
 
       {/* [추가] 아이디 찾기 모달 (팝업) */}
       {showFindModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm mx-4">
             <h2 className="text-xl font-bold text-gray-800 mb-4">아이디 찾기</h2>
             
