@@ -56,7 +56,7 @@ const LectureList = ({
 
                 <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                     {isFilterable && (
-                        <div className="hidden sm:flex gap-2 mr-2">
+                        <div className="hidden sm:flex gap-2 mr-2 items-center">
                             <Filter className="w-4 h-4 text-gray-400" />
                             <select
                                 value={selectedYear}
