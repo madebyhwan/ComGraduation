@@ -578,6 +578,7 @@ exports.updateUserProfile = async (req, res) => {
   const userId = req.user.id;
   const {
     username,
+    userYear,
     userDepartment,
     userTrack,
     multiMajorType,  // 유저 정보 업데이트 안됨: multiUserTrack
@@ -601,6 +602,11 @@ exports.updateUserProfile = async (req, res) => {
     // 수정 가능한 필드만 업데이트
     if (username !== undefined) {
       user.username = String(username);
+    }
+
+    // [추가] 입학년도 업데이트 로직
+    if (userYear !== undefined) {
+        user.userYear = userYear;
     }
 
     if (userDepartment !== undefined) {
