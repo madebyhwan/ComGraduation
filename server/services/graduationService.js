@@ -75,26 +75,47 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
   });
 
   userCustomLectures.forEach(lecture => {
-    const credit = Number(lecture.totalCredit) || 0;
+    const credits = Number(lecture.totalCredit) || 0;
+    const courseCode = lecture.lectCode;
+
     if (lecture.lectType === '교양') {
-      generalEducationCredits += credit;
+      generalEducationCredits += credits;
     } else if (lecture.lectType === '전공') {
-      majorCredits += credit;
+      majorCredits += credits;
     } else {
-      generalElectiveCredits += credit;
+      generalElectiveCredits += credits;
     }
 
-    if (ventureCourseList.includes(lecture.lectCode)) {
-      startupCourseCredits += credit;
+    const startupCourseCredit = Number(lecture.fieldPracticeCredit) || 0;
+    if (lecture.startupCourseCredit > 0) {
+      startupCourseCredits += startupCourseCredit;
+    }
+
+    const overseasCredit = Number(lecture.overseasCredit) || 0;
+    if (lecture.overseasCredit > 0) {
+      overseasCredits += overseasCredit;
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
     }
-    const overseasCredit = Number(lecture.overseasCredit) || 0;
-    if (lecture.overseasCredit > 0) {
-      overseasCredits += overseasCredit;
+
+    if (knuBasicList.readingDebate?.includes(courseCode)) {
+      knuBasicReadingDebate += credits;
+    }
+    if (knuBasicList.mathScience?.includes(courseCode)) {
+      knuBasicMathScience += credits;
+    }
+    if (knuCoreList.humanitySociety?.includes(courseCode)) {
+      knuCoreHumanitySociety += credits;
+    }
+    if (knuCoreList.naturalScience?.includes(courseCode)) {
+      knuCoreNaturalScience += credits;
+    }
+
+    if (lecture.isSDGLecture) {
+      sdgCredits += credits;
     }
   });
 
@@ -205,18 +226,41 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
   });
 
   userCustomLectures.forEach(lecture => {
-    const credit = Number(lecture.totalCredit) || 0;
+    const credits = Number(lecture.totalCredit) || 0;
+    const courseCode = lecture.lectCode;
+
     if (lecture.lectType === '교양') {
-      generalEducationCredits += credit;
+      generalEducationCredits += credits;
     } else if (lecture.lectType === '전공') {
-      majorCredits += credit;
+      majorCredits += credits;
     } else {
-      generalElectiveCredits += credit;
+      generalElectiveCredits += credits;
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
+    }
+
+    if (designCourseList.includes(courseCode)) {
+      totalDesignCredits += credits;
+    }
+
+    if (knuBasicList.readingDebate?.includes(courseCode)) {
+      knuBasicReadingDebate += credits;
+    }
+    if (knuBasicList.mathScience?.includes(courseCode)) {
+      knuBasicMathScience += credits;
+    }
+    if (knuCoreList.humanitySociety?.includes(courseCode)) {
+      knuCoreHumanitySociety += credits;
+    }
+    if (knuCoreList.naturalScience?.includes(courseCode)) {
+      knuCoreNaturalScience += credits;
+    }
+
+    if (lecture.isSDGLecture) {
+      sdgCredits += credits;
     }
   });
 
@@ -304,29 +348,44 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
   });
 
   userCustomLectures.forEach(lecture => {
-    const credit = Number(lecture.totalCredit) || 0;
+    const credits = Number(lecture.totalCredit) || 0;
+    const courseCode = lecture.lectCode;
+
+
     if (lecture.lectType === '교양') {
-      generalEducationCredits += credit;
+      generalEducationCredits += credits;
     } else if (lecture.lectType === '전공') {
-      majorCredits += credit;
+      majorCredits += credits;
     } else {
-      generalElectiveCredits += credit;
+      generalElectiveCredits += credits;
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
     }
+
+    if (knuBasicList.readingDebate?.includes(courseCode)) {
+      knuBasicReadingDebate += credits;
+    }
+    if (knuBasicList.mathScience?.includes(courseCode)) {
+      knuBasicMathScience += credits;
+    }
+    if (knuCoreList.humanitySociety?.includes(courseCode)) {
+      knuCoreHumanitySociety += credits;
+    }
+    if (knuCoreList.naturalScience?.includes(courseCode)) {
+      knuCoreNaturalScience += credits;
+    }
+
+    if (lecture.isSDGLecture) {
+      sdgCredits += credits;
+    }
   });
 
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
-
-    const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
-    if (isMajor && lecture.isEnglishLecture) {
-      overseasCredits += 1;
-    }
   });
 
   return {

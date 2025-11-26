@@ -16,6 +16,11 @@ const customLecuteresSchema = new mongoose.Schema({
     enum: ['전공', '교양', '일반선택'],
     required: true
   },
+  lectCode: {  // 사용자의 직접 입력을 위해 required 삭제
+    type: String,
+    match: /^[A-Z]{4}[0-9]{4}$/,
+    trim: true
+  },
   overseasCredit: {  // 해외학점
     type: Number,
     min: 0,
@@ -35,6 +40,14 @@ const customLecuteresSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     required: true
+  },
+  isEnglishLecture: {
+    type: Boolean,
+    default: false
+  },
+  isSDGLecture: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
