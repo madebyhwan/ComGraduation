@@ -170,6 +170,15 @@ const ProfilePage = () => {
             setPwError('비밀번호는 8자 이상이어야 합니다.');
             return;
         }
+        if (!/(?=.*[a-zA-Z])/.test(newPw)) {
+            setPwError('비밀번호는 영문를 포함해야 합니다.');
+            return;
+        }
+        if (!/(?=.*\d)/.test(newPw)) {
+            setPwError('비밀번호는 숫자를 포함해야 합니다.');
+            return;
+        }
+
         try {
             await changePassword({ currentPassword: currentPw, newPassword: newPw });
             toast.success('비밀번호가 변경되었습니다.');
