@@ -219,6 +219,14 @@ const Main = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <RequirementItem title="전공 필수 과목" result={details.requiredMajorCourses} />
         <RequirementItem title="지도 교수 상담" result={details.counselingSessions} />
+
+        {details.sdgRequirement && (
+          <RequirementItem
+            title="SDG 교양"
+            result={details.sdgRequirement}
+          />
+        )}
+
         <RequirementItem title="졸업 자격 인정" result={details.exitRequirement} />
         <RequirementItem title="영어 성적" result={details.englishProficiency} />
 

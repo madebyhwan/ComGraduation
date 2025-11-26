@@ -1,42 +1,45 @@
 const allRules = require('../config/graduationRules.js');
-const majorCourses = require('../config/majorCourses.json');
-const ventureCourses = require('../config/ventureCourses.json');
-const abeekCourses = require('../config/abeekCourses.json'); // ABEEK 분류 데이터
-const generalEducation = require('../config/general_education.json'); // 첨성인 기초/핵심 데이터 로드
+const courseConfig = require('../config/courseConfig.json'); // 통합된 설정 파일
 const lectures = require('../models/lectures.js');
 
+const {
+  majorCourses,
+  ventureCourses,
+  generalEducation
+} = courseConfig;
+
 /**
- * [글로벌SW융합전공용] 학점 계산 함수
+ * [글로벌SW융합전공] 학점 계산 함수
  */
 function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorLectures, userDepartment) {
-  let majorCredits = 0;             // 전공
-  let generalEducationCredits = 0;  // 교양
-  let generalElectiveCredits = 0;   // 일반 선택
-  let startupCourseCredits = 0;     // 창업 교과목
-  let fieldPracticeCredits = 0;     // 현장실습
-  let overseasCredits = 0;          // 해외대학인정학점
-  let multiMajorCredits = 0;        // 다중전공
+  let majorCredits = 0;
+  let generalEducationCredits = 0;
+  let generalElectiveCredits = 0;
+  let startupCourseCredits = 0;
+  let fieldPracticeCredits = 0;
+  let overseasCredits = 0;
+  let multiMajorCredits = 0;
 
-  // 첨성인 기초/핵심 학점
   let knuBasicReadingDebate = 0;
   let knuBasicMathScience = 0;
   let knuCoreHumanitySociety = 0;
   let knuCoreNaturalScience = 0;
 
-  // 첨성인 데이터 로드
+  let sdgCredits = 0;
+
   const knuBasicList = generalEducation.knuBasic || {};
   const knuCoreList = generalEducation.knuCore || {};
 
+  // 데이터 로드: "글로벌SW융합전공" 같은 단순 배열 형태
   const ourMajorCourseList = majorCourses[userDepartment] || [];
   const ventureCourseList = ventureCourses["ventures"];
 
   takenLectures.forEach(lecture => {
     const credits = Number(lecture.lectCredit) || 0;
-    const courseCode = lecture.lectCode; // [수정] 변수 정의 확인
+    const courseCode = lecture.lectCode;
 
     const isMajor = ourMajorCourseList.includes(courseCode) && lecture.lectDepartment.includes("컴퓨터학부");
 
-    // 1. 주 학점 분류
     if (isMajor) {
       majorCredits += credits;
     } else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
@@ -45,16 +48,14 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       generalElectiveCredits += credits;
     }
 
-    // 창업 교과목
     if (ventureCourseList.includes(courseCode)) {
       startupCourseCredits += credits;
     }
-    // 해외 대학 (영어 강의 + 전공)
+
     if (isMajor && lecture.isEnglishLecture) {
       overseasCredits += 1;
     }
 
-    // 첨성인 기초/핵심
     if (knuBasicList.readingDebate?.includes(courseCode)) {
       knuBasicReadingDebate += credits;
     }
@@ -66,6 +67,10 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     }
     if (knuCoreList.naturalScience?.includes(courseCode)) {
       knuCoreNaturalScience += credits;
+    }
+
+    if (lecture.isSDGLecture) {
+      sdgCredits += Number(lecture.lectCredit) || 0;
     }
   });
 
@@ -95,16 +100,13 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
 
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
-    const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
-
     multiMajorCredits += credit;
 
-    // 창업 교과목
     if (ventureCourseList.includes(lecture.lectCode)) {
       startupCourseCredits += credit;
     }
 
-    // 해외 대학 (영어 강의 + 전공)
+    const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
     if (isMajor && lecture.isEnglishLecture) {
       overseasCredits += 1;
     }
@@ -117,6 +119,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     startupCourseCredits,
     fieldPracticeCredits,
     overseasCredits,
+    sdgCredits,
     multiMajorCredits,
     knuBasicReadingDebate,
     knuBasicMathScience,
@@ -126,35 +129,34 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
 }
 
 /**
- * [심화컴퓨터공학전공용] 학점 계산 함수 (ABEEK)
+ * [공학인증용 - 심화컴퓨터공학전공 / 플랫폼SW&데이터과학전공] 학점 계산 함수
  */
-function classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorLectures) {
-  // 공통 학점
+function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMajorLectures) {
   let majorCredits = 0;
   let generalEducationCredits = 0;
   let generalElectiveCredits = 0;
   let fieldPracticeCredits = 0;
   let multiMajorCredits = 0;
 
-  // ABEEK 세부 학점
   let basicGeneralEducationCredits = 0; // 기본소양
   let majorBasisCredits = 0;            // 전공기반
   let engineeringMajorCredits = 0;      // 공학전공
   let totalDesignCredits = 0;           // 설계
 
-  // 첨성인 기초/핵심 학점
   let knuBasicReadingDebate = 0;
   let knuBasicMathScience = 0;
   let knuCoreHumanitySociety = 0;
   let knuCoreNaturalScience = 0;
 
-  // 분류 리스트 로드
-  const basicGenEdList = abeekCourses.basicGeneralEducation || [];
-  const majorBasisList = abeekCourses.majorBasis || [];
-  const engineeringMajorList = abeekCourses.engineeringMajor || [];
-  const designCourseList = abeekCourses.designCourses || [];
+  let sdgCredits = 0;
 
-  // 첨성인 데이터 로드
+  // [수정됨] majorCourses 내의 ABEEK 공통 데이터를 로드
+  const abeekData = majorCourses["심컴"] || {};
+  const basicGenEdList = abeekData.basicGeneralEducation || [];
+  const majorBasisList = abeekData.majorBasis || [];
+  const engineeringMajorList = abeekData.engineeringMajor || [];
+  const designCourseList = abeekData.designCourses || [];
+
   const knuBasicList = generalEducation.knuBasic || {};
   const knuCoreList = generalEducation.knuCore || {};
 
@@ -183,7 +185,7 @@ function classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorL
       totalDesignCredits += credits;
     }
 
-    // 3. 첨성인 기초/핵심 (중복 인정 가능하도록 별도 IF문 처리)
+    // 3. 첨성인 기초/핵심
     if (knuBasicList.readingDebate?.includes(courseCode)) {
       knuBasicReadingDebate += credits;
     }
@@ -195,6 +197,10 @@ function classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorL
     }
     if (knuCoreList.naturalScience?.includes(courseCode)) {
       knuCoreNaturalScience += credits;
+    }
+
+    if (lecture.isSDGLecture) {
+      sdgCredits += Number(lecture.lectCredit) || 0;
     }
   });
 
@@ -226,27 +232,131 @@ function classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorL
     fieldPracticeCredits,
     multiMajorCredits,
 
-    // GS 함수와의 호환성을 위해 0으로 반환
     startupCourseCredits: 0,
     overseasCredits: 0,
 
-    // ABEEK 전용 반환값
     basicGeneralEducationCredits,
     majorBasisCredits,
     engineeringMajorCredits,
     totalDesignCredits,
 
-    // 첨성인 기초/핵심 반환값
     knuBasicReadingDebate,
     knuBasicMathScience,
     knuCoreHumanitySociety,
-    knuCoreNaturalScience
+    knuCoreNaturalScience,
+    sdgCredits
   };
 }
 
 /**
- * 영어 성적 요건 확인 함수
+ *  [인공지능컴퓨팅] 학점 계산 함수
  */
+function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorLectures, userDepartment) {
+  let majorCredits = 0;
+  let generalEducationCredits = 0;
+  let generalElectiveCredits = 0;
+  let fieldPracticeCredits = 0;
+  let multiMajorCredits = 0;
+
+  let knuBasicReadingDebate = 0;
+  let knuBasicMathScience = 0;
+  let knuCoreHumanitySociety = 0;
+  let knuCoreNaturalScience = 0;
+
+  const knuBasicList = generalEducation.knuBasic || {};
+  const knuCoreList = generalEducation.knuCore || {};
+
+  // 데이터 로드: "글로벌SW융합전공" 같은 단순 배열 형태
+  const ourMajorCourseList = majorCourses[userDepartment] || [];
+  const ventureCourseList = ventureCourses["ventures"];
+
+  takenLectures.forEach(lecture => {
+    const credits = Number(lecture.lectCredit) || 0;
+    const courseCode = lecture.lectCode;
+
+    const isMajor = ourMajorCourseList.includes(courseCode) && lecture.lectDepartment.includes("컴퓨터학부");
+
+    if (isMajor) {
+      majorCredits += credits;
+    } else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
+      generalEducationCredits += credits;
+    } else {
+      generalElectiveCredits += credits;
+    }
+
+    if (knuBasicList.readingDebate?.includes(courseCode)) {
+      knuBasicReadingDebate += credits;
+    }
+    if (knuBasicList.mathScience?.includes(courseCode)) {
+      knuBasicMathScience += credits;
+    }
+    if (knuCoreList.humanitySociety?.includes(courseCode)) {
+      knuCoreHumanitySociety += credits;
+    }
+    if (knuCoreList.naturalScience?.includes(courseCode)) {
+      knuCoreNaturalScience += credits;
+    }
+
+    if (lecture.isSDGLecture) {
+      sdgCredits += Number(lecture.lectCredit) || 0;
+    }
+  });
+
+  userCustomLectures.forEach(lecture => {
+    const credit = Number(lecture.totalCredit) || 0;
+    if (lecture.lectType === '교양') {
+      generalEducationCredits += credit;
+    } else if (lecture.lectType === '전공') {
+      majorCredits += credit;
+    } else {
+      generalElectiveCredits += credit;
+    }
+
+    if (ventureCourseList.includes(lecture.lectCode)) {
+      startupCourseCredits += credit;
+    }
+
+    const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
+    if (lecture.fieldPracticeCredit > 0) {
+      fieldPracticeCredits += fieldPracticeCredit;
+    }
+    const overseasCredit = Number(lecture.overseasCredit) || 0;
+    if (lecture.overseasCredit > 0) {
+      overseasCredits += overseasCredit;
+    }
+  });
+
+  multiMajorLectures.forEach(lecture => {
+    const credit = Number(lecture.lectCredit) || 0;
+    multiMajorCredits += credit;
+
+    if (ventureCourseList.includes(lecture.lectCode)) {
+      startupCourseCredits += credit;
+    }
+
+    const isMajor = ourMajorCourseList.includes(lecture.lectCode) && lecture.lectDepartment.includes("컴퓨터학부");
+    if (isMajor && lecture.isEnglishLecture) {
+      overseasCredits += 1;
+    }
+  });
+
+  return {
+    majorCredits,
+    generalEducationCredits,
+    generalElectiveCredits,
+    startupCourseCredits,
+    fieldPracticeCredits,
+    overseasCredits,
+    multiMajorCredits,
+    knuBasicReadingDebate,
+    knuBasicMathScience,
+    knuCoreHumanitySociety,
+    knuCoreNaturalScience,
+    sdgCredits
+  };
+}
+
+// ... (영어 성적 함수 checkEnglishProficiency는 변경 없음) ...
 function checkEnglishProficiency(user, rule) {
   const defaultResult = {
     pass: false,
@@ -313,8 +423,6 @@ function checkEnglishProficiency(user, rule) {
   };
 }
 
-// --- 메인 체크 함수 ---
-
 /**
  * 학생의 졸업 요건 충족 여부를 판별하는 메인 함수
  */
@@ -333,12 +441,22 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     throw new Error(`'${ruleKey}'에 해당하는 졸업요건 기준을 찾을 수 없습니다.`);
   }
 
-  // 2. 학과별 학점 분류 함수 호출
+  // 2. 학과별 학점 분류 함수 호출 (분기 로직 수정)
   let classifiedCredits;
-  if (user.userDepartment.includes("심화컴퓨터공학전공")) {
-    classifiedCredits = classifyAndSumCredits_SC(takenLectures, userCustomLectures, multiMajorLectures);
-  } else {
+
+  const isAbeekMajor =
+    user.userDepartment.includes("심화컴퓨터공학전공") ||
+    user.userDepartment.includes("플랫폼SW&데이터과학전공");
+
+  if (isAbeekMajor) {
+    // ABEEK 공통 로직 사용
+    classifiedCredits = classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMajorLectures);
+  } else if (user.userDepartment.includes("글로벌SW융합전공")) {
+    // 글로벌SW
     classifiedCredits = classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
+  } else if (user.userDepartment.includes("인공지능컴퓨팅")) {
+    // 인공지능컴퓨팅
+    classifiedCredits = classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorLectures, user.userDepartment);
   }
 
   // 3. 결과 통합
@@ -360,15 +478,14 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     knuBasicReadingDebate = 0,
     knuBasicMathScience = 0,
     knuCoreHumanitySociety = 0,
-    knuCoreNaturalScience = 0
+    knuCoreNaturalScience = 0,
+    sdgCredits
   } = classifiedCredits;
 
   const results = {};
 
-  // 4. 공통 요건 체크 (수정됨: undefined 오류 해결)
+  // 4. 공통 요건 체크
   const geRule = requirements.generalEducationCredits;
-
-  // 교양 학점 인정 및 표시 로직 개선
   let geNote = null;
   let recognizedGeCredits = generalEducationCredits;
   let geRequiredText = `${geRule.min} 이상`;
@@ -413,6 +530,17 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     }
   }
 
+  if (requirements.sdgRequirement) {
+    const rule = requirements.sdgRequirement;
+
+    results.sdgRequirement = {
+      pass: sdgCredits >= rule.minCredits,
+      current: sdgCredits,
+      required: rule.minCredits,
+      note: rule.note
+    };
+  }
+
   results.requiredMajorCourses = {
     pass: missingCourses.length === 0,
     current: requiredCourses.length - missingCourses.length,
@@ -427,17 +555,11 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   };
 
   const exitOptions = requirements.exitRequirement.options || [];
-
-  // 규칙에 '졸업 인터뷰'가 포함되어 있는지 확인
   const isInterviewAllowed = exitOptions.some(opt => opt.type === 'graduation_interview');
-
   let exitPass = false;
-
   if (isInterviewAllowed) {
-    // 22학번 이전: TOPCIT 또는 인터뷰 중 하나라도 통과하면 OK
     exitPass = (user.passedTopcit || false) || (user.passedInterview || false);
   } else {
-    // 23학번 이후: 인터뷰가 옵션에 없으므로 무조건 TOPCIT 통과여야 함
     exitPass = (user.passedTopcit || false);
   }
 
@@ -449,7 +571,6 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   const englishResult = checkEnglishProficiency(user, requirements.englishProficiency);
   let englishNote = requirements.englishProficiency.note;
   if (englishResult.pass) englishNote = null;
-
   results.englishProficiency = {
     ...englishResult,
     note: englishNote,
@@ -457,7 +578,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
 
   // 5. 조건부 요건 체크
 
-  // [SC 전용] ABEEK 세부 학점
+  // [ABEEK 전용] 세부 학점 (심화컴공 / 플랫폼SW)
   if (requirements.basicGeneralEducationCredits) {
     const rule = requirements.basicGeneralEducationCredits;
     results.basicGeneralEducationCredits = {
@@ -486,7 +607,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     };
   }
 
-  // [SC 전용] 첨성인 기초/핵심
+  // [ABEEK 전용] 첨성인 기초/핵심
   if (requirements.knuBasicRequirement) {
     const rule = requirements.knuBasicRequirement;
     const exceptionRule = requirements.knuBasicException;
@@ -534,10 +655,9 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     };
   }
 
-  // [공통/분기] 캡스톤 디자인
+  // [공통] 캡스톤 디자인
   if (requirements.capstoneDesignRequirement) {
     const capstoneRule = requirements.capstoneDesignRequirement;
-
     if (capstoneRule.minDesignCredits !== undefined) {
       results.capstoneDesignRequirement = {
         pass: totalDesignCredits >= capstoneRule.minDesignCredits,
@@ -548,7 +668,6 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     } else if (capstoneRule.options && Array.isArray(capstoneRule.options)) {
       const requiredOptions = capstoneRule.options.map(opt => opt.courseCode);
       const passedCourse = requiredOptions.find(code => takenCourseCodes.includes(code));
-
       results.capstoneDesignRequirement = {
         pass: !!passedCourse,
         current: passedCourse || '미이수',
@@ -581,11 +700,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
 
   if (requirements.globalDegreeRequirement) {
     const globalRule = requirements.globalDegreeRequirement;
-
-    // DB의 User 모델에 'hasDualDegree'(복수학위) 또는 'hasExchangeStudent'(교환학생) 필드가 있다고 가정합니다.
-    // 만약 필드명이 다르다면 user.필드명 부분을 수정해주세요.
     const isFulfilled = (user.isExchangeStudent === true);
-
     results.globalDegreeRequirement = {
       pass: isFulfilled,
       current: isFulfilled ? "이수 완료" : "미이수",
