@@ -628,7 +628,7 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (userDepartment !== undefined) {
-      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공'];
+      const validDepartments = ['글로벌SW융합전공', '심화컴퓨터공학전공', '플랫폼SW&데이터과학전공','인공지능컴퓨팅전공'];
       if (!validDepartments.includes(userDepartment)) {
         return res.status(400).json({ message: '유효하지 않은 전공입니다.' });
       }
@@ -636,7 +636,7 @@ exports.updateUserProfile = async (req, res) => {
     }
 
     if (userTrack !== undefined) {
-      const validTracks = ['심컴', '다중전공', '해외복수학위', '학석사연계'];
+      const validTracks = ['심컴', '인컴', '다중전공', '해외복수학위', '학석사연계'];
       if (!validTracks.includes(userTrack)) {
         return res.status(400).json({ message: '유효하지 않은 졸업 트랙입니다.' });
       }

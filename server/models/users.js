@@ -24,12 +24,12 @@ const usersSchema = new mongoose.Schema({
   userDepartment: {
     type: String,
     required: true,
-    enum: ['글로벌SW융합전공', '심화컴퓨터공학전공','플랫폼SW&데이터과학전공']
+    enum: ['글로벌SW융합전공', '심화컴퓨터공학전공','플랫폼SW&데이터과학전공','인공지능컴퓨팅전공']
   },
   userTrack: {
     type: String,
     required: true,
-    enum: ['심컴', '다중전공', '해외복수학위', '학석사연계']
+    enum: ['심컴', '인컴', '다중전공', '해외복수학위', '학석사연계']
   },
   multiMajorType: {
     type: String,

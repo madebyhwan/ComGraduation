@@ -1,12 +1,10 @@
-// client/src/pages/Profile.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getMyInfo, updateMyInfo, changePassword, withdrawUser } from '../api/api.js';
 import { User, Award, BookMarked, Check, Lock, X } from 'lucide-react';
 
-// [추가] 트랙 옵션을 상수로 정의
+// 트랙 옵션 상수
 const allTrackOptions = [
     { value: '심컴', label: '심컴' },
     { value: '다중전공', label: '다중전공' },
@@ -15,9 +13,8 @@ const allTrackOptions = [
 ];
 
 const ProfilePage = () => {
-    // [추가] MainLayout에서 전달한 updateUsername 함수 가져오기
     const { updateUsername } = useOutletContext();
-    const navigate = useNavigate(); // 네비게이션 훅
+    const navigate = useNavigate();
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -29,7 +26,7 @@ const ProfilePage = () => {
     const [confirmPw, setConfirmPw] = useState('');
     const [pwError, setPwError] = useState('');
 
-    // 1. users.js 모델에 정의된 모든 상태
+    // --- 사용자 정보 상태 ---
     const [username, setUsername] = useState('');
     const [studentId, setStudentId] = useState('');
     const [userYear, setUserYear] = useState('');
@@ -37,26 +34,24 @@ const ProfilePage = () => {
     const [userTrack, setUserTrack] = useState('');
     const [multiMajorType, setMultiMajorType] = useState(null);
 
-    // 1-1. englishTest (객체)
     const [englishTest, setEnglishTest] = useState({ testType: null, score: '' });
-
-    // 1-2. Boolean (체크박스)
     const [passedInterview, setPassedInterview] = useState(false);
     const [passedTopcit, setPassedTopcit] = useState(false);
     const [isStartup, setIsStartup] = useState(false);
     const [isExchangeStudent, setIsExchangeStudent] = useState(false);
-
-    // 1-3. Number (숫자)
     const [counselingCount, setCounselingCount] = useState(0);
 
-    const getDeepMajorName = (year) => {
+    // 학번별 선택 가능한 전공 목록 반환 함수
+    const getAvailableMajors = (year) => {
         const newMajorYears = ['23학번', '24학번', '25학번'];
-        return newMajorYears.includes(year) ? '플랫폼SW&데이터과학전공' : '심화컴퓨터공학전공';
+        if (newMajorYears.includes(year)) {
+            return ['글로벌SW융합전공', '플랫폼SW&데이터과학전공', '인공지능컴퓨팅전공'];
+        }
+        return ['글로벌SW융합전공', '심화컴퓨터공학전공'];
     };
 
-    // 데이터 로딩 (이전과 동일)
+    // 데이터 로딩
     useEffect(() => {
-
         const fetchInfo = async () => {
             try {
                 const data = await getMyInfo();
@@ -85,23 +80,38 @@ const ProfilePage = () => {
         fetchInfo();
     }, []);
 
-    // userTrack이 변경되어 '다중전공'이 아니게 되면 다중전공 유형 초기화
-    useEffect(() => {
-        if (userTrack !== '다중전공' && multiMajorType !== null) {
-            setMultiMajorType(null);
-        }
-    }, [userTrack]);
-
-    // [추가] 학번 변경 핸들러
+    // [수정] 학번 변경 핸들러
     const handleYearChange = (e) => {
         const newYear = e.target.value;
         setUserYear(newYear);
 
-        // 학번을 바꿨을 때, 현재 전공이 심컴 계열이라면 이름도 자동으로 맞춰준다.
-        // (예: 21학번(심화) -> 23학번 선택 시 -> 전공을 '플랫폼SW'로 자동 변경)
-        if (userDepartment === '심화컴퓨터공학전공' || userDepartment === '플랫폼SW&데이터과학전공') {
-            const newMajorName = getDeepMajorName(newYear);
-            setUserDepartment(newMajorName);
+        const validMajors = getAvailableMajors(newYear);
+        
+        if (!validMajors.includes(userDepartment)) {
+            if (userDepartment === '심화컴퓨터공학전공') {
+                setUserDepartment('플랫폼SW&데이터과학전공');
+                // 플랫폼SW는 심컴 트랙 유지
+            } else {
+                setUserDepartment('');
+                setUserTrack(''); // 초기화
+            }
+        }
+    };
+
+    // [수정] 전공 변경 핸들러
+    const handleDepartmentChange = (newDepartment) => {
+        setUserDepartment(newDepartment);
+        
+        if (newDepartment === '글로벌SW융합전공') {
+            // 기존에 심컴/인컴이었다면 트랙 초기화 (글솝 트랙 선택 유도)
+            if (userTrack === '심컴' || userTrack === '인컴') {
+                setUserTrack('');
+            }
+        } else if (newDepartment === '인공지능컴퓨팅전공') {
+            setUserTrack('인컴'); // [중요] 인컴 설정
+        } else {
+            // 심화컴퓨터 or 플랫폼SW
+            setUserTrack('심컴');
         }
     };
 
@@ -112,7 +122,7 @@ const ProfilePage = () => {
         try {
             const profileData = {
                 username,
-                userYear,
+                userYear, // 입학년도 수정 반영
                 userDepartment,
                 userTrack,
                 multiMajorType: multiMajorType === "null" ? null : multiMajorType,
@@ -126,23 +136,12 @@ const ProfilePage = () => {
                 counselingCount: Number(counselingCount || 0)
             };
 
-            // [핵심] 서버에서 업데이트된 사용자 정보 받기
             const responseData = await updateMyInfo(profileData);
+            
+            // 업데이트 성공 시 처리
             if (responseData && responseData.user && responseData.user.username) {
-                // 토큰 업데이트 (updateMyInfo API가 새 토큰 반환하면)
-                if (responseData.token) {
-                    localStorage.setItem('token', responseData.token);
-                }
-                // MainLayout의 username 상태 업데이트
                 updateUsername(responseData.user.username);
-                // 클라이언트에서 새로고침 시에도 반영되도록 별도 저장
-                try {
-                    localStorage.setItem('username', responseData.user.username);
-                } catch (e) {
-                    // ignore
-                }
             } else {
-                // 응답에 username이 없으면 현재 state로 업데이트
                 updateUsername(username);
             }
 
@@ -159,24 +158,10 @@ const ProfilePage = () => {
         }
     };
 
-    // --- (추가!) 전공 변경 시 트랙을 강제하는 핸들러 ---
-    const handleDepartmentChange = (newDepartment) => {
-        setUserDepartment(newDepartment);
-        // [수정] '글로벌SW융합전공'이 아니면 (즉, 심컴 or 플랫폼SW) -> 트랙을 '심컴'으로 고정
-        if (newDepartment !== '글로벌SW융합전공') {
-            setUserTrack('심컴');
-        }
-        // '글로벌SW융합전공'으로 바꿨는데 기존 트랙이 '심컴'이었다면 -> 트랙 초기화 (선택 유도)
-        else if (newDepartment === '글로벌SW융합전공' && userTrack === '심컴') {
-            setUserTrack('');
-        }
-    };
-
-    // 비밀번호 변경 핸들러
+    // 비밀번호 변경
     const handlePasswordChange = async (e) => {
         e.preventDefault();
         setPwError('');
-
         if (newPw !== confirmPw) {
             setPwError('새 비밀번호가 일치하지 않습니다.');
             return;
@@ -196,10 +181,7 @@ const ProfilePage = () => {
 
         try {
             await changePassword({ currentPassword: currentPw, newPassword: newPw });
-            toast.success('비밀번호가 변경되었습니다.', {
-                position: "top-right",
-                autoClose: 3000
-            });
+            toast.success('비밀번호가 변경되었습니다.');
             setShowPwModal(false);
             setCurrentPw('');
             setNewPw('');
@@ -209,38 +191,40 @@ const ProfilePage = () => {
         }
     };
 
-
-    if (loading) {
-        return <div className="text-center p-10">로딩 중...</div>;
-    }
-    const trackOptions = userDepartment === '글로벌SW융합전공'
-        ? allTrackOptions.filter(option => option.value !== '심컴')
-        : allTrackOptions;
-
-
-    // [추가] 회원 탈퇴 핸들러
+    // 회원 탈퇴
     const handleWithdraw = async () => {
         if (window.confirm("정말로 탈퇴하시겠습니까?\n탈퇴 시 수강 내역 등 모든 데이터가 삭제되며 복구할 수 없습니다.")) {
             try {
                 await withdrawUser();
                 alert("회원 탈퇴가 완료되었습니다.");
-                localStorage.removeItem('token'); // 토큰 삭제
-                navigate('/'); // 로그인 페이지로 이동
+                localStorage.removeItem('token');
+                navigate('/');
             } catch (error) {
                 alert(error.response?.data?.message || "탈퇴 처리에 실패했습니다.");
             }
         }
     };
 
-    const deepMajorName = getDeepMajorName(userYear);
+    if (loading) return <div className="text-center p-10">로딩 중...</div>;
+
+    // 현재 학번에 맞는 전공 옵션 생성
+    const departmentOptions = getAvailableMajors(userYear).map(dep => ({
+        value: dep,
+        label: dep
+    }));
+
+    // 글로벌SW용 트랙 옵션
+    const trackOptions = userDepartment === '글로벌SW융합전공'
+        ? allTrackOptions.filter(option => option.value !== '심컴')
+        : allTrackOptions;
 
     return (
-        <div className="max-w-7xl mx-auto">
-            <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">내 정보</h1>
+        <div>
+            <h1 className="text-3xl font-bold mb-6">내 정보</h1>
 
             <form className="space-y-8" onSubmit={handleSubmit}>
-
-                {/* --- 1. 기본 정보 카드 --- */}
+                
+                {/* 1. 기본 정보 */}
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
                     <div className="p-5 border-b border-gray-200 flex items-center gap-3">
                         <User className="w-5 h-5 text-knu-blue" />
@@ -248,18 +232,17 @@ const ProfilePage = () => {
                     </div>
 
                     <div className="p-6 space-y-6">
-                        {/* (수정!) 3칸 그리드로 변경 */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="form-group">
                                 <label className="form-label" htmlFor="username">이름</label>
                                 <input className="form-input" id="username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} />
                             </div>
-                            {/* [수정] ID 오른쪽에 비밀번호 변경 버튼 추가 */}
+                            
                             <div className="form-group">
                                 <label className="form-label" htmlFor="studentId">ID</label>
                                 <div className="flex gap-2">
                                     <input className="form-input flex-1 bg-gray-50 text-gray-500" id="studentId" type="text" value={studentId} disabled />
-                                    <button
+                                    <button 
                                         type="button"
                                         onClick={() => setShowPwModal(true)}
                                         className="px-3 py-2 text-xs font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md border border-gray-300 transition-colors whitespace-nowrap"
@@ -268,14 +251,14 @@ const ProfilePage = () => {
                                     </button>
                                 </div>
                             </div>
-                            {/* [수정] 입학년도 select에 handleYearChange 연결 */}
+
                             <div className="form-group">
                                 <label className="form-label" htmlFor="userYear">입학년도</label>
                                 <select
                                     className="form-input"
                                     id="userYear"
                                     value={userYear}
-                                    onChange={handleYearChange} // [수정] 여기서 핸들러 호출
+                                    onChange={handleYearChange}
                                 >
                                     <option value="20학번">20학번</option>
                                     <option value="21학번">21학번</option>
@@ -286,83 +269,66 @@ const ProfilePage = () => {
                                 </select>
                             </div>
                         </div>
-                        {/* (수정!) 전공과 트랙을 2열 그리드로 묶음 */}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="form-group">
                                 <label className="form-label">전공</label>
-                                <RadioToggleGroup
-                                    options={[
-                                        { value: '글로벌SW융합전공', label: '글로벌SW융합전공' },
-                                        { value: deepMajorName, label: deepMajorName }
-                                    ]}
-                                    currentValue={userDepartment}
-                                    onChange={handleDepartmentChange} // (수정!) 핸들러 연결
-                                />
+                                <div className="flex flex-col gap-2"> 
+                                    <RadioToggleGroup
+                                        options={departmentOptions}
+                                        currentValue={userDepartment}
+                                        onChange={handleDepartmentChange}
+                                    />
+                                </div>
                             </div>
-                            {/* [수정] '심화컴퓨터공학전공'이 아닐 때만 트랙 UI 표시 */}
+                            
+                            {/* 글로벌SW일 때만 트랙 선택 표시 */}
                             {userDepartment === '글로벌SW융합전공' && (
                                 <div className="form-group">
                                     <label className="form-label">트랙</label>
                                     <RadioToggleGroup
-                                        options={trackOptions} // [수정] 필터링된 옵션 사용
+                                        options={trackOptions}
                                         currentValue={userTrack}
                                         onChange={setUserTrack}
-                                    // [수정] 'disabled' 속성 제거 (블록 자체가 숨겨지므로 불필요)
                                     />
                                 </div>
                             )}
                         </div>
 
-                        {/* (수정!) '다중전공' 트랙일 때만 이 블록이 보임 */}
                         {userTrack === '다중전공' && (
                             <div className="form-group">
                                 <label className="form-label">다중전공 유형</label>
                                 <RadioToggleGroup
                                     options={[
+                                        { value: 'null', label: '미선택' },
                                         { value: '복수전공', label: '복수전공' },
                                         { value: '연계전공', label: '연계전공' },
                                         { value: '융합전공', label: '융합전공' },
                                         { value: '부전공', label: '부전공' }
                                     ]}
-                                    currentValue={multiMajorType}
-                                    onChange={(value) => setMultiMajorType(value)}
+                                    currentValue={multiMajorType || "null"}
+                                    onChange={(value) => setMultiMajorType(value === "null" ? null : value)}
                                 />
                             </div>
                         )}
                     </div>
                 </div>
 
-                {/* --- 2. 졸업 요건 활동 카드 --- */}
+                {/* 2. 졸업 요건 활동 */}
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
                     <div className="p-5 border-b border-gray-200 flex items-center gap-3">
                         <Award className="w-5 h-5 text-knu-blue" />
                         <h3 className="text-xl font-semibold">졸업 심사 및 개인 활동</h3>
                     </div>
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <ActivityToggle
-                            label="졸업 인터뷰 통과"
-                            checked={passedInterview}
-                            onChange={setPassedInterview}
-                        />
-                        <ActivityToggle
-                            label="TOPCIT 통과"
-                            checked={passedTopcit}
-                            onChange={setPassedTopcit}
-                        />
-                        <ActivityToggle
-                            label="창업여부"
-                            checked={isStartup}
-                            onChange={setIsStartup}
-                        />
-                        <ActivityToggle
-                            label="해외복수학위과정 이수 (혹은 교환학생 1년 이상)"
-                            checked={isExchangeStudent}
-                            onChange={setIsExchangeStudent}
-                        />
+                        <ActivityToggle label="졸업 인터뷰 통과" checked={passedInterview} onChange={setPassedInterview} />
+                        <ActivityToggle label="TOPCIT 통과" checked={passedTopcit} onChange={setPassedTopcit} />
+                        <ActivityToggle label="창업여부" checked={isStartup} onChange={setIsStartup} />
+                        <ActivityToggle label="해외 교환학생여부(1년 이상)" checked={isExchangeStudent} onChange={setIsExchangeStudent} />
                     </div>
                 </div>
 
-                {/* --- 3. 영어 성적 및 기타 카드 --- */}
+                {/* 3. 영어 성적 및 기타 */}
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
                     <div className="p-5 border-b border-gray-200 flex items-center gap-3">
                         <BookMarked className="w-5 h-5 text-knu-blue" />
@@ -412,7 +378,6 @@ const ProfilePage = () => {
                     </div>
                 </div>
 
-                {/* [수정] 버튼 영역: 저장 버튼 왼쪽에 '회원 탈퇴' 버튼 추가 */}
                 <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                     <button
                         type="button"
@@ -434,7 +399,7 @@ const ProfilePage = () => {
                 </div>
             </form>
 
-            {/* --- 비밀번호 변경 모달 --- */}
+            {/* 비밀번호 변경 모달 */}
             {showPwModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 animate-fadeIn">
                     <div className="bg-white w-full max-w-md mx-4 rounded-lg shadow-lg overflow-hidden">
@@ -447,7 +412,7 @@ const ProfilePage = () => {
                                 <X className="w-6 h-6" />
                             </button>
                         </div>
-
+                        
                         <form onSubmit={handlePasswordChange} className="p-6 space-y-4">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">현재 비밀번호</label>
@@ -466,12 +431,9 @@ const ProfilePage = () => {
                                     className="form-input w-full"
                                     value={newPw}
                                     onChange={(e) => setNewPw(e.target.value)}
-                                    // placeholder="영문 대소문자, 숫자 포함 8자 이상"
+                                    placeholder="8자 이상 (영문, 숫자, 특수문자)"
                                     required
                                 />
-                                <p className="mt-1 text-xs text-gray-500">
-                                    * 영문 대소문자, 숫자, 포함 8자 이상
-                                </p>
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">새 비밀번호 확인</label>
@@ -510,43 +472,39 @@ const ProfilePage = () => {
                     </div>
                 </div>
             )}
-
         </div>
     );
 };
 
-// --- RadioToggleGroup 컴포넌트 ---
 const RadioToggleGroup = ({ options, currentValue, onChange, disabled = false }) => {
     return (
         <div className="flex flex-wrap gap-2">
             {options.map((option) => (
                 (disabled && option.value !== '심컴') ? null : (
-                    <button
-                        type="button" // 폼 제출 방지
-                        key={option.value}
-                        onClick={() => !disabled && onChange(option.value)}
-                        className={`
+                <button
+                    type="button"
+                    key={option.value}
+                    onClick={() => !disabled && onChange(option.value)}
+                    className={`
                         py-2 px-4 rounded-lg border text-sm font-medium transition-colors
                         ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
                         ${!disabled && currentValue === option.value
-                                ? 'bg-knu-blue text-white border-knu-blue' // Active
-                                : ''}
+                            ? 'bg-knu-blue text-white border-knu-blue'
+                            : ''}
                         ${!disabled && currentValue !== option.value
-                                ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50' // Inactive
-                                : ''}
+                            ? 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            : ''}
                     `}
-                        disabled={disabled}
-                    >
-                        {option.label}
-                    </button>
-                )
+                    disabled={disabled}
+                >
+                    {option.label}
+                </button>
+               )
             ))}
         </div>
     );
 };
 
-
-// --- ActivityToggle 컴포넌트 ---
 const ActivityToggle = ({ label, checked, onChange }) => {
     return (
         <label
@@ -569,13 +527,12 @@ const ActivityToggle = ({ label, checked, onChange }) => {
             <input
                 type="checkbox"
                 id={label}
-                className="hidden" // (실제 체크박스는 숨김)
+                className="hidden"
                 checked={checked}
                 onChange={(e) => onChange(e.target.checked)}
             />
         </label>
     );
 };
-
 
 export default ProfilePage;
