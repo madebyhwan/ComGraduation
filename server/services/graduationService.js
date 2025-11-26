@@ -86,7 +86,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       generalElectiveCredits += credits;
     }
 
-    const startupCourseCredit = Number(lecture.fieldPracticeCredit) || 0;
+    const startupCourseCredit = Number(lecture.startupCourseCredit) || 0;
     if (lecture.startupCourseCredit > 0) {
       startupCourseCredits += startupCourseCredit;
     }
