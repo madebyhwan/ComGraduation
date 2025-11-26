@@ -2,6 +2,91 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --- 마크다운 스타일 --- */
+.prose {
+  @apply text-gray-800;
+}
+
+.prose h1 {
+  @apply text-3xl font-bold mt-6 mb-4;
+}
+
+.prose h2 {
+  @apply text-2xl font-bold mt-5 mb-3;
+}
+
+.prose h3 {
+  @apply text-xl font-bold mt-4 mb-2;
+}
+
+.prose p {
+  @apply my-3 leading-relaxed;
+}
+
+.prose ul, .prose ol {
+  @apply my-3 ml-6;
+}
+
+.prose ul {
+  @apply list-disc;
+}
+
+.prose ol {
+  @apply list-decimal;
+}
+
+.prose li {
+  @apply my-1;
+}
+
+.prose a {
+  @apply text-knu-blue hover:underline;
+}
+
+.prose strong {
+  @apply font-bold;
+}
+
+.prose em {
+  @apply italic;
+}
+
+.prose code {
+  @apply bg-gray-100 px-1.5 py-0.5 rounded text-sm font-mono;
+}
+
+.prose pre {
+  @apply bg-gray-100 p-4 rounded-lg overflow-x-auto my-4;
+}
+
+.prose pre code {
+  @apply bg-transparent p-0;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-gray-300 pl-4 italic my-4;
+}
+
+.prose table {
+  @apply w-full border-collapse my-4;
+}
+
+.prose th {
+  @apply bg-gray-100 border border-gray-300 px-4 py-2 font-bold text-left;
+}
+
+.prose td {
+  @apply border border-gray-300 px-4 py-2;
+}
+
+.prose hr {
+  @apply my-6 border-gray-300;
+}
+
+.prose img {
+  @apply max-w-full h-auto rounded-lg my-4;
+}
+
 /* --- 로그인 & 회원가입 페이지 스타일 --- */
 .auth-layout {
   @apply flex min-h-screen items-center justify-center bg-gray-100 p-4;
