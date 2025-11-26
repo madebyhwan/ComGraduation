@@ -185,20 +185,12 @@ const ProfilePage = () => {
             setPwError('비밀번호는 8자 이상이어야 합니다.');
             return;
         }
-        if (!/(?=.*[a-z])/.test(newPw)) {
-            setPwError('비밀번호는 최소 1개 이상의 소문자를 포함해야 합니다.');
-            return;
-        }
-        if (!/(?=.*[A-Z])/.test(newPw)) {
-            setPwError('비밀번호는 최소 1개 이상의 대문자를 포함해야 합니다.');
+        if (!/(?=.*[a-zA-Z])/.test(newPw)) {
+            setPwError('비밀번호는 영문를 포함해야 합니다.');
             return;
         }
         if (!/(?=.*\d)/.test(newPw)) {
-            setPwError('비밀번호는 최소 1개 이상의 숫자를 포함해야 합니다.');
-            return;
-        }
-        if (!/(?=.*[!@#$%^&*(),.?":{}|<>])/.test(newPw)) {
-            setPwError('비밀번호는 최소 1개 이상의 특수문자(!@#$%^&*)를 포함해야 합니다.');
+            setPwError('비밀번호는 숫자를 포함해야 합니다.');
             return;
         }
 
