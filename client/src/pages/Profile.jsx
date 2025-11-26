@@ -150,8 +150,8 @@ const ProfilePage = () => {
         setUserDepartment(newDepartment);
         // [수정] '글로벌SW융합전공'이 아니면 (즉, 심컴 or 플랫폼SW) -> 트랙을 '심컴'으로 고정
         if (newDepartment !== '글로벌SW융합전공') {
-            setUserTrack('심컴'); 
-        } 
+            setUserTrack('심컴');
+        }
         // '글로벌SW융합전공'으로 바꿨는데 기존 트랙이 '심컴'이었다면 -> 트랙 초기화 (선택 유도)
         else if (newDepartment === '글로벌SW융합전공' && userTrack === '심컴') {
             setUserTrack('');
@@ -275,8 +275,8 @@ const ProfilePage = () => {
                                 <RadioToggleGroup
                                     options={[
                                         { value: '글로벌SW융합전공', label: '글로벌SW융합전공' },
-                                        { value: deepMajorName, label: deepMajorName } 
-                                    ]}          
+                                        { value: deepMajorName, label: deepMajorName }
+                                    ]}
                                     currentValue={userDepartment}
                                     onChange={handleDepartmentChange} // (수정!) 핸들러 연결
                                 />
@@ -337,7 +337,7 @@ const ProfilePage = () => {
                             onChange={setIsStartup}
                         />
                         <ActivityToggle
-                            label="해외 교환학생여부(1년 이상)"
+                            label="해외복수학위과정 이수 (혹은 교환학생 1년 이상)"
                             checked={isExchangeStudent}
                             onChange={setIsExchangeStudent}
                         />
