@@ -431,7 +431,7 @@ const ProfilePage = () => {
                                     className="form-input w-full"
                                     value={newPw}
                                     onChange={(e) => setNewPw(e.target.value)}
-                                    placeholder="8자 이상 (영문, 숫자, 특수문자)"
+                                    placeholder="8자 이상 (영문, 숫자)"
                                     required
                                 />
                             </div>
