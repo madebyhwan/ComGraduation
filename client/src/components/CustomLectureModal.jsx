@@ -77,7 +77,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
+      <div className="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6">
         <h2 className="text-2xl font-bold mb-4">
           {isEditMode ? '커스텀 과목 & 교과목 외 활동 수정' : '교과목 외 활동 추가'}
         </h2>
@@ -113,7 +113,7 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
           </div>
 
           {/* 학점 입력 필드들 (2열 그리드로 변경하여 공간 확보) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className="form-group">
               <label className="form-label" htmlFor="totalCredit">총 학점</label>
               <input
