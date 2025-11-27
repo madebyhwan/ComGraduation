@@ -10,6 +10,7 @@ const { body, validationResult } = require('express-validator');
 const courseConfig = require('../config/courseConfig.json');
 const allRules = require('../config/graduationRules.js');
 
+
 // 유저의 강의 목록을 통합된 형태로 반환하는 함수
 // exports.getLecture의 사실상 본체
 async function lectureList(userId) {
@@ -59,7 +60,8 @@ async function lectureList(userId) {
     const requiredCoursesList = requirements.requiredMajorCourses?.courses || [];
 
     // courseConfig에서 데이터 구조 분해 할당
-    const { majorCourses, ventureCourses, generalEducation } = courseConfig;
+    const { majorCourses, generalEducation } = courseConfig;
+
 
     // ABEEK 관련 리스트 (심화/플랫폼용)
     const abeekData = majorCourses["심컴"] || {};
@@ -112,8 +114,6 @@ async function lectureList(userId) {
           calculatedType = '전공기반';
         } else if (inList(basicGenEdList, code)) {
           calculatedType = '기본소양';
-        } else if (inObj(knuBasic, code) || inObj(knuCore, code)) {
-          calculatedType = '교양'; // 첨성인 기초/핵심
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
         } else {
@@ -130,8 +130,6 @@ async function lectureList(userId) {
           calculatedType = '전공필수';
         } else if (isMajor) {
           calculatedType = '전공';
-        } else if (inObj(knuBasic, code) || inObj(knuCore, code) || inList(ventureCourses.ventures, code)) {
-          calculatedType = '교양';
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
         } else {
@@ -524,10 +522,13 @@ exports.addCustomLecture = async (req, res) => {
       userObjectId: user._id,
       lectName,
       lectType,
+      lectCode,
       overseasCredit,
       fieldPracticeCredit,
       startupCourseCredit,
-      totalCredit
+      totalCredit,
+      isEnglishLecture,
+      isSDGLecture
     });
     user.userCustomLectures.push(newCustomLecture._id);
     await user.save();
@@ -917,15 +918,35 @@ exports.univToCustomLecture = async (req, res) => {
       return res.status(403).json({ message: '이 강의를 수정할 권한이 없습니다.' });
     }
 
+    const { ventureCourses } = courseConfig;
+    const ventureCourseList = ventureCourses["ventures"];
+
+    let calculatedOverseasCredit = 0;
+    let calculatedStartupCredit = 0;
+
+    // 1. 영어 강의 체크: isEnglishLecture이면 overseasCredit에 1을 추가
+    if (lecture.isEnglishLecture) {
+      calculatedOverseasCredit = 1;
+    }
+
+    // 2. 벤처 교과목 체크: lectCode가 목록에 포함되면 startupCourseCredit에 totalCredit을 더함
+    if (ventureCourseList.includes(lecture.lectCode)) {
+      // lecture.lectCredit는 해당 강의의 학점입니다.
+      calculatedStartupCredit = lecture.lectCredit;
+    }
+
     // 3. CustomLecture 인스턴스 생성
     const customLectureInstance = new CustomLecture({
       userObjectId: user._id,
       lectName: lecture.lectName,
       lectType: '일반선택', // 기본값
-      overseasCredit: 0,
+      lectCode: lecture.lectCode,
+      overseasCredit: calculatedOverseasCredit,
       fieldPracticeCredit: 0,
-      startupCourseCredit: 0,
-      totalCredit: lecture.lectCredit
+      startupCourseCredit: calculatedStartupCredit,
+      totalCredit: lecture.lectCredit,
+      isEnglishLecture: lecture.isEnglishLecture,
+      isSDGLecture: lecture.isSDGLecture
     });
     await customLectureInstance.save();
 
