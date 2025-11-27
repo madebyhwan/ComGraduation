@@ -1663,7 +1663,7 @@ const rules = {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
       "courses": [
         "CLTR0819", "COME0301", "COMP0204", "COMP0205", "COMP0217",
-        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "COMP0319", "ITEC0401", "ITEC0402"
       ]
     },
 
@@ -1761,7 +1761,7 @@ const rules = {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
       "courses": [
         "CLTR0819", "COME0301", "COMP0204", "COMP0205", "COMP0217",
-        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "COMP0319", "ITEC0401", "ITEC0402"
       ]
     },
 
@@ -1855,7 +1855,7 @@ const rules = {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
       "courses": [
         "CLTR0819", "COME0301", "COMP0204", "COMP0205", "COMP0217",
-        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "COMP0319", "ITEC0401", "ITEC0402"
       ]
     },
 
@@ -1938,7 +1938,7 @@ const rules = {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
       "courses": [
         "CLTR0211", "CLTR0213", "COME0301", "COMP0204", "COMP0205", "COMP0217",
-        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "COMP0319", "ITEC0401", "ITEC0402"
       ]
     },
 
@@ -2019,7 +2019,7 @@ const rules = {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
       "courses": [
         "CLTR0211", "CLTR0213", "COME0301", "COMP0204", "COMP0205", "COMP0217",
-        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "COMP0319", "ITEC0401", "ITEC0402"
       ]
     },
 
@@ -2100,7 +2100,7 @@ const rules = {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
       "courses": [
         "CLTR0211", "CLTR0213", "COME0301", "COMP0204", "COMP0205", "COMP0217",
-        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "ITEC0401", "ITEC0402"
+        "COME0331", "COMP0411", "ELEC0462", "COMP0312", "COMP0319", "ITEC0401", "ITEC0402"
       ]
     },
 
