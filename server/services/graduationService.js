@@ -408,22 +408,31 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
       fieldPracticeCredits += fieldPracticeCredit;
     }
 
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // }
 
     if (lecture.isSDGLecture) {
       sdgCredits += credits;
+    } if (lecture.knuBasicReading) {
+      knuBasicReadingDebate += credits;
+    } if (lecture.knuBasicMath) {
+      knuBasicMathScience += credits;
+    } if (lecture.knuCoreHumanity) {
+      knuCoreHumanitySociety += credits;
+    } if (lecture.knuCoreNaturalScience) {
+      knuCoreNaturalScience += credits;
     }
+
   });
 
   multiMajorLectures.forEach(lecture => {
