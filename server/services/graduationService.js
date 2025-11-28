@@ -86,7 +86,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       generalElectiveCredits += credits;
     }
 
-    const startupCourseCredit = Number(lecture.fieldPracticeCredit) || 0;
+    const startupCourseCredit = Number(lecture.startupCourseCredit) || 0;
     if (lecture.startupCourseCredit > 0) {
       startupCourseCredits += startupCourseCredit;
     }
@@ -122,6 +122,9 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
+
+    // 다중전공 과목은 일반선택으로 분류
+    generalElectiveCredits += credit;
 
     if (ventureCourseList.includes(lecture.lectCode)) {
       startupCourseCredits += credit;
@@ -229,13 +232,30 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const credits = Number(lecture.totalCredit) || 0;
     const courseCode = lecture.lectCode;
 
-    if (lecture.lectType === '교양') {
+    if (lecture.lectType === '전공' && engineeringMajorList.includes(courseCode)) {
+      engineeringMajorCredits += credits;
+      majorCredits += credits;
+    } else if (lecture.lectType === '전공' && majorBasisList.includes(courseCode)) {
+      majorBasisCredits += credits;
+      majorCredits += credits;
+    } else if (lecture.lectType === '교양' && basicGenEdList.includes(courseCode)) {
+      basicGeneralEducationCredits += credits;
       generalEducationCredits += credits;
     } else if (lecture.lectType === '전공') {
       majorCredits += credits;
+    } else if (lecture.lectType === '교양') {
+      generalEducationCredits += credits;
     } else {
       generalElectiveCredits += credits;
     }
+
+    // if (lecture.lectType === '교양') {
+    //   generalEducationCredits += credits;
+    // } else if (lecture.lectType === '전공') {
+    //   majorCredits += credits;
+    // } else {
+    //   generalElectiveCredits += credits;
+    // }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
@@ -267,6 +287,9 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
+
+    // 다중전공 과목은 일반선택으로 분류
+    generalElectiveCredits += credit;
   });
 
   return {
@@ -386,6 +409,9 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
+
+    // 다중전공 과목은 일반선택으로 분류
+    generalElectiveCredits += credit;
   });
 
   return {
@@ -548,7 +574,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     required: geRequiredText,
   };
 
-  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits + multiMajorCredits;
+  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits;
   results.totalCredits = {
     pass: recognizedTotalCredits >= requirements.minTotalCredits,
     current: recognizedTotalCredits,

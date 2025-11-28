@@ -152,23 +152,23 @@ async function lectureList(userId) {
     };
 
     // 4. 정렬 로직 함수 (공통 사용)
-    const sortLectures = (a, b) => {
-      // 1순위: 년도
-      if (a.lectYear !== b.lectYear) return (a.lectYear || 0) - (b.lectYear || 0);
-      // 2순위: 학기
-      if (a.lectSemester !== b.lectSemester) {
-        const semesterOrder = { '1학기': 1, '계절학기(하계)': 2, '2학기': 3, '계절학기(동계)': 4 };
-        const aOrder = semesterOrder[a.lectSemester] || 999;
-        const bOrder = semesterOrder[b.lectSemester] || 999;
-        return aOrder - bOrder;
-      }
-      // 3순위: 이름
-      return (a.lectName || '').localeCompare(b.lectName || '');
-    };
+    // const sortLectures = (a, b) => {
+    //   // 1순위: 년도
+    //   if (a.lectYear !== b.lectYear) return (a.lectYear || 0) - (b.lectYear || 0);
+    //   // 2순위: 학기
+    //   if (a.lectSemester !== b.lectSemester) {
+    //     const semesterOrder = { '1학기': 1, '계절학기(하계)': 2, '2학기': 3, '계절학기(동계)': 4 };
+    //     const aOrder = semesterOrder[a.lectSemester] || 999;
+    //     const bOrder = semesterOrder[b.lectSemester] || 999;
+    //     return aOrder - bOrder;
+    //   }
+    //   // 3순위: 이름
+    //   return (a.lectName || '').localeCompare(b.lectName || '');
+    // };
 
     // 매핑 및 정렬 적용
-    const univ = (user.userLectures || []).map(mapLecture).sort(sortLectures);
-    const multiMajor = (user.multiMajorLectures || []).map(mapLecture).sort(sortLectures);
+    const univ = (user.userLectures || []).map(mapLecture).reverse()//.sort(sortLectures);
+    const multiMajor = (user.multiMajorLectures || []).map(mapLecture).reverse();//.sort(sortLectures);
 
     return {
       'custom': custom,
@@ -522,13 +522,10 @@ exports.addCustomLecture = async (req, res) => {
       userObjectId: user._id,
       lectName,
       lectType,
-      lectCode,
       overseasCredit,
       fieldPracticeCredit,
       startupCourseCredit,
       totalCredit,
-      isEnglishLecture,
-      isSDGLecture
     });
     user.userCustomLectures.push(newCustomLecture._id);
     await user.save();
@@ -742,9 +739,6 @@ exports.tossMultiMajorLectures = async (req, res) => {
     if (user.multiMajorLectures.includes(lectureId)) {
       return res.status(409).json({ message: '이미 다중전공으로 이관된 강의입니다.' });
     }
-    if (user.userTrack !== '다중전공') {
-      return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
-    }
 
     const updateResult = await User.updateOne(
       { _id: userId, userLectures: lectureId },
@@ -788,10 +782,6 @@ exports.removeMultiMajorLectures = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({ message: '사용자를 찾을 수 없습니다.' });
-    }
-
-    if (user.userTrack !== '다중전공') {
-      return res.status(400).json({ message: '다중전공 학생만 이용할 수 있는 기능입니다.' });
     }
 
     const lectureObjectId = new mongoose.Types.ObjectId(lectureId);
