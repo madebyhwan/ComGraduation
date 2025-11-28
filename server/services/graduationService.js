@@ -123,6 +123,9 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
 
+    // 다중전공 과목은 일반선택으로 분류
+    generalElectiveCredits += credit;
+
     if (ventureCourseList.includes(lecture.lectCode)) {
       startupCourseCredits += credit;
     }
@@ -284,6 +287,9 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
+
+    // 다중전공 과목은 일반선택으로 분류
+    generalElectiveCredits += credit;
   });
 
   return {
@@ -403,6 +409,9 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
   multiMajorLectures.forEach(lecture => {
     const credit = Number(lecture.lectCredit) || 0;
     multiMajorCredits += credit;
+
+    // 다중전공 과목은 일반선택으로 분류
+    generalElectiveCredits += credit;
   });
 
   return {
