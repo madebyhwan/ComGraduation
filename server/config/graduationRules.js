@@ -1923,10 +1923,10 @@ const rules = {
 
     "minTotalCredits": 140,
 
-    "majorCredits": {
-      "credits": 78,
-      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
-    },
+    // "majorCredits": {
+    //   "credits": 78,
+    //   "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    // },
 
     "generalEducationCredits": {
       "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
@@ -2003,10 +2003,10 @@ const rules = {
 
     "minTotalCredits": 140,
 
-    "majorCredits": {
-      "credits": 78,
-      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
-    },
+    // "majorCredits": {
+    //   "credits": 78,
+    //   "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    // },
 
     "generalEducationCredits": {
       "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
@@ -2083,10 +2083,10 @@ const rules = {
 
     "minTotalCredits": 150,
 
-    "majorCredits": {
-      "credits": 96,
-      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
-    },
+    // "majorCredits": {
+    //   "credits": 96,
+    //   "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    // },
 
     "generalEducationCredits": {
       "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
