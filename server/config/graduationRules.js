@@ -1633,10 +1633,10 @@ const rules = {
 
     "minTotalCredits": 140,
 
-    "majorCredits": {
-      "credits": 78,
-      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
-    },
+    // "majorCredits": {
+    //   "credits": 78,
+    //   "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    // },
 
     "generalEducationCredits": {
       "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
@@ -1658,22 +1658,6 @@ const rules = {
     //   "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
     //   "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     // },
-
-    "sdgRequirement": {
-      "minCredits": 0,
-    },
-
-    // 첨성인 기초
-    "knuBasicRequirement": {
-      "readingDebate": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
-      "mathScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
-    },
-
-    // 첨성인 핵심
-    "knuCoreRequirement": {
-      "humanitySociety": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
-      "naturalScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
-    },
 
     "requiredMajorCourses": {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
@@ -1747,10 +1731,10 @@ const rules = {
 
     "minTotalCredits": 140,
 
-    "majorCredits": {
-      "credits": 78,
-      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
-    },
+    // "majorCredits": {
+    //   "credits": 78,
+    //   "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    // },
 
     "generalEducationCredits": {
       "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
@@ -1772,22 +1756,6 @@ const rules = {
     //   "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
     //   "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     // },
-
-    "sdgRequirement": {
-      "minCredits": 0,
-    },
-
-    // 첨성인 기초
-    "knuBasicRequirement": {
-      "readingDebate": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
-      "mathScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
-    },
-
-    // 첨성인 핵심
-    "knuCoreRequirement": {
-      "humanitySociety": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
-      "naturalScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
-    },
 
     "requiredMajorCourses": {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",
@@ -1861,10 +1829,10 @@ const rules = {
 
     "minTotalCredits": 140,
 
-    "majorCredits": {
-      "credits": 78,
-      "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
-    },
+    // "majorCredits": {
+    //   "credits": 78,
+    //   "note": "ABEEK 기준 전공 78학점 (전공기반 18학점 + 공학전공 60학점) 이상 이수"
+    // },
 
     "generalEducationCredits": {
       "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
@@ -1882,18 +1850,6 @@ const rules = {
     //   "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
     //   "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     // },
-
-    // 첨성인 기초
-    "knuBasicRequirement": {
-      "readingDebate": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
-      "mathScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
-    },
-
-    // 첨성인 핵심
-    "knuCoreRequirement": {
-      "humanitySociety": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
-      "naturalScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
-    },
 
     "requiredMajorCourses": {
       "note": "학교 내규에 따른 전공필수과목 목록을 채워야 합니다.",

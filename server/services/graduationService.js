@@ -611,11 +611,13 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     note: geNote
   };
 
-  results.majorCredits = {
-    pass: majorCredits >= requirements.majorCredits.credits,
-    current: majorCredits,
-    required: requirements.majorCredits.credits,
-  };
+  if(requirements.majorCredits){
+    results.majorCredits = {
+      pass: majorCredits >= requirements.majorCredits.credits,
+      current: majorCredits,
+      required: requirements.majorCredits.credits,
+    };
+  }
 
   const takenCourseCodes = takenLectures.map(lec => lec.lectCode) || [];
   const requiredCourses = requirements.requiredMajorCourses?.courses || [];
