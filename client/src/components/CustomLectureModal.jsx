@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import { addCustomLecture, updateCustomLecture } from '../api/api.js';
+import { addCustomLecture, updateCustomLecture, getMyInfo } from '../api/api.js';
 
 const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) => {
   const isEditMode = !!lectureToEdit;
@@ -14,8 +14,39 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
   const [totalCredit, setTotalCredit] = useState('');
   const [error, setError] = useState('');
 
+  const [userDepartment, setUserDepartment] = useState('');
+  const [additionalAttributes, setAdditionalAttributes] = useState({});
+
   useEffect(() => {
-    if (isEditMode) {
+    const fetchUserInfo = async () => {
+      try {
+        const data = await getMyInfo();
+        if (data.user) {
+          setUserDepartment(data.user.userDepartment || '');
+        }
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+
+    if (show) {
+      fetchUserInfo();
+      // 모달이 열릴 때 body 스크롤 막기
+      document.body.style.overflow = 'hidden';
+    } else {
+      // 모달이 닫힐 때 스크롤 복원
+      document.body.style.overflow = 'unset';
+    }
+
+    // cleanup: 컴포넌트 언마운트 시 스크롤 복원
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [show]);
+
+  // 폼 데이터 로드 (edit/add 모드 분리)
+  useEffect(() => {
+    if (isEditMode && lectureToEdit) {
       // 수정할 강의 데이터로 폼 상태 설정 (null/undefined/0을 빈 문자열로)
       setLectName(lectureToEdit.lectName);
       setLectType(lectureToEdit.lectType);
@@ -23,7 +54,15 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
       setFieldPracticeCredit(lectureToEdit.fieldPracticeCredit || '');
       setStartupCourseCredit(lectureToEdit.startupCourseCredit || '');
       setTotalCredit(lectureToEdit.totalCredit || '');
-    } else {
+      // 추가속성 복원
+      setAdditionalAttributes({
+        knuBasicReading: lectureToEdit.knuBasicReading || false,
+        knuBasicMath: lectureToEdit.knuBasicMath || false,
+        knuCoreHumanity: lectureToEdit.knuCoreHumanity || false,
+        knuCoreNatural: lectureToEdit.knuCoreNatural || false,
+        isSDGLecture: lectureToEdit.isSDGLecture || false
+      });
+    } else if (!isEditMode) {
       // '추가 모드'일 때, 폼을 리셋합니다.
       setLectName('');
       setLectType('전공');
@@ -31,12 +70,66 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
       setFieldPracticeCredit('');
       setStartupCourseCredit('');
       setTotalCredit('');
+      setAdditionalAttributes({});
     }
-  }, [lectureToEdit, show, isEditMode]);
+
+    setError('');
+  }, [lectureToEdit, isEditMode]);
 
   if (!show) {
     return null;
   }
+
+  // 전공 구분 함수
+  const isShinComMajor = () => {
+    return userDepartment.includes('심화컴퓨터공학전공') ||
+      userDepartment.includes('플랫폼SW&데이터과학전공');
+  };
+
+  const isGSOrACMajor = () => {
+    return userDepartment.includes('글로벌SW융합전공') ||
+      userDepartment.includes('인공지능컴퓨팅전공');
+  };
+
+  // 교과구분 옵션 동적 결정
+  const getLectTypeOptions = () => {
+    if (isShinComMajor()) {
+      return [
+        { value: '기본소양', label: '기본소양' },
+        { value: '전공기반', label: '전공기반' },
+        { value: '공학전공', label: '공학전공' },
+        { value: '교양', label: '교양' },
+        { value: '일반선택', label: '일반선택' }
+      ];
+    }
+    // 글솝, 인컴, 기타는 원래 옵션
+    return [
+      { value: '전공', label: '전공' },
+      { value: '교양', label: '교양' },
+      { value: '일반선택', label: '일반선택' }
+    ];
+  };
+
+  // 추가속성 옵션 (글솝, 인컴만)
+  const getAdditionalAttributeOptions = () => {
+    if (isGSOrACMajor()) {
+      return [
+        { id: 'knuBasicReading', label: '첨성인기초 - 독서와토론/사고교육/글쓰기/외국어' },
+        { id: 'knuBasicMath', label: '첨성인기초 - 수리/기초과학' },
+        { id: 'knuCoreHumanity', label: '첨성인핵심 - 인문/사회' },
+        { id: 'knuCoreNatural', label: '첨성인핵심 - 자연/과학' },
+        { id: 'isSDGLecture', label: 'SDG교양' }
+      ];
+    }
+    return [];
+  };
+
+  const handleAttributeChange = (attributeId) => {
+    setAdditionalAttributes(prev => ({
+      ...prev,
+      [attributeId]: !prev[attributeId]
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,7 +142,13 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
       overseasCredit,
       fieldPracticeCredit,
       startupCourseCredit,
-      totalCredit
+      totalCredit,
+      // 추가속성 포함
+      knuBasicReading: additionalAttributes.knuBasicReading || false,
+      knuBasicMath: additionalAttributes.knuBasicMath || false,
+      knuCoreHumanity: additionalAttributes.knuCoreHumanity || false,
+      knuCoreNatural: additionalAttributes.knuCoreNatural || false,
+      isSDGLecture: additionalAttributes.isSDGLecture || false
     };
 
     try {
@@ -106,9 +205,9 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
               value={lectType}
               onChange={(e) => setLectType(e.target.value)}
             >
-              <option value="전공">전공</option>
-              <option value="교양">교양</option>
-              <option value="일반선택">일반선택</option>
+              {getLectTypeOptions().map(option => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
             </select>
           </div>
 
@@ -160,6 +259,26 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
               />
             </div>
           </div>
+
+          {/* [추가] 추가속성 섹션 (글솝, 인컴만 표시) */}
+          {getAdditionalAttributeOptions().length > 0 && (
+            <div className="form-group border-t pt-4">
+              <label className="form-label mb-3">추가속성</label>
+              <div className="space-y-2">
+                {getAdditionalAttributeOptions().map(attr => (
+                  <label key={attr.id} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={additionalAttributes[attr.id] || false}
+                      onChange={() => handleAttributeChange(attr.id)}
+                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                    />
+                    <span className="text-sm text-gray-700">{attr.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           {error && <p className="text-sm text-red-600">{error}</p>}
 
