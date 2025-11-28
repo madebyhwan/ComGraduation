@@ -13,7 +13,7 @@ const customLecuteresSchema = new mongoose.Schema({
   },
   lectType: {
     type: String,
-    enum: ['전공', '교양', '일반선택', '기본소양(전문교양)', '전공기반', '공학전공'],
+    enum: ['전공', '교양', '일반선택', '기본소양', '전공기반', '공학전공'],
     required: true
   },
   lectCode: {  // 사용자의 직접 입력을 위해 required 삭제
@@ -49,11 +49,22 @@ const customLecuteresSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  additionalOptions:{
-    knuBasicReadingDebate: { type: Boolean, required: true, default: false },
-    knuBasicMathScience: { type: Boolean, required: true, default: false },
-    knuCoreHumanitySociety: { type: Boolean, required: true, default: false },
-    knuNaturalScience: { type: Boolean, required: true, default: false }
+  // 추가속성 (글솝, 인컴용)
+  knuBasicReading: {
+    type: Boolean,
+    default: false
+  },
+  knuBasicMath: {
+    type: Boolean,
+    default: false
+  },
+  knuCoreHumanity: {
+    type: Boolean,
+    default: false
+  },
+  knuCoreNatural: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
