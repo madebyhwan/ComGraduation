@@ -143,27 +143,35 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       addToList(fieldPracticeList, lecture, '현장실습(커스텀)');
     }
 
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-      addToList(knuBasicReadingDebateList, lecture, '기초(독서/토론) 커스텀');
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-      addToList(knuBasicMathScienceList, lecture, '기초(수리/과학) 커스텀');
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-      addToList(knuCoreHumanitySocietyList, lecture, '핵심(인문/사회) 커스텀');
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-      addToList(knuCoreNaturalScienceList, lecture, '핵심(자연/과학) 커스텀');
-    }
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // }
 
     if (lecture.isSDGLecture) {
       sdgCredits += credits;
-      addToList(sdgList, lecture, 'SDG(커스텀)');
+    } if (lecture.knuBasicReading) {
+      knuBasicReadingDebate += credits;
+      addToList(knuBasicReadingDebateList, lecture, '기초(독서/토론) 커스텀');
+    } if (lecture.knuBasicMath) {
+      knuBasicMathScience += credits;
+      addToList(knuBasicMathScienceList, lecture, '기초(수리/과학) 커스텀');
+    } if (lecture.knuCoreHumanity) {
+      knuCoreHumanitySociety += credits;
+      addToList(knuCoreHumanitySocietyList, lecture, '핵심(인문/사회) 커스텀');
+    } if (lecture.knuCoreNaturalScience) {
+      knuCoreNaturalScience += credits;
+      addToList(knuCoreNaturalScienceList, lecture, '핵심(자연/과학) 커스텀');
     }
+    
   });
 
   multiMajorLectures.forEach(lecture => {
@@ -219,6 +227,22 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
   let engineeringMajorCredits = 0;      // 공학전공
   let totalDesignCredits = 0;           // 설계
 
+  const majorList = [];
+  const generalEducationList = [];
+  const generalElectiveList = [];
+  const multiMajorList = [];
+  const basicGenEdDetail = [];      
+  const majorBasisDetail = [];      
+  const engineeringMajorDetail = [];
+  const designDetail = [];          
+  const fieldPracticeList = [];
+  const sdgList = [];
+  // [추가] 첨성인 리스트
+  const knuBasicReadingDebateList = [];
+  const knuBasicMathScienceList = [];
+  const knuCoreHumanitySocietyList = [];
+  const knuCoreNaturalScienceList = [];
+
   let knuBasicReadingDebate = 0;
   let knuBasicMathScience = 0;
   let knuCoreHumanitySociety = 0;
@@ -268,23 +292,23 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
         totalDesignCredits += 2;
     }
 
-    // 3. 첨성인 기초/핵심
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // // 3. 첨성인 기초/핵심
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // }
 
-    if (lecture.isSDGLecture) {
-      sdgCredits += Number(lecture.lectCredit) || 0;
-    }
+    // if (lecture.isSDGLecture) {
+    //   sdgCredits += Number(lecture.lectCredit) || 0;
+    // }
   });
 
   userCustomLectures.forEach(lecture => {
@@ -328,22 +352,23 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
         totalDesignCredits += 2;
     }
 
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // })
 
-    if (lecture.isSDGLecture) {
-      sdgCredits += credits;
-    }
+    // if (lecture.isSDGLecture) {
+    //   sdgCredits += credits;
+    // }
+    
   });
 
   multiMajorLectures.forEach(lecture => {
@@ -450,22 +475,31 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
       fieldPracticeCredits += fieldPracticeCredit;
     }
 
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // }
 
     if (lecture.isSDGLecture) {
       sdgCredits += credits;
+    } if (lecture.knuBasicReading) {
+      knuBasicReadingDebate += credits;
+    } if (lecture.knuBasicMath) {
+      knuBasicMathScience += credits;
+    } if (lecture.knuCoreHumanity) {
+      knuCoreHumanitySociety += credits;
+    } if (lecture.knuCoreNaturalScience) {
+      knuCoreNaturalScience += credits;
     }
+
   });
 
   multiMajorLectures.forEach(lecture => {
