@@ -18,7 +18,7 @@ async function lectureList(userId) {
     const user = await User.findById(userId)
       .populate({
         path: 'userCustomLectures',
-        select: 'lectName lectType overseasCredit fieldPracticeCredit startupCourseCredit totalCredit'
+        select: 'lectName lectType overseasCredit fieldPracticeCredit startupCourseCredit totalCredit knuBasicReading knuBasicMath knuCoreHumanity knuCoreNatural isSDGLecture'
       })
       .populate({
         path: 'userLectures',
@@ -91,6 +91,11 @@ async function lectureList(userId) {
       fieldPracticeCredit: cl?.fieldPracticeCredit ?? 0,
       startupCourseCredit: cl?.startupCourseCredit ?? 0,
       totalCredit: cl?.totalCredit ?? 0,
+      knuBasicReading: cl?.knuBasicReading ?? false,
+      knuBasicMath: cl?.knuBasicMath ?? false,
+      knuCoreHumanity: cl?.knuCoreHumanity ?? false,
+      knuCoreNatural: cl?.knuCoreNatural ?? false,
+      isSDGLecture: cl?.isSDGLecture ?? false
     }));
 
     // 3. 대학 강의 매핑 (분류 로직 적용)
@@ -498,7 +503,10 @@ exports.checkGraduation = async (req, res) => {
 };
 
 exports.addCustomLecture = async (req, res) => {
-  const { lectName, lectType, overseasCredit, fieldPracticeCredit, startupCourseCredit, totalCredit } = req.body;
+  const {
+    lectName, lectType, overseasCredit, fieldPracticeCredit, startupCourseCredit, totalCredit,
+    knuBasicReading, knuBasicMath, knuCoreHumanity, knuCoreNatural, isSDGLecture
+  } = req.body;
   const userId = req.user.id;
 
   // 0을 허용하도록 유효성 검사 수정
@@ -526,6 +534,11 @@ exports.addCustomLecture = async (req, res) => {
       fieldPracticeCredit,
       startupCourseCredit,
       totalCredit,
+      knuBasicReading: knuBasicReading || false,
+      knuBasicMath: knuBasicMath || false,
+      knuCoreHumanity: knuCoreHumanity || false,
+      knuCoreNatural: knuCoreNatural || false,
+      isSDGLecture: isSDGLecture || false
     });
     user.userCustomLectures.push(newCustomLecture._id);
     await user.save();
@@ -836,7 +849,10 @@ exports.removeMultiMajorLectures = async (req, res) => {
 exports.updateCustomLecture = async (req, res) => {
   const { lectureId } = req.params; // URL에서 수정할 항목의 ID를 가져옴
   const userId = req.user.id;
-  const { lectName, lectType, overseasCredit, fieldPracticeCredit, startupCourseCredit, totalCredit } = req.body;
+  const {
+    lectName, lectType, overseasCredit, fieldPracticeCredit, startupCourseCredit, totalCredit,
+    knuBasicReading, knuBasicMath, knuCoreHumanity, knuCoreNatural, isSDGLecture
+  } = req.body;
 
   // 0을 허용하도록 유효성 검사
   if (!lectName || !lectType) {
@@ -869,6 +885,11 @@ exports.updateCustomLecture = async (req, res) => {
     lecture.fieldPracticeCredit = Number(fieldPracticeCredit);
     lecture.startupCourseCredit = Number(startupCourseCredit);
     lecture.totalCredit = Number(totalCredit);
+    lecture.knuBasicReading = knuBasicReading || false;
+    lecture.knuBasicMath = knuBasicMath || false;
+    lecture.knuCoreHumanity = knuCoreHumanity || false;
+    lecture.knuCoreNatural = knuCoreNatural || false;
+    lecture.isSDGLecture = isSDGLecture || false;
 
     // 4. 변경 사항을 저장합니다.
     await lecture.save();
