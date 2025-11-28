@@ -189,15 +189,19 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const courseCode = lecture.lectCode;
 
     // 1. ABEEK 세부 분류 (우선순위 처리)
-    if (engineeringMajorList.includes(courseCode)) {
+    if (engineeringMajorList.includes(courseCode) && lecture.lectDepartment.includes('컴퓨터학부')) {
+        engineeringMajorCredits += credits;
+    } else if (engineeringMajorList.includes(courseCode)
+      && (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)')
+      && (lecture.lectGeneral === '기본소양' || lecture.lectGeneral === '전공기반' || lecture.lectGeneral === '공학전공')) {
       engineeringMajorCredits += credits;
-      majorCredits += credits;
+      // majorCredits += credits;
     } else if (majorBasisList.includes(courseCode)) {
       majorBasisCredits += credits;
-      majorCredits += credits;
+      // majorCredits += credits;
     } else if (basicGenEdList.includes(courseCode)) {
       basicGeneralEducationCredits += credits;
-      generalEducationCredits += credits;
+      // generalEducationCredits += credits;
     } else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
       generalEducationCredits += credits;
     } else {
@@ -206,7 +210,10 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
 
     // 2. 설계 학점
     if (designCourseList.includes(courseCode)) {
-      totalDesignCredits += credits;
+      if (courseCode.slice(0, 4) === 'ITEC')
+        totalDesignCredits += 4; 
+      else
+        totalDesignCredits += 2;
     }
 
     // 3. 첨성인 기초/핵심
@@ -232,17 +239,17 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const credits = Number(lecture.totalCredit) || 0;
     const courseCode = lecture.lectCode;
 
-    if (lecture.lectType === '전공' && engineeringMajorList.includes(courseCode)) {
+    if (lecture.lectType === '공학전공' /*&& engineeringMajorList.includes(courseCode)*/) {
       engineeringMajorCredits += credits;
-      majorCredits += credits;
-    } else if (lecture.lectType === '전공' && majorBasisList.includes(courseCode)) {
+      // majorCredits += credits;
+    } else if (lecture.lectType === '전공기반' /*&& majorBasisList.includes(courseCode)*/) {
       majorBasisCredits += credits;
-      majorCredits += credits;
-    } else if (lecture.lectType === '교양' && basicGenEdList.includes(courseCode)) {
+      // majorCredits += credits;
+    } else if (lecture.lectType === '기본소양(전문교양)' /*&& basicGenEdList.includes(courseCode)*/) {
       basicGeneralEducationCredits += credits;
-      generalEducationCredits += credits;
-    } else if (lecture.lectType === '전공') {
-      majorCredits += credits;
+    //  generalEducationCredits += credits;
+    // } else if (lecture.lectType === '전공') {
+    //  majorCredits += credits;
     } else if (lecture.lectType === '교양') {
       generalEducationCredits += credits;
     } else {
@@ -263,7 +270,10 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     }
 
     if (designCourseList.includes(courseCode)) {
-      totalDesignCredits += credits;
+      if (courseCode.slice(0, 4) === 'ITEC')
+        totalDesignCredits += 4;
+      else
+        totalDesignCredits += 2;
     }
 
     if (knuBasicList.readingDebate?.includes(courseCode)) {
@@ -770,6 +780,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     };
   }
 
+  // 해외복수학위 트랙: 해외복수학위과정 이수 여부
   if (requirements.globalDegreeRequirement) {
     const globalRule = requirements.globalDegreeRequirement;
     const isFulfilled = (user.isExchangeStudent === true);

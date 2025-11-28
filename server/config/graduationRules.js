@@ -1639,8 +1639,8 @@ const rules = {
     },
 
     "generalEducationCredits": {
-      "note": "교양 과목은 min 이상 이수해야함",
-      "min": 30
+      "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
+      "min": 0
     },
 
     "sdgRequirement": {
@@ -1737,8 +1737,8 @@ const rules = {
     },
 
     "generalEducationCredits": {
-      "note": "교양 과목은 min 이상 이수해야함",
-      "min": 30
+      "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
+      "min": 0
     },
 
     "sdgRequirement": {
@@ -1835,8 +1835,8 @@ const rules = {
     },
 
     "generalEducationCredits": {
-      "note": "교양 과목은 min 이상 이수해야함",
-      "min": 30
+      "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
+      "min": 0
     },
 
     // 첨성인 기초
@@ -1929,9 +1929,8 @@ const rules = {
     },
 
     "generalEducationCredits": {
-      "note": "교양 과목은 min 이상 이수해야하고 max까지만 인정됨.",
-      "min": 24,
-      "max": 42
+      "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
+      "min": 0
     },
 
     "requiredMajorCourses": {
@@ -2010,9 +2009,8 @@ const rules = {
     },
 
     "generalEducationCredits": {
-      "note": "교양 과목은 min 이상 이수해야하고 max까지만 인정됨.",
-      "min": 24,
-      "max": 42
+      "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
+      "min": 0
     },
 
     "requiredMajorCourses": {
@@ -2091,9 +2089,8 @@ const rules = {
     },
 
     "generalEducationCredits": {
-      "note": "교양 과목은 min 이상 이수해야하고 max까지만 인정됨.",
-      "min": 24,
-      "max": 42
+      "note": "ABEEK 적용 전공은 최소 교양 학점 기준이 없음",
+      "min": 0
     },
 
     "requiredMajorCourses": {
