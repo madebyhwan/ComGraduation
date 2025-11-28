@@ -929,11 +929,19 @@ exports.univToCustomLecture = async (req, res) => {
       return res.status(403).json({ message: '이 강의를 수정할 권한이 없습니다.' });
     }
 
-    const { ventureCourses } = courseConfig;
+    const { ventureCourses, generalEducation } = courseConfig;
     const ventureCourseList = ventureCourses["ventures"];
+    const knuBasicReadingDebate = generalEducation["knuBasic"]["readingDebate"];
+    const knuBasicMathScience = generalEducation["knuBasic"]["mathScience"];
+    const knuCoreHumanitySociety = generalEducation["knuCore"]["humanitySociety"];
+    const knuCoreNaturalScience = generalEducation["knuCore"]["naturalScience"];
 
     let calculatedOverseasCredit = 0;
     let calculatedStartupCredit = 0;
+    let knuBasicReading = false;
+    let knuBasicMath = false;
+    let knuCoreHumanity = false;
+    let knuCoreNatural = false;
 
     // 1. 영어 강의 체크: isEnglishLecture이면 overseasCredit에 1을 추가
     if (lecture.isEnglishLecture) {
@@ -946,7 +954,18 @@ exports.univToCustomLecture = async (req, res) => {
       calculatedStartupCredit = lecture.lectCredit;
     }
 
-    // 3. CustomLecture 인스턴스 생성
+    // 3. 첨성인 과목 넘기기
+    if (knuBasicReadingDebate.includes(lecture.lectCode)) {
+      knuBasicReading = true;
+    } if(knuBasicMathScience.includes(lecture.lectCode)) {
+      knuBasicMath = true;
+    } if(knuCoreHumanitySociety.includes(lecture.lectCode)) {
+      knuCoreHumanity = true;
+    } if(knuCoreNaturalScience.includes(lecture.lectCode)) {
+      knuCoreNatural = true;
+    }
+
+    // 4. CustomLecture 인스턴스 생성
     const customLectureInstance = new CustomLecture({
       userObjectId: user._id,
       lectName: lecture.lectName,
@@ -957,11 +976,15 @@ exports.univToCustomLecture = async (req, res) => {
       startupCourseCredit: calculatedStartupCredit,
       totalCredit: lecture.lectCredit,
       isEnglishLecture: lecture.isEnglishLecture,
-      isSDGLecture: lecture.isSDGLecture
+      isSDGLecture: lecture.isSDGLecture,
+      knuBasicReading: knuBasicReading,
+      knuBasicMath: knuBasicMath,
+      knuCoreHumanity: knuCoreHumanity,
+      knuCoreNatural: knuCoreNatural,
     });
     await customLectureInstance.save();
 
-    // 4. 유저의 userLectures에서 제거하고 userCustomLectures에 추가
+    // 5. 유저의 userLectures에서 제거하고 userCustomLectures에 추가
     user.userLectures = user.userLectures.filter(id => !id.equals(lectureObjectId));
     user.userCustomLectures.push(customLectureInstance._id);
     await user.save();

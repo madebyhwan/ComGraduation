@@ -56,8 +56,8 @@ const DetailModal = ({ title, list, onClose }) => {
 const RequirementItem = ({ title, result,onClick }) => {
   if (!result) return null;
 
-  const isExcluded = ["영어 성적", "지도 교수 상담", "TOPCIT/졸업인터뷰", "졸업 심사", "해외 학위 요건"].includes(title);
-  const isClickable = !isExcluded && result.detail && result.detail.length > 0;
+  const isExcluded = ["영어 성적", "지도교수 상담", "TOPCIT/졸업인터뷰", "졸업 심사", "해외 학위 요건"].includes(title);
+  const isClickable = !isExcluded;
 
   // 1. "영어 성적" 항목 전용 렌더링
   if (title === "영어 성적") {
@@ -119,7 +119,11 @@ const RequirementItem = ({ title, result,onClick }) => {
 
   // 3. 일반 항목 렌더링
   return (
-    <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
+    <div 
+        className={`flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm transition-all
+                    ${isClickable ? 'cursor-pointer hover:bg-blue-50 hover:border-blue-200' : ''}`}
+        onClick={() => isClickable && onClick(title, result.detail)}
+    >
       <div className="shrink-0 mt-0.5">
         {result.pass ? <CheckCircle2 className="h-5 w-5 text-green-500" /> : <AlertCircle className="h-5 w-5 text-red-500" />}
       </div>
@@ -174,11 +178,6 @@ const Main = () => {
     fetchGraduationStatus();
   }, []);
 
-    const handleItemClick = (title, list) => {
-      if (list && list.length > 0) {
-          setModalData({ title, list });
-      }
-  };
 
   if (loading) {
     return <div className="text-center p-10 text-gray-600">졸업 요건을 불러오는 중입니다...</div>;
@@ -189,6 +188,12 @@ const Main = () => {
   }
 
   const { details, creditSummary } = status;
+
+  const handleItemClick = (title, list) => {
+      if (list && list.length > 0) {
+          setModalData({ title, list });
+      }
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -214,18 +219,18 @@ const Main = () => {
 
       <h2 className="text-xl font-semibold mb-4 text-gray-800">학점 요건</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <RequirementItem title="총 이수 학점" result={details.totalCredits} />
-        <RequirementItem title="전공 학점" result={details.majorCredits} />
-        <RequirementItem title="교양 학점" result={details.generalEducationCredits} />
+        <RequirementItem title="총 이수 학점" result={details.totalCredits}onClick={handleItemClick} />
+        <RequirementItem title="전공 학점" result={details.majorCredits}onClick={handleItemClick}  />
+        <RequirementItem title="교양 학점" result={details.generalEducationCredits} onClick={handleItemClick}/>
 
         {details.basicGeneralEducationCredits && (
-          <RequirementItem title="기본소양 학점" result={details.basicGeneralEducationCredits} />
+          <RequirementItem title="기본소양 학점" result={details.basicGeneralEducationCredits}onClick={handleItemClick} />
         )}
         {details.majorBasisCredits && (
-          <RequirementItem title="전공기반 학점" result={details.majorBasisCredits} />
+          <RequirementItem title="전공기반 학점" result={details.majorBasisCredits}onClick={handleItemClick} />
         )}
         {details.engineeringMajorCredits && (
-          <RequirementItem title="공학전공 학점" result={details.engineeringMajorCredits} />
+          <RequirementItem title="공학전공 학점" result={details.engineeringMajorCredits}onClick={handleItemClick} />
         )}
       </div>
 
@@ -246,10 +251,12 @@ const Main = () => {
                   <RequirementItem
                     title="독서와토론·사고교육·글쓰기·외국어"
                     result={details.knuBasicRequirement.readingDebate}
+                    onClick={handleItemClick}
                   />
                   <RequirementItem
                     title="수리·기초과학"
                     result={details.knuBasicRequirement.mathScience}
+                    onClick={handleItemClick}
                   />
                 </div>
               </div>
@@ -267,10 +274,12 @@ const Main = () => {
                   <RequirementItem
                     title="인문·사회"
                     result={details.knuCoreRequirement.humanitySociety}
+                    onClick={handleItemClick}
                   />
                   <RequirementItem
                     title="자연·과학"
                     result={details.knuCoreRequirement.naturalScience}
+                    onClick={handleItemClick}
                   />
                 </div>
               </div>
@@ -281,13 +290,14 @@ const Main = () => {
 
       <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">기타 요건</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <RequirementItem title="전공필수 과목" result={details.requiredMajorCourses} />
+        <RequirementItem title="전공필수 과목" result={details.requiredMajorCourses} onClick={handleItemClick}/>
         <RequirementItem title="지도교수 상담" result={details.counselingSessions} />
 
         {details.sdgRequirement && (
           <RequirementItem
             title="SDG 교양"
             result={details.sdgRequirement}
+            onClick={handleItemClick}
           />
         )}
 
@@ -303,11 +313,12 @@ const Main = () => {
                 : "종합 설계"
             }
             result={details.capstoneDesignRequirement}
+            onClick={handleItemClick}
           />
         )}
 
-        <RequirementItem title="현장 실습" result={details.internship} />
-        <RequirementItem title="해외 대학" result={details.globalCompetency} />
+        <RequirementItem title="현장 실습" result={details.internship}onClick={handleItemClick} />
+        <RequirementItem title="해외 대학" result={details.globalCompetency}onClick={handleItemClick} />
         {details.globalDegreeRequirement && (
           <RequirementItem title="해외 학위 요건" result={details.globalDegreeRequirement} />
         )}
@@ -319,7 +330,7 @@ const Main = () => {
           <h2 className="text-xl font-semibold mt-8 mb-4 text-gray-800">참고 사항</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {creditSummary.generalElectiveCredits !== undefined && (
-              <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm">
+              <div className="flex items-start gap-3 p-4 border rounded-lg bg-white shadow-sm cursor-pointer hover:bg-blue-50 hover:border-blue-200" onClick={() => handleItemClick("일반선택 학점", creditSummary.generalElectiveList)}>
                 <div className="shrink-0 mt-0.5">
                   <Info className="h-5 w-5 text-blue-500" />
                 </div>
