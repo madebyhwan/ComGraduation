@@ -574,7 +574,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     required: geRequiredText,
   };
 
-  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits + multiMajorCredits;
+  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits;
   results.totalCredits = {
     pass: recognizedTotalCredits >= requirements.minTotalCredits,
     current: recognizedTotalCredits,
