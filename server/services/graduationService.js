@@ -603,7 +603,16 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     required: geRequiredText,
   };
 
-  const recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits;
+  // 총학점 계산: 심컴(ABEEK) vs 글솝/인컴
+  let recognizedTotalCredits;
+  if (isAbeekMajor) {
+    // 심컴: 기본소양 + 전공기반 + 공학전공 + 교양 + 일반선택
+    recognizedTotalCredits = basicGeneralEducationCredits + majorBasisCredits + engineeringMajorCredits + recognizedGeCredits + generalElectiveCredits;
+  } else {
+    // 글솝/인컴: 전공 + 교양 + 일반선택
+    recognizedTotalCredits = majorCredits + recognizedGeCredits + generalElectiveCredits;
+  }
+
   results.totalCredits = {
     pass: recognizedTotalCredits >= requirements.minTotalCredits,
     current: recognizedTotalCredits,
