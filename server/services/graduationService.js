@@ -101,22 +101,31 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       fieldPracticeCredits += fieldPracticeCredit;
     }
 
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // }
 
     if (lecture.isSDGLecture) {
       sdgCredits += credits;
+    } if (lecture.knuBasicReading) {
+      knuBasicReadingDebate += credits;
+    } if (lecture.knuBasicMath) {
+      knuBasicMathScience += credits;
+    } if (lecture.knuCoreHumanity) {
+      knuCoreHumanitySociety += credits;
+    } if (lecture.knuCoreNaturalScience) {
+      knuCoreNaturalScience += credits;
     }
+    
   });
 
   multiMajorLectures.forEach(lecture => {
@@ -216,23 +225,23 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
         totalDesignCredits += 2;
     }
 
-    // 3. 첨성인 기초/핵심
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // // 3. 첨성인 기초/핵심
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // }
 
-    if (lecture.isSDGLecture) {
-      sdgCredits += Number(lecture.lectCredit) || 0;
-    }
+    // if (lecture.isSDGLecture) {
+    //   sdgCredits += Number(lecture.lectCredit) || 0;
+    // }
   });
 
   userCustomLectures.forEach(lecture => {
@@ -276,22 +285,23 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
         totalDesignCredits += 2;
     }
 
-    if (knuBasicList.readingDebate?.includes(courseCode)) {
-      knuBasicReadingDebate += credits;
-    }
-    if (knuBasicList.mathScience?.includes(courseCode)) {
-      knuBasicMathScience += credits;
-    }
-    if (knuCoreList.humanitySociety?.includes(courseCode)) {
-      knuCoreHumanitySociety += credits;
-    }
-    if (knuCoreList.naturalScience?.includes(courseCode)) {
-      knuCoreNaturalScience += credits;
-    }
+    // if (knuBasicList.readingDebate?.includes(courseCode)) {
+    //   knuBasicReadingDebate += credits;
+    // }
+    // if (knuBasicList.mathScience?.includes(courseCode)) {
+    //   knuBasicMathScience += credits;
+    // }
+    // if (knuCoreList.humanitySociety?.includes(courseCode)) {
+    //   knuCoreHumanitySociety += credits;
+    // }
+    // if (knuCoreList.naturalScience?.includes(courseCode)) {
+    //   knuCoreNaturalScience += credits;
+    // })
 
-    if (lecture.isSDGLecture) {
-      sdgCredits += credits;
-    }
+    // if (lecture.isSDGLecture) {
+    //   sdgCredits += credits;
+    // }
+    
   });
 
   multiMajorLectures.forEach(lecture => {

@@ -39,7 +39,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -138,7 +138,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -233,7 +233,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -326,7 +326,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -425,7 +425,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -520,7 +520,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -609,7 +609,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -709,7 +709,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -805,7 +805,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -1643,20 +1643,36 @@ const rules = {
       "min": 0
     },
 
+    // "sdgRequirement": {
+    //   "minCredits": 3,
+    // },
+
+    // // 첨성인 기초
+    // "knuBasicRequirement": {
+    //   "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+    //   "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    // },
+
+    // // 첨성인 핵심
+    // "knuCoreRequirement": {
+    //   "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+    //   "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    // },
+
     "sdgRequirement": {
-      "minCredits": 3,
+      "minCredits": 0,
     },
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
-      "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+      "readingDebate": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
+      "mathScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
     },
 
     // 첨성인 핵심
     "knuCoreRequirement": {
-      "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
-      "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+      "humanitySociety": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
+      "naturalScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
     },
 
     "requiredMajorCourses": {
@@ -1741,20 +1757,36 @@ const rules = {
       "min": 0
     },
 
+    // "sdgRequirement": {
+    //   "minCredits": 3,
+    // },
+
+    // // 첨성인 기초
+    // "knuBasicRequirement": {
+    //   "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+    //   "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    // },
+
+    // // 첨성인 핵심
+    // "knuCoreRequirement": {
+    //   "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+    //   "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    // },
+
     "sdgRequirement": {
-      "minCredits": 3,
+      "minCredits": 0,
     },
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
-      "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+      "readingDebate": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
+      "mathScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
     },
 
     // 첨성인 핵심
     "knuCoreRequirement": {
-      "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
-      "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+      "humanitySociety": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
+      "naturalScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
     },
 
     "requiredMajorCourses": {
@@ -1839,16 +1871,28 @@ const rules = {
       "min": 0
     },
 
+    // // 첨성인 기초
+    // "knuBasicRequirement": {
+    //   "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+    //   "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    // },
+
+    // // 첨성인 핵심
+    // "knuCoreRequirement": {
+    //   "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
+    //   "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+    // },
+
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
-      "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+      "readingDebate": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
+      "mathScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
     },
 
     // 첨성인 핵심
     "knuCoreRequirement": {
-      "humanitySociety": { "min": 3, "note": "해당 영역 중 3학점 이상" },
-      "naturalScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
+      "humanitySociety": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" },
+      "naturalScience": { "min": 0, "note": "ABEEK 적용 전공은 해당 기준을 따르지 않음" }
     },
 
     "requiredMajorCourses": {
@@ -2192,7 +2236,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -2263,7 +2307,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
@@ -2330,7 +2374,7 @@ const rules = {
 
     // 첨성인 기초
     "knuBasicRequirement": {
-      "readingDebate": { "min": 3, "note": " 해당 영역 중 3학점 이상" },
+      "readingDebate": { "min": 3, "note": "해당 영역 중 3학점 이상" },
       "mathScience": { "min": 3, "note": "해당 영역 중 3학점 이상" }
     },
 
