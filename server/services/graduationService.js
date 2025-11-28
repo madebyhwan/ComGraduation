@@ -86,7 +86,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
       generalElectiveCredits += credits;
     }
 
-    const startupCourseCredit = Number(lecture.fieldPracticeCredit) || 0;
+    const startupCourseCredit = Number(lecture.startupCourseCredit) || 0;
     if (lecture.startupCourseCredit > 0) {
       startupCourseCredits += startupCourseCredit;
     }
@@ -229,13 +229,30 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const credits = Number(lecture.totalCredit) || 0;
     const courseCode = lecture.lectCode;
 
-    if (lecture.lectType === '교양') {
+    if (lecture.lectType === '전공' && engineeringMajorList.includes(courseCode)) {
+      engineeringMajorCredits += credits;
+      majorCredits += credits;
+    } else if (lecture.lectType === '전공' && majorBasisList.includes(courseCode)) {
+      majorBasisCredits += credits;
+      majorCredits += credits;
+    } else if (lecture.lectType === '교양' && basicGenEdList.includes(courseCode)) {
+      basicGeneralEducationCredits += credits;
       generalEducationCredits += credits;
     } else if (lecture.lectType === '전공') {
       majorCredits += credits;
+    } else if (lecture.lectType === '교양') {
+      generalEducationCredits += credits;
     } else {
       generalElectiveCredits += credits;
     }
+
+    // if (lecture.lectType === '교양') {
+    //   generalEducationCredits += credits;
+    // } else if (lecture.lectType === '전공') {
+    //   majorCredits += credits;
+    // } else {
+    //   generalElectiveCredits += credits;
+    // }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {

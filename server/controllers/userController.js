@@ -522,13 +522,10 @@ exports.addCustomLecture = async (req, res) => {
       userObjectId: user._id,
       lectName,
       lectType,
-      lectCode,
       overseasCredit,
       fieldPracticeCredit,
       startupCourseCredit,
       totalCredit,
-      isEnglishLecture,
-      isSDGLecture
     });
     user.userCustomLectures.push(newCustomLecture._id);
     await user.save();
