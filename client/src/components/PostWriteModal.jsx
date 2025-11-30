@@ -20,6 +20,14 @@ const PostWriteModal = ({ onClose, onPostAdded, initialTab, editMode = false, in
     }
   }, [type]);
 
+  // 모달 열릴 때 배경 스크롤 방지
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
