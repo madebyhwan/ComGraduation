@@ -815,14 +815,16 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
 
   const takenCourseCodes = takenLectures.map(lec => lec.lectCode) || [];
 
-  const missingCourses = requiredCourses.filter(reqCode => !takenCourseCodes.includes(reqCode));
   const takenRequiredList = [];
   takenLectures.forEach(l => {
     const isComputer =
       l.lectDepartment.includes('컴퓨터학부') || (l.lectSemester === '계절학기(하계)' || l.lectSemester === '계절학기(동계)');
-    if (requiredCourses.includes(l.lectCode) && isComputer)
+    if (requiredCourses.includes(l.lectCode) && isComputer && (l.lectGeneral === '전공기반' || l.lectGeneral === '공학전공'))
       addToList(takenRequiredList, l, '전공필수');
   });
+
+  const takenRequiredCodes = takenRequiredList.map(item => item.code) || [];
+  const missingCourses = requiredCourses.filter(reqCode => !takenRequiredCodes.includes(reqCode));
   const missingCourseNames = [];
   for (const courseCode of missingCourses) {
     const courseInfo = await lectures.findOne({ lectCode: courseCode });

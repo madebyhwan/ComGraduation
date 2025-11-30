@@ -104,6 +104,7 @@ async function lectureList(userId) {
       const dbGeneral = l?.lectGeneral; // DB에 저장된 기본 구분
       const lectDepartment = l?.lectDepartment || '';
       const lectSemester = l?.lectSemester || '';
+      const lectGeneral = l?.lectGeneral || '';
 
       let calculatedType = '일반선택'; // 기본값
 
@@ -114,13 +115,13 @@ async function lectureList(userId) {
       // [핵심 수정] courseConfig 기반 분류 로직
       if (isDeepComputer) {
         // --- 심화컴퓨터 & 플랫폼SW (ABEEK 로직) ---
-        if (isRequired && isComputer) {
+        if (isRequired && isComputer && (lectGeneral === '전공기반' || lectGeneral === '공학전공')) {
           calculatedType = '전공필수';
-        } else if (inList(engineeringMajorList, code) && isComputer) {
+        } else if (inList(engineeringMajorList, code) && isComputer && lectGeneral === '공학전공') {
           calculatedType = '공학전공';
-        } else if (inList(majorBasisList, code) && isComputer) {
+        } else if (inList(majorBasisList, code) && isComputer && lectGeneral === '전공기반') {
           calculatedType = '전공기반';
-        } else if (inList(basicGenEdList, code) && isComputer) {
+        } else if (inList(basicGenEdList, code) && isComputer && lectGeneral === '공학전공') {
           calculatedType = '기본소양';
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
