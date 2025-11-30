@@ -18,7 +18,9 @@ const addToList = (list, lecture, category, creditOverride = null) => {
     code: lecture.lectCode || 'Custom',
     name: lecture.lectName,
     credit: credit,
-    category: category
+    category: category,
+    department: lecture.lectDepartment,
+    semester: lecture.lectSemeter
   });
 };
 
@@ -733,7 +735,9 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   // majorList에 있는 과목 중 필수 과목에 해당하면 category를 '전공필수'로 변경
   if (majorList && majorList.length > 0) {
     majorList.forEach(item => {
-      if (requiredCourses.includes(item.code)) {
+      const isComputer =
+        item.department?.includes('컴퓨터학부') || (item.semester === '계절학기(하계)' || item.lecture.semester === '계절학기(동계)');
+      if (requiredCourses.includes(item.code) && isComputer) {
         item.category = '전공필수';
       }
     });
@@ -814,7 +818,10 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   const missingCourses = requiredCourses.filter(reqCode => !takenCourseCodes.includes(reqCode));
   const takenRequiredList = [];
   takenLectures.forEach(l => {
-    if (requiredCourses.includes(l.lectCode)) addToList(takenRequiredList, l, '전공필수');
+    const isComputer =
+      l.lectDepartment.includes('컴퓨터학부') || (l.lectSemester === '계절학기(하계)' || l.lectSemester === '계절학기(동계)');
+    if (requiredCourses.includes(l.lectCode) && isComputer)
+      addToList(takenRequiredList, l, '전공필수');
   });
   const missingCourseNames = [];
   for (const courseCode of missingCourses) {
@@ -840,7 +847,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
 
   results.requiredMajorCourses = {
     pass: missingCourses.length === 0,
-    current: requiredCourses.length - missingCourses.length,
+    current: takenRequiredList.length,
     required: requiredCourses.length,
     missing: missingCourseNames,
     detail: takenRequiredList
