@@ -174,6 +174,11 @@ const LectureList = ({
                                                     <span className="font-medium text-knu-blue ml-1">{lec.lectCredit}학점</span>
                                                 </div>
                                             )}
+                                            {type !== 'custom' && lec.lectDepartment && (
+                                                <p className="text-xs text-gray-600 font-medium mt-1">
+                                                    개설: {lec.lectDepartment}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
 
