@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
-import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor, univToCustom } from '../api/api.js';
+import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor, univToCustom, getMyInfo } from '../api/api.js';
 import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp, ArrowDownToLine, Filter, AlertTriangle } from 'lucide-react';
 
 // 뱃지 색상 로직
@@ -222,6 +222,7 @@ const CoursesPage = () => {
     const [lectures, setLectures] = useState({ univ: [], custom: [], multiMajor: [] });
     const [loading, setLoading] = useState(true);
     const [editingLecture, setEditingLecture] = useState(null);
+    const [userDepartment, setUserDepartment] = useState('');
 
     const [selectedYear, setSelectedYear] = useState('all');
     const [selectedSemester, setSelectedSemester] = useState('all');
@@ -242,6 +243,16 @@ const CoursesPage = () => {
 
     useEffect(() => {
         fetchMyLectures();
+        // 사용자 정보 불러오기
+        const fetchUser = async () => {
+            try {
+                const data = await getMyInfo();
+                setUserDepartment(data.user?.userDepartment || '');
+            } catch (e) {
+                setUserDepartment('');
+            }
+        };
+        fetchUser();
     }, []);
 
     const years = useMemo(() => {
@@ -327,32 +338,60 @@ const CoursesPage = () => {
                 <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">수강 과목 관리</h1>
             </div>
 
-        {/* 면책 조항 */}
-        <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 sm:gap-3 text-amber-900 shadow-sm">
-            <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
-            <div className="text-sm leading-relaxed">
-                <p className="font-bold mb-1">교과구분 기준 안내</p>
-                <p className="font-bold text-[11px] sm:text-xs text-amber-800 mb-2">과목 추가 시 수강한 교과구분과 동일한지 <span className="underline">반드시</span> 확인해주세요</p>
-                <ul className="space-y-1 text-xs">
-                    <li className="flex items-start gap-1.5">
-                        <span className="shrink-0">•</span>
-                        <span><span className="font-semibold">전공필수:</span> 교과목 코드 기준</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                        <span className="shrink-0">•</span>
-                        <span><span className="font-semibold">전공:</span> 컴퓨터학부 개설 및 교과목 코드 기준</span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                        <span className="shrink-0">•</span>
-                        <span><span className="font-semibold">교양:</span> 수업시간표 교과구분 기준 <span className="font-bold">교양</span> 및 <span className="font-bold">기본소양</span></span>
-                    </li>
-                    <li className="flex items-start gap-1.5">
-                        <span className="shrink-0">•</span>
-                        <span><span className="font-semibold">일반선택:</span> 그 외 나머지 과목</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+            {/* 면책 조항 */}
+            {['심화컴퓨터공학전공', '플랫폼SW&데이터과학전공'].includes(userDepartment) ? (
+                <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 sm:gap-3 text-amber-900 shadow-sm">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm leading-relaxed">
+                        <p className="font-bold mb-1">교과구분 기준 안내</p>
+                        <p className="font-bold text-[11px] sm:text-xs text-amber-800 mb-2">과목 추가 시 수강한 교과구분과 동일한지 <span className="underline">반드시</span> 확인해주세요</p>
+                        <ul className="space-y-1 text-xs">
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">전공필수:</span> 전공기반 필수 및 공학전공 필수</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">기본소양, 전공기반, 공학전공:</span> 컴퓨터학부 개설 및 교과목 코드 기준 (<span className='underline'>계절학기에 수강 시 <span className="font-bold">개설 교과구분</span> 기준</span>)</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">교양:</span> 수업시간표 교과구분 기준 <span className="font-bold">교양</span> 및 <span className="font-bold">기본소양</span></span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">일반선택:</span> 그 외 나머지 과목</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            ) : (
+                <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 sm:gap-3 text-amber-900 shadow-sm">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-sm leading-relaxed">
+                        <p className="font-bold mb-1">교과구분 기준 안내</p>
+                        <p className="font-bold text-[11px] sm:text-xs text-amber-800 mb-2">과목 추가 시 수강한 교과구분과 동일한지 <span className="underline">반드시</span> 확인해주세요</p>
+                        <ul className="space-y-1 text-xs">
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">전공필수:</span> 교과목 코드 기준</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">전공:</span> 컴퓨터학부 개설 및 교과목 코드 기준</span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">교양:</span> 수업시간표 교과구분 기준 <span className="font-bold">교양</span> 및 <span className="font-bold">기본소양</span></span>
+                            </li>
+                            <li className="flex items-start gap-1.5">
+                                <span className="shrink-0">•</span>
+                                <span><span className="font-semibold">일반선택:</span> 그 외 나머지 과목</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            )}
 
             <LecSearch onLectureAdded={fetchMyLectures} />
 
