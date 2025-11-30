@@ -26,7 +26,7 @@ async function lectureList(userId) {
       })
       .populate({
         path: 'multiMajorLectures',
-        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime lectGeneral'
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime lectGeneral lectDepartment'
       });
 
     if (!user) return null;
