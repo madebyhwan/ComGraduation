@@ -103,12 +103,13 @@ async function lectureList(userId) {
       const code = l?.lectCode;
       const dbGeneral = l?.lectGeneral; // DB에 저장된 기본 구분
       const lectDepartment = l?.lectDepartment || '';
+      const lectSemester = l?.lectSemester || '';
 
       let calculatedType = '일반선택'; // 기본값
 
       const isRequired = requiredCoursesList.includes(code);
       const isComputer =
-        lectDepartment.includes('컴퓨터학부') || (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)');
+        lectDepartment.includes('컴퓨터학부') || (lectSemester === '계절학기(하계)' || lectSemester === '계절학기(동계)');
 
       // [핵심 수정] courseConfig 기반 분류 로직
       if (isDeepComputer) {

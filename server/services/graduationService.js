@@ -272,7 +272,7 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const courseCode = lecture.lectCode;
 
     const isComputer =
-      lectDepartment.includes('컴퓨터학부') || (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)');
+      lecture.lectDepartment.includes('컴퓨터학부') || (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)');
 
     // 1. ABEEK 세부 분류 (우선순위 처리)
 
