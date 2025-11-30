@@ -725,7 +725,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
     knuBasicMathScience, knuBasicMathScienceList,
     knuCoreHumanitySociety, knuCoreHumanitySocietyList,
     knuCoreNaturalScience, knuCoreNaturalScienceList,
-    sdgCredits, sdgList
+    sdgCredits, sdgList4
   } = classifiedCredits;
 
   const results = {};
