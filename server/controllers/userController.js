@@ -26,7 +26,7 @@ async function lectureList(userId) {
       })
       .populate({
         path: 'multiMajorLectures',
-        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime lectGeneral'
+        select: 'lectName lectCode lectDiv lectCredit lectYear lectSemester lectProfessor lectTime lectGeneral lectDepartment'
       });
 
     if (!user) return null;
@@ -155,7 +155,8 @@ async function lectureList(userId) {
         lectSemester: l?.lectSemester ?? null,
         lectGeneral: calculatedType, // 계산된 분류 값
         lectProfessor: l?.lectProfessor ?? null,
-        lectTime: l?.lectTime ?? null
+        lectTime: l?.lectTime ?? null,
+        lectDepartment: l?.lectDepartment ?? null
       };
     };
 
