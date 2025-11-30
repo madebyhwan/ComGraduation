@@ -38,6 +38,18 @@ const ProfilePage = () => {
     const [passedInterview, setPassedInterview] = useState(false);
     const [passedTopcit, setPassedTopcit] = useState(false);
     const [isStartup, setIsStartup] = useState(false);
+
+    // 비밀번호 변경 모달 열릴 때 배경 스크롤 방지
+    useEffect(() => {
+        if (showPwModal) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [showPwModal]);
     const [isExchangeStudent, setIsExchangeStudent] = useState(false);
     const [counselingCount, setCounselingCount] = useState(0);
 
@@ -219,8 +231,8 @@ const ProfilePage = () => {
         : allTrackOptions;
 
     return (
-        <div>
-            <h1 className="text-3xl font-bold mb-6">내 정보</h1>
+        <div className="max-w-7xl mx-auto">
+            <h1 className="text-[1.6rem] md:text-3xl font-bold mb-6">내 정보</h1>
 
             <form className="space-y-8" onSubmit={handleSubmit}>
                 

@@ -175,79 +175,84 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-lg shadow-xl w-11/12 max-w-lg p-6">
-        <h2 className="text-2xl font-bold mb-4">
-          {isEditMode ? '커스텀 과목 & 교과목 외 활동 수정' : '교과목 외 활동 추가'}
-        </h2>
-        <p className="text-sm text-gray-600 mb-4">
-          기존에 수강한 과목의 교과구분을 수정하거나 <br />강의계획서에 없는 교과목 외 활동(해외대학, 현장실습 등)을 관리합니다.
-        </p>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-lg flex flex-col max-h-[90vh]">
+        {/* 고정 헤더 */}
+        <div className="p-6 border-b flex-shrink-0">
+          <h2 className="text-2xl font-bold mb-2">
+            {isEditMode ? '커스텀 과목 & 교과목 외 활동 수정' : '교과목 외 활동 추가'}
+          </h2>
+          <p className="text-sm text-gray-600">
+            기존에 수강한 과목의 교과구분을 수정하거나 <br />강의계획서에 없는 교과목 외 활동(해외대학, 현장실습 등)을 관리합니다.
+          </p>
+        </div>
 
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* ... 활동명, 교과구분 필드는 기존 유지 ... */}
-          <div className="form-group">
-            <label className="form-label" htmlFor="lectName">활동명</label>
-            <input
-              type="text"
-              id="lectName"
-              className="form-input"
-              value={lectName}
-              onChange={(e) => setLectName(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label className="form-label" htmlFor="lectType">교과 구분</label>
-            <select
-              id="lectType"
-              className="form-input"
-              value={lectType}
-              onChange={(e) => setLectType(e.target.value)}
-            >
-              {getLectTypeOptions().map(option => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
+        {/* 스크롤 가능한 폼 영역 */}
+        <div className="overflow-y-auto flex-1 p-6">
+          <form className="space-y-4" onSubmit={handleSubmit} id="customLectureForm">
+            {/* ... 활동명, 교과구분 필드는 기존 유지 ... */}
+            <div className="form-group">
+              <label className="form-label" htmlFor="lectName">활동명</label>
+              <input
+                type="text"
+                id="lectName"
+                className="form-input"
+                value={lectName}
+                onChange={(e) => setLectName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="lectType">교과 구분</label>
+              <select
+                id="lectType"
+                className="form-input"
+                value={lectType}
+                onChange={(e) => setLectType(e.target.value)}
+              >
+                {getLectTypeOptions().map(option => (
+                  <option key={option.value} value={option.value}>{option.label}</option>
+                ))}
+              </select>
+            </div>
 
-          {/* 학점 입력 필드들 (2열 그리드로 변경하여 공간 확보) */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="form-group">
-              <label className="form-label" htmlFor="totalCredit">총 학점</label>
-              <input
-                type="number"
-                id="totalCredit"
-                className="form-input"
-                min="0"
-                value={totalCredit}
-                onChange={(e) => setTotalCredit(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="overseasCredit">해외 학점</label>
-              <input
-                type="number"
-                id="overseasCredit"
-                className="form-input"
-                min="0"
-                value={overseasCredit}
-                onChange={(e) => setOverseasCredit(e.target.value)}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="fieldPracticeCredit">현장실습 학점</label>
-              <input
-                type="number"
-                id="fieldPracticeCredit"
-                className="form-input"
-                min="0"
-                value={fieldPracticeCredit}
-                onChange={(e) => setFieldPracticeCredit(e.target.value)}
-              />
-            </div>
-            {/* [추가] 창업 학점 입력 필드 */}
-            <div className="form-group">
+            {/* 학점 입력 필드들 (2열 그리드로 변경하여 공간 확보) */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="form-group">
+                <label className="form-label" htmlFor="totalCredit">총 학점</label>
+                <input
+                  type="number"
+                  id="totalCredit"
+                  className="form-input"
+                  min="0"
+                  value={totalCredit}
+                  onChange={(e) => setTotalCredit(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="overseasCredit">해외 학점</label>
+                <input
+                  type="number"
+                  id="overseasCredit"
+                  className="form-input"
+                  min="0"
+                  value={overseasCredit}
+                  onChange={(e) => setOverseasCredit(e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label" htmlFor="fieldPracticeCredit">현장실습 학점</label>
+                <input
+                  type="number"
+                  id="fieldPracticeCredit"
+                  className="form-input"
+                  min="0"
+                  value={fieldPracticeCredit}
+                  onChange={(e) => setFieldPracticeCredit(e.target.value)}
+                />
+              </div>
+              {/* [추가] 창업 학점 입력 필드 */}
+              <div className="form-group">
               <label className="form-label" htmlFor="startupCourseCredit">창업 학점</label>
               <input
                 type="number"
@@ -257,47 +262,50 @@ const CustomLectureModal = ({ show, onClose, onLectureAdded, lectureToEdit }) =>
                 value={startupCourseCredit}
                 onChange={(e) => setStartupCourseCredit(e.target.value)}
               />
-            </div>
-          </div>
-
-          {/* [추가] 추가속성 섹션 (글솝, 인컴만 표시) */}
-          {getAdditionalAttributeOptions().length > 0 && (
-            <div className="form-group border-t pt-4">
-              <label className="form-label mb-3">추가속성</label>
-              <div className="space-y-2">
-                {getAdditionalAttributeOptions().map(attr => (
-                  <label key={attr.id} className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={additionalAttributes[attr.id] || false}
-                      onChange={() => handleAttributeChange(attr.id)}
-                      className="w-4 h-4 rounded border-gray-300 cursor-pointer"
-                    />
-                    <span className="text-sm text-gray-700">{attr.label}</span>
-                  </label>
-                ))}
               </div>
             </div>
-          )}
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+            {/* [추가] 추가속성 섹션 (글솝, 인컴만 표시) */}
+            {getAdditionalAttributeOptions().length > 0 && (
+              <div className="form-group border-t pt-4">
+                <label className="form-label mb-3">추가속성</label>
+                <div className="space-y-2">
+                  {getAdditionalAttributeOptions().map(attr => (
+                    <label key={attr.id} className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={additionalAttributes[attr.id] || false}
+                        onChange={() => handleAttributeChange(attr.id)}
+                        className="w-4 h-4 rounded border-gray-300 cursor-pointer"
+                      />
+                      <span className="text-sm text-gray-700">{attr.label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          <div className="flex justify-end gap-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-md bg-gray-200 py-2 px-4 font-medium text-gray-800 hover:bg-gray-300"
-            >
-              취소
-            </button>
-            <button
-              type="submit"
-              className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80"
-            >
-              {isEditMode ? '수정하기' : '추가하기'}
-            </button>
-          </div>
-        </form>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+          </form>
+        </div>
+
+        {/* 고정 푸터 */}
+        <div className="p-6 border-t flex justify-end gap-3 flex-shrink-0">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-md bg-gray-200 py-2 px-4 font-medium text-gray-800 hover:bg-gray-300"
+          >
+            취소
+          </button>
+          <button
+            type="submit"
+            form="customLectureForm"
+            className="rounded-md bg-knu-blue py-2 px-4 font-medium text-white shadow-sm hover:bg-opacity-80"
+          >
+            {isEditMode ? '수정하기' : '추가하기'}
+          </button>
+        </div>
       </div>
     </div>
   );

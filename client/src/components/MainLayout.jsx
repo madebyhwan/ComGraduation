@@ -45,15 +45,24 @@ const MainLayout = () => {
 
     return (
         <div className="flex min-h-screen bg-gray-100">
-            {/* 모바일 오버레이 */}
-            <div
-                className={`mobile-overlay ${isSidebarOpen ? 'open' : ''}`}
-                onClick={() => setIsSidebarOpen(false)}
-            ></div>
+            {/* 모바일 오버레이: 사이드바 너비만큼 왼쪽은 클릭 불가, 오른쪽만 닫기 동작 */}
+            {isSidebarOpen && (
+                <div className="fixed inset-0 z-30 lg:hidden">
+                    <div
+                        className="absolute left-0 top-0 h-full w-64"
+                        aria-hidden="true"
+                    ></div>
+                    <div
+                        className={`absolute left-64 top-0 right-0 bottom-0 bg-transparent transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+                        aria-hidden="true"
+                        onClick={() => setIsSidebarOpen(false)}
+                    ></div>
+                </div>
+            )}
 
             {/* 사이드바 */}
             <aside
-                className={`fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 
+                className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 
                 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} 
                 lg:translate-x-0`}
             >
