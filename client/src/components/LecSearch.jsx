@@ -174,6 +174,11 @@ const LecSearch = ({ onLectureAdded }) => {
                   <span className="text-gray-300 mx-1">|</span>
                   <span className="font-medium text-knu-blue">{lec.lectCredit}학점</span>
                 </p>
+                {lec.lectDepartment && (
+                  <p className="text-xs text-gray-600 font-medium mt-1">
+                    개설: {lec.lectDepartment}
+                  </p>
+                )}
               </div>
 
               <button
