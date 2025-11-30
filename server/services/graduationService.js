@@ -736,7 +736,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   if (majorList && majorList.length > 0) {
     majorList.forEach(item => {
       const isComputer =
-        item.department?.includes('컴퓨터학부') || (item.semester === '계절학기(하계)' || item.lecture.semester === '계절학기(동계)');
+        item.department?.includes('컴퓨터학부') || (item.semester === '계절학기(하계)' || item.semester === '계절학기(동계)');
       if (requiredCourses.includes(item.code) && isComputer) {
         item.category = '전공필수';
       }
