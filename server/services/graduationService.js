@@ -10,16 +10,18 @@ const {
 
 // [헬퍼] 리스트에 과목 추가
 const addToList = (list, lecture, category, creditOverride = null) => {
-    const credit = creditOverride !== null 
-        ? Number(creditOverride) 
-        : Number(lecture.lectCredit || lecture.totalCredit || 0);
+  const credit = creditOverride !== null
+    ? Number(creditOverride)
+    : Number(lecture.lectCredit || lecture.totalCredit || 0);
 
-    list.push({
-        code: lecture.lectCode || 'Custom',
-        name: lecture.lectName,
-        credit: credit,
-        category: category
-    });
+  list.push({
+    code: lecture.lectCode || 'Custom',
+    name: lecture.lectName,
+    credit: credit,
+    category: category,
+    department: lecture.lectDepartment,
+    semester: lecture.lectSemeter
+  });
 };
 
 /**
@@ -132,13 +134,13 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     const startupCourseCredit = Number(lecture.startupCourseCredit) || 0;
     if (lecture.startupCourseCredit > 0) {
       startupCourseCredits += startupCourseCredit;
-      addToList(startupList, lecture, '창업(커스텀)', lecture.startupCourseCredit); 
+      addToList(startupList, lecture, '창업(커스텀)', lecture.startupCourseCredit);
     }
 
     const overseasCredit = Number(lecture.overseasCredit) || 0;
     if (lecture.overseasCredit > 0) {
       overseasCredits += overseasCredit;
-       addToList(overseasList, lecture, '해외학점(커스텀)', lecture.overseasCredit);
+      addToList(overseasList, lecture, '해외학점(커스텀)', lecture.overseasCredit);
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
@@ -271,32 +273,31 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const credits = Number(lecture.lectCredit) || 0;
     const courseCode = lecture.lectCode;
 
+    const isComputer =
+      lecture.lectDepartment.includes('컴퓨터학부') || (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)');
+
     // 1. ABEEK 세부 분류 (우선순위 처리)
-    if (engineeringMajorList.includes(courseCode) && lecture.lectDepartment.includes('컴퓨터학부')) {
+
+    // 공학 전공
+    if (engineeringMajorList.includes(courseCode) && isComputer) {
       engineeringMajorCredits += credits;
       addToList(engineeringMajorDetail, lecture, '공학전공');
-      // [추가] 전공 합계에도 반영
       majorCredits += credits;
       addToList(majorList, lecture, '공학전공');
-    } else if (engineeringMajorList.includes(courseCode)
-      && (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)')
-      && (lecture.lectGeneral === '기본소양' || lecture.lectGeneral === '전공기반' || lecture.lectGeneral === '공학전공')) {
-      engineeringMajorCredits += credits;
-      addToList(engineeringMajorDetail, lecture, '공학전공');
-      // [추가]
-      majorCredits += credits;
-      addToList(majorList, lecture, '공학전공');
-    } else if (majorBasisList.includes(courseCode)) {
+    }
+    // 전공기반
+    else if (majorBasisList.includes(courseCode) && isComputer) {
       majorBasisCredits += credits;
       addToList(majorBasisDetail, lecture, '전공기반');
-      // [추가]
       majorCredits += credits;
       addToList(majorList, lecture, '전공기반');
-    } else if (basicGenEdList.includes(courseCode)) {
+    }
+    // 기본소양
+    else if (basicGenEdList.includes(courseCode) && isComputer) {
       basicGeneralEducationCredits += credits;
       addToList(basicGenEdDetail, lecture, '기본소양');
-
-    } else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
+    }
+    else if (lecture.lectGeneral === '교양' || lecture.lectGeneral === '기본소양') {
       generalEducationCredits += credits;
       addToList(generalEducationList, lecture, '교양');
     } else {
@@ -734,7 +735,9 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   // majorList에 있는 과목 중 필수 과목에 해당하면 category를 '전공필수'로 변경
   if (majorList && majorList.length > 0) {
     majorList.forEach(item => {
-      if (requiredCourses.includes(item.code)) {
+      const isComputer =
+        item.department?.includes('컴퓨터학부') || (item.semester === '계절학기(하계)' || item.semester === '계절학기(동계)');
+      if (requiredCourses.includes(item.code) && isComputer) {
         item.category = '전공필수';
       }
     });
@@ -815,7 +818,10 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   const missingCourses = requiredCourses.filter(reqCode => !takenCourseCodes.includes(reqCode));
   const takenRequiredList = [];
   takenLectures.forEach(l => {
-    if (requiredCourses.includes(l.lectCode)) addToList(takenRequiredList, l, '전공필수');
+    const isComputer =
+      l.lectDepartment.includes('컴퓨터학부') || (l.lectSemester === '계절학기(하계)' || l.lectSemester === '계절학기(동계)');
+    if (requiredCourses.includes(l.lectCode) && isComputer)
+      addToList(takenRequiredList, l, '전공필수');
   });
   const missingCourseNames = [];
   for (const courseCode of missingCourses) {
@@ -841,7 +847,7 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
 
   results.requiredMajorCourses = {
     pass: missingCourses.length === 0,
-    current: requiredCourses.length - missingCourses.length,
+    current: takenRequiredList.length,
     required: requiredCourses.length,
     missing: missingCourseNames,
     detail: takenRequiredList

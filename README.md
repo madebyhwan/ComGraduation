@@ -11,8 +11,6 @@
 ## 배포 주소
 
 > **개발 버전** : [https://comgraduation.dev/](https://comgraduation.dev/) <br>
-> **프론트 서버** : [~](~)<br>
-> **백엔드 서버** : [~](~)<br>
 
 ## 개발 팀 소개
 
