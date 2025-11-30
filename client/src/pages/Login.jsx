@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, findIdByName } from '../api/api.js'; // 4단계에서 수정한 api.js
 import { Monitor } from 'lucide-react';
@@ -15,6 +15,18 @@ const Login = () => {
   const [findError, setFindError] = useState(''); // 찾기 에러 메시지
 
   const navigate = useNavigate();
+
+  // 아이디 찾기 모달 열릴 때 배경 스크롤 방지
+  useEffect(() => {
+    if (showFindModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showFindModal]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

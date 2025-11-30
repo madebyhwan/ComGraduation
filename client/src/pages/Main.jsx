@@ -174,6 +174,18 @@ const Main = () => {
   const [loading, setLoading] = useState(true);
   const [modalData, setModalData] = useState(null);
 
+  // 모달 열릴 때 배경 스크롤 방지
+  useEffect(() => {
+    if (modalData) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [modalData]);
+
   useEffect(() => {
     const fetchGraduationStatus = async () => {
       try {
