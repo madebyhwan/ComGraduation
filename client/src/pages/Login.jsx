@@ -66,12 +66,12 @@ const Login = () => {
     try {
       // API 호출: 이름으로 아이디 요청
       const response = await findIdByName(findName);
-      
+
       // 백엔드 응답 구조에 따라 수정 필요 (예: response.data.userId)
       // 여기서는 response.data에 아이디가 바로 온다고 가정하거나
       // response가 { success: true, userId: '...' } 형태라고 가정
-      const foundId = response.data?.userId || response.data || response; 
-      
+      const foundId = response.data?.userId || response.data || response;
+
       if (foundId) {
         setFindResult(`회원님의 아이디는 "${foundId}" 입니다.`);
         setStudentId(foundId);
@@ -106,10 +106,10 @@ const Login = () => {
 
         {/* [추가] PC 환경 권장 알림 박스 */}
         <div className="flex items-center justify-center gap-2 p-3 bg-blue-50 border border-blue-100 rounded-lg text-blue-800">
-            <Monitor size={20} className="flex-shrink-0" />
-            <span className="text-xs sm:text-sm font-medium break-keep text-center">
-              원활한 서비스 이용을 위해 <br className="block sm:hidden"/> <br></br><b>PC 환경 접속</b>을 권장합니다.
-            </span>
+          <Monitor size={20} className="flex-shrink-0" />
+          <span className="text-xs sm:text-sm font-medium break-keep text-center">
+            원활한 서비스 이용을 위해 <br className="block sm:hidden" /> <br></br><b>PC 환경 접속</b>을 권장합니다.
+          </span>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -152,15 +152,7 @@ const Login = () => {
           </button>
         </form>
 
-        <div className="flex justify-between text-sm text-gray-600 mt-4">
-           {/* [추가] 아이디 찾기 버튼 */}
-           <button 
-            type="button"
-            onClick={() => setShowFindModal(true)}
-            className="hover:text-knu-blue underline"
-           >
-             아이디 찾기
-           </button>
+        <div className="text-right text-sm text-gray-600 mt-4">
           <p>
             계정이 없으신가요? <Link to="/signup" className="font-medium text-knu-blue hover:underline"> 회원가입 </Link>
           </p>
@@ -172,7 +164,7 @@ const Login = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm mx-4">
             <h2 className="text-xl font-bold text-gray-800 mb-4">아이디 찾기</h2>
-            
+
             {!findResult ? (
               <form onSubmit={handleFindId} className="space-y-4">
                 <div>
@@ -187,7 +179,7 @@ const Login = () => {
                     onChange={(e) => setFindName(e.target.value)}
                   />
                 </div>
-                
+
                 {findError && (
                   <p className="text-sm text-red-600">{findError}</p>
                 )}
