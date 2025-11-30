@@ -103,21 +103,24 @@ async function lectureList(userId) {
       const code = l?.lectCode;
       const dbGeneral = l?.lectGeneral; // DB에 저장된 기본 구분
       const lectDepartment = l?.lectDepartment || '';
+      const lectSemester = l?.lectSemester || '';
 
       let calculatedType = '일반선택'; // 기본값
 
       const isRequired = requiredCoursesList.includes(code);
+      const isComputer =
+        lectDepartment.includes('컴퓨터학부') || (lectSemester === '계절학기(하계)' || lectSemester === '계절학기(동계)');
 
       // [핵심 수정] courseConfig 기반 분류 로직
       if (isDeepComputer) {
         // --- 심화컴퓨터 & 플랫폼SW (ABEEK 로직) ---
-        if (isRequired) {
+        if (isRequired && isComputer) {
           calculatedType = '전공필수';
-        } else if (inList(engineeringMajorList, code)) {
+        } else if (inList(engineeringMajorList, code) && isComputer) {
           calculatedType = '공학전공';
-        } else if (inList(majorBasisList, code)) {
+        } else if (inList(majorBasisList, code) && isComputer) {
           calculatedType = '전공기반';
-        } else if (inList(basicGenEdList, code)) {
+        } else if (inList(basicGenEdList, code) && isComputer) {
           calculatedType = '기본소양';
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
@@ -131,7 +134,7 @@ async function lectureList(userId) {
         // (인공지능컴퓨팅전공일 경우 해당 전공 과목 리스트를 참조하게 됨)
         const isMajor = inList(targetMajorList, code) && lectDepartment.includes('컴퓨터학부');
 
-        if (isRequired) {
+        if (isRequired && lectDepartment.includes('컴퓨터학부')) {
           calculatedType = '전공필수';
         } else if (isMajor) {
           calculatedType = '전공';
@@ -957,11 +960,11 @@ exports.univToCustomLecture = async (req, res) => {
     // 3. 첨성인 과목 넘기기
     if (knuBasicReadingDebate.includes(lecture.lectCode)) {
       knuBasicReading = true;
-    } if(knuBasicMathScience.includes(lecture.lectCode)) {
+    } if (knuBasicMathScience.includes(lecture.lectCode)) {
       knuBasicMath = true;
-    } if(knuCoreHumanitySociety.includes(lecture.lectCode)) {
+    } if (knuCoreHumanitySociety.includes(lecture.lectCode)) {
       knuCoreHumanity = true;
-    } if(knuCoreNaturalScience.includes(lecture.lectCode)) {
+    } if (knuCoreNaturalScience.includes(lecture.lectCode)) {
       knuCoreNatural = true;
     }
 
