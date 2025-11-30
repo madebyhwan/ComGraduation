@@ -274,26 +274,27 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const courseCode = lecture.lectCode;
 
     const isComputer =
-      lecture.lectDepartment.includes('컴퓨터학부') || (lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)');
+      lecture.lectDepartment.includes('컴퓨터학부') ||
+      ((lecture.lectSemester === '계절학기(하계)' || lecture.lectSemester === '계절학기(동계)') && (lecture.lectGeneral === '전공기반' || lecture.lectGeneral === '공학전공' || lecture.lectGeneral === '기본소양'));
 
     // 1. ABEEK 세부 분류 (우선순위 처리)
 
     // 공학 전공
-    if (engineeringMajorList.includes(courseCode) && isComputer && lecture.lectGeneral === '공학전공') {
+    if (engineeringMajorList.includes(courseCode) && isComputer) {
       engineeringMajorCredits += credits;
       addToList(engineeringMajorDetail, lecture, '공학전공');
       majorCredits += credits;
       addToList(majorList, lecture, '공학전공');
     }
     // 전공기반
-    else if (majorBasisList.includes(courseCode) && isComputer && lecture.lectGeneral === '전공기반') {
+    else if (majorBasisList.includes(courseCode) && isComputer) {
       majorBasisCredits += credits;
       addToList(majorBasisDetail, lecture, '전공기반');
       majorCredits += credits;
       addToList(majorList, lecture, '전공기반');
     }
     // 기본소양
-    else if (basicGenEdList.includes(courseCode) && isComputer && lecture.lectGeneral === '기본소양') {
+    else if (basicGenEdList.includes(courseCode) && isComputer) {
       basicGeneralEducationCredits += credits;
       addToList(basicGenEdDetail, lecture, '기본소양');
     }
@@ -820,8 +821,8 @@ async function check(user, takenLectures, userCustomLectures, multiMajorLectures
   if (isAbeekMajor) {
     takenLectures.forEach(l => {
       const isComputer =
-        l.lectDepartment.includes('컴퓨터학부') || (l.lectSemester === '계절학기(하계)' || l.lectSemester === '계절학기(동계)');
-      if (requiredCourses.includes(l.lectCode) && isComputer && (l.lectGeneral === '전공기반' || l.lectGeneral === '공학전공'))
+        l.lectDepartment.includes('컴퓨터학부') || ((l.lectSemester === '계절학기(하계)' || l.lectSemester === '계절학기(동계)') && (l.lectGeneral === '전공기반' || l.lectGeneral === '공학전공'));
+      if (requiredCourses.includes(l.lectCode) && isComputer)
         addToList(takenRequiredList, l, '전공필수');
     });
   } else {

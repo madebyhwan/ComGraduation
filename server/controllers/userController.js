@@ -110,18 +110,18 @@ async function lectureList(userId) {
 
       const isRequired = requiredCoursesList.includes(code);
       const isComputer =
-        lectDepartment.includes('컴퓨터학부') || (lectSemester === '계절학기(하계)' || lectSemester === '계절학기(동계)');
+        lectDepartment.includes('컴퓨터학부') || ((lectSemester === '계절학기(하계)' || lectSemester === '계절학기(동계)') && (lectGeneral === '전공기반' || lectGeneral === '공학전공'));
 
       // [핵심 수정] courseConfig 기반 분류 로직
       if (isDeepComputer) {
         // --- 심화컴퓨터 & 플랫폼SW (ABEEK 로직) ---
-        if (isRequired && isComputer && (lectGeneral === '전공기반' || lectGeneral === '공학전공')) {
+        if (isRequired && isComputer) {
           calculatedType = '전공필수';
-        } else if (inList(engineeringMajorList, code) && isComputer && lectGeneral === '공학전공') {
+        } else if (inList(engineeringMajorList, code) && isComputer) {
           calculatedType = '공학전공';
-        } else if (inList(majorBasisList, code) && isComputer && lectGeneral === '전공기반') {
+        } else if (inList(majorBasisList, code) && isComputer) {
           calculatedType = '전공기반';
-        } else if (inList(basicGenEdList, code) && isComputer && lectGeneral === '공학전공') {
+        } else if (inList(basicGenEdList, code) && isComputer) {
           calculatedType = '기본소양';
         } else if (dbGeneral === '교양' || dbGeneral === '기본소양') {
           calculatedType = '교양';
