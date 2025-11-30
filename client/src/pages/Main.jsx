@@ -4,8 +4,15 @@ import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react'
 
 // [추가] 상세 내역 모달 컴포넌트
 const DetailModal = ({ title, list, result, onClose }) => {
-  // 우선순위: server에서 보낸 'recognized' 필드(반영 학점)를 사용하고, 없으면 result.current, 최종적으로 목록 합계를 사용
-  const counted = result?.recognized ?? result?.current ?? (list ? list.reduce((sum, item) => sum + (Number(item.credit) || 0), 0) : 0);
+  const isRequiredMajorCourses = title === "전공필수 과목";
+
+  let fallbackCount = 0;
+  if (list && list.length > 0) {
+    fallbackCount = isRequiredMajorCourses
+      ? list.length
+      : list.reduce((sum, item) => sum + (Number(item.credit) || 0), 0);
+  }
+  const counted = result?.recognized ?? result?.current ?? fallbackCount;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 animate-fadeIn" onClick={onClose}>
@@ -48,7 +55,7 @@ const DetailModal = ({ title, list, result, onClose }) => {
           )}
         </div>
         <div className="p-3 bg-gray-50 text-right text-sm font-bold border-t text-gray-700">
-          합계: <span className="text-knu-blue text-base ml-1">{counted}</span> 학점
+          합계: <span className="text-knu-blue text-base ml-1">{counted}</span> {isRequiredMajorCourses ? "개" : "학점"}
         </div>
       </div>
     </div>
