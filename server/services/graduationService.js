@@ -9,16 +9,17 @@ const {
 } = courseConfig;
 
 // [헬퍼] 리스트에 과목 추가
-// creditOverride: optional number to use instead of lecture.lectCredit/totalCredit
-const addToList = (list, lecture, category, creditOverride) => {
-  const credit = Number(creditOverride ?? lecture.lectCredit ?? lecture.totalCredit ?? 0);
-  list.push({
-    code: lecture.lectCode || 'Custom',
-    name: lecture.lectName,
-    credit: credit,
-    counted: credit, // default: counted equals credit; may be adjusted later (e.g. caps)
-    category: category
-  });
+const addToList = (list, lecture, category, creditOverride = null) => {
+    const credit = creditOverride !== null 
+        ? Number(creditOverride) 
+        : Number(lecture.lectCredit || lecture.totalCredit || 0);
+
+    list.push({
+        code: lecture.lectCode || 'Custom',
+        name: lecture.lectName,
+        credit: credit,
+        category: category
+    });
 };
 
 /**
@@ -87,7 +88,7 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
 
     if (isMajor && lecture.isEnglishLecture) {
       overseasCredits += 1;
-      addToList(overseasList, lecture, '해외학점', 1);
+      addToList(overseasList, lecture, '해외학점(원어강의)', 1);
     }
 
     if (knuBasicList.readingDebate?.includes(courseCode)) {
@@ -131,19 +132,19 @@ function classifyAndSumCredits_GS(takenLectures, userCustomLectures, multiMajorL
     const startupCourseCredit = Number(lecture.startupCourseCredit) || 0;
     if (lecture.startupCourseCredit > 0) {
       startupCourseCredits += startupCourseCredit;
-      addToList(startupList, lecture, '창업(커스텀)', startupCourseCredit);
+      addToList(startupList, lecture, '창업(커스텀)', lecture.startupCourseCredit); 
     }
 
     const overseasCredit = Number(lecture.overseasCredit) || 0;
     if (lecture.overseasCredit > 0) {
       overseasCredits += overseasCredit;
-      addToList(overseasList, lecture, '해외학점(커스텀)', overseasCredit);
+       addToList(overseasList, lecture, '해외학점(커스텀)', lecture.overseasCredit);
     }
 
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
-      addToList(fieldPracticeList, lecture, '현장실습(커스텀)', fieldPracticeCredit);
+      addToList(fieldPracticeList, lecture, '현장실습(커스텀)', lecture.fieldPracticeCredit);
     }
 
     // if (knuBasicList.readingDebate?.includes(courseCode)) {
@@ -371,7 +372,7 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
-      addToList(fieldPracticeList, lecture, '현장실습(커스텀)');
+      addToList(fieldPracticeList, lecture, '현장실습(커스텀)', lecture.fieldPracticeCredit);
     }
 
     if (designCourseList.includes(courseCode)) {
@@ -538,7 +539,7 @@ function classifyAndSumCredits_AC(takenLectures, userCustomLectures, multiMajorL
     const fieldPracticeCredit = Number(lecture.fieldPracticeCredit) || 0;
     if (lecture.fieldPracticeCredit > 0) {
       fieldPracticeCredits += fieldPracticeCredit;
-      addToList(fieldPracticeList, lecture, '현장실습(커스텀)');
+      addToList(fieldPracticeList, lecture, '현장실습(커스텀)', lecture.fieldPracticeCredit);
     }
 
     // if (knuBasicList.readingDebate?.includes(courseCode)) {
