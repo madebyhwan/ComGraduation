@@ -279,21 +279,21 @@ function classifyAndSumCredits_ABEEK(takenLectures, userCustomLectures, multiMaj
     // 1. ABEEK 세부 분류 (우선순위 처리)
 
     // 공학 전공
-    if (engineeringMajorList.includes(courseCode) && isComputer) {
+    if (engineeringMajorList.includes(courseCode) && isComputer && lecture.lectGeneral === '공학전공') {
       engineeringMajorCredits += credits;
       addToList(engineeringMajorDetail, lecture, '공학전공');
       majorCredits += credits;
       addToList(majorList, lecture, '공학전공');
     }
     // 전공기반
-    else if (majorBasisList.includes(courseCode) && isComputer) {
+    else if (majorBasisList.includes(courseCode) && isComputer && lecture.lectGeneral === '전공기반') {
       majorBasisCredits += credits;
       addToList(majorBasisDetail, lecture, '전공기반');
       majorCredits += credits;
       addToList(majorList, lecture, '전공기반');
     }
     // 기본소양
-    else if (basicGenEdList.includes(courseCode) && isComputer) {
+    else if (basicGenEdList.includes(courseCode) && isComputer && lecture.lectGeneral === '기본소양') {
       basicGeneralEducationCredits += credits;
       addToList(basicGenEdDetail, lecture, '기본소양');
     }
