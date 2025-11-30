@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import LecSearch from '../components/LecSearch.jsx';
 import CustomLectureModal from '../components/CustomLectureModal.jsx';
 import { getMyLectures, deleteLecture, tossMultiMajor, removeMultiMajor, univToCustom } from '../api/api.js';
-import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp, ArrowDownToLine, Filter, AlertTriangle, Underline } from 'lucide-react';
+import { Trash2, ArrowRightSquare, ArrowLeftSquare, Pencil, ChevronDown, ChevronUp, ArrowDownToLine, Filter, AlertTriangle } from 'lucide-react';
 
 // 뱃지 색상 로직
 const getBadgeStyle = (category) => {
@@ -131,18 +131,18 @@ const LectureList = ({
                                 <li key={lec._id} className="flex items-start justify-between py-3 px-4 hover:bg-gray-50 transition-colors gap-3">
 
                                     <div className="flex-1 min-w-0">
-                                        <div className="flex flex-wrap items-start gap-2 mb-1">
-                                            <h4 className="font-semibold text-gray-800 text-sm sm:text-base break-keep leading-tight">
+                                        <div className="flex flex-row flex-wrap items-center gap-2 mb-1 min-w-0">
+                                            <h4 className="font-semibold text-gray-800 text-sm sm:text-base break-keep leading-tight min-w-0 truncate align-middle">
                                                 {lec.lectName}
                                             </h4>
 
                                             {lec.lectGeneral && type !== 'custom' && (
-                                                <span className={`text-[10px] px-1.5 py-0.5 rounded border shrink-0 self-start mt-0.5 ${getBadgeStyle(lec.lectGeneral)}`}>
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded border shrink-0 self-center mt-0.5 ${getBadgeStyle(lec.lectGeneral)}`} style={{lineHeight:'1.6'}}>
                                                     {lec.lectGeneral}
                                                 </span>
                                             )}
                                             {type === 'custom' && (
-                                                <span className={`text-[10px] px-1.5 py-0.5 rounded border shrink-0 self-start mt-0.5 ${getBadgeStyle(lec.lectType)}`}>
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded border shrink-0 self-center mt-0.5 ${getBadgeStyle(lec.lectType)}`} style={{lineHeight:'1.6'}}>
                                                     {lec.lectType}
                                                 </span>
                                             )}
